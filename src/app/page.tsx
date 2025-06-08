@@ -1,4 +1,7 @@
-import Image from "next/image";
+import Image from "next/image"
+import { ThemeToggle } from "@/components/common/theme-toggle"
+import { ThemeToggleSimple } from "@/components/common/theme-toggle-simple"
+import { ThemeSwitch } from "@/components/common/theme-switch"
 
 export default function Home() {
   return (
@@ -97,7 +100,10 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
+        <ThemeToggle />
+        <ThemeToggleSimple />
+        <ThemeSwitch showLabel={true} />
       </footer>
     </div>
-  );
+  )
 }
