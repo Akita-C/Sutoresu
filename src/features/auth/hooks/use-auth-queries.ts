@@ -4,7 +4,7 @@ import { authService } from "../services/auth-service";
 
 export const useProfileQuery = () => {
   const { isAuthenticated } = useAuth();
-  const { setUser, clearAuth } = useAuthActions();
+  const { setUser } = useAuthActions();
 
   return useQuery({
     queryKey: ["user", "profile"],
@@ -20,17 +20,6 @@ export const useProfileQuery = () => {
     },
     enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000,
-    retry: (failureCount, error) => {
-      if (
-        error instanceof Error &&
-        error.message.includes("401") &&
-        error.message.includes("403")
-      ) {
-        clearAuth();
-        return false;
-      }
-      return failureCount < 3;
-    },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: false,
   });
 };
