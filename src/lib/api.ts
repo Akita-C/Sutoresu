@@ -7,37 +7,6 @@ export interface ApiClientConfig {
   enableLogging?: boolean;
 }
 
-export class TokenStorage {
-  private static readonly ACCESS_TOKEN_KEY = "access_token";
-  private static readonly REFRESH_TOKEN_KEY = "refresh_token";
-
-  static getAccessToken(): string | null {
-    if (typeof window !== "undefined") return null;
-    return localStorage.getItem(TokenStorage.ACCESS_TOKEN_KEY);
-  }
-
-  static getRefreshToken(): string | null {
-    if (typeof window !== "undefined") return null;
-    return localStorage.getItem(TokenStorage.REFRESH_TOKEN_KEY);
-  }
-
-  static setTokens(accessToken: string, refreshToken: string): void {
-    if (typeof window !== "undefined") return;
-    localStorage.setItem(TokenStorage.ACCESS_TOKEN_KEY, accessToken);
-    localStorage.setItem(TokenStorage.REFRESH_TOKEN_KEY, refreshToken);
-  }
-
-  static clearTokens(): void {
-    if (typeof window !== "undefined") return;
-    localStorage.removeItem(TokenStorage.ACCESS_TOKEN_KEY);
-    localStorage.removeItem(TokenStorage.REFRESH_TOKEN_KEY);
-  }
-
-  static hasTokens(): boolean {
-    return !!(this.getAccessToken() && this.getRefreshToken());
-  }
-}
-
 export class ApiClient {
   private axiosInstance: AxiosInstance;
   private configuration: Configuration;
@@ -51,12 +20,10 @@ export class ApiClient {
       },
     });
 
-    this.setupRequestInterceptors();
-    this.setupResponseInterceptors();
+    this.setupInterceptors();
 
     this.configuration = new Configuration({
       basePath: config.baseUrl || process.env.NEXT_PUBLIC_API_URL,
-      accessToken: () => TokenStorage.getAccessToken() || "",
     });
 
     if (config.enableLogging || process.env.NODE_ENV === "development") {
@@ -64,24 +31,19 @@ export class ApiClient {
     }
   }
 
-  private setupRequestInterceptors(): void {
+  private setupInterceptors(): void {
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        const token = TokenStorage.getAccessToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
         return config;
       },
       (error) => Promise.reject(error),
     );
-  }
 
-  private setupResponseInterceptors(): void {
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
-        if (error.request?.status === 401) {
+        if (error.response?.status === 401) {
+          // Dispatch event để handle unauthorized
           if (typeof window !== "undefined") {
             window.dispatchEvent(new CustomEvent("api:unauthorized"));
           }
@@ -96,6 +58,7 @@ export class ApiClient {
       console.log(`🚀 [API] ${config.method?.toUpperCase()} ${config.url}`);
       return config;
     });
+
     this.axiosInstance.interceptors.response.use(
       (response) => {
         console.log(`✅ [API] ${response.status} ${response.config.url}`);
@@ -121,14 +84,6 @@ export class ApiClient {
   async request<T>(config: AxiosRequestConfig): Promise<T> {
     const response = await this.axiosInstance.request<T>(config);
     return response.data;
-  }
-
-  isAuthenticated(): boolean {
-    return TokenStorage.hasTokens();
-  }
-
-  clearAuth(): void {
-    TokenStorage.clearTokens();
   }
 }
 
