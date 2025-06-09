@@ -76,16 +76,16 @@ const { status, data } = await apiInstance.apiV1AuthLoginPost(
 import {
     AuthApi,
     Configuration,
-    RefreshTokenRequest
+    LogoutRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
 
-let refreshTokenRequest: RefreshTokenRequest; // (optional)
+let logoutRequest: LogoutRequest; // (optional)
 
 const { status, data } = await apiInstance.apiV1AuthLogoutPost(
-    refreshTokenRequest
+    logoutRequest
 );
 ```
 
@@ -93,7 +93,7 @@ const { status, data } = await apiInstance.apiV1AuthLogoutPost(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **refreshTokenRequest** | **RefreshTokenRequest**|  | |
+| **logoutRequest** | **LogoutRequest**|  | |
 
 
 ### Return type

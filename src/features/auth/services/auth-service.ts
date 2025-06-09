@@ -3,6 +3,7 @@ import {
   AuthApi,
   AuthResponse,
   LoginRequest,
+  LogoutRequest,
   RefreshTokenRequest,
   RegisterRequest,
   UserProfileDto,
@@ -69,9 +70,12 @@ export class AuthService {
     }
   }
 
-  async logout(refreshToken: string): Promise<ServiceResponse<boolean>> {
+  async logout(
+    accessToken: string,
+    refreshToken: string,
+  ): Promise<ServiceResponse<boolean>> {
     try {
-      const request: RefreshTokenRequest = { refreshToken };
+      const request: LogoutRequest = { accessToken, refreshToken };
       const response = await this.authApi.apiV1AuthLogoutPost(request);
 
       return {

@@ -14,7 +14,9 @@ export class ApiClient {
   constructor(config: ApiClientConfig = {}) {
     this.axiosInstance = axios.create({
       baseURL: config.baseUrl || process.env.NEXT_PUBLIC_API_URL,
-      timeout: config.timeout || 30000,
+      timeout:
+        config.timeout ||
+        parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || "30000"),
       headers: {
         "Content-Type": "application/json",
       },

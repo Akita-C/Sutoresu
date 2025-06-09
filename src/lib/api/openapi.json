@@ -223,17 +223,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshTokenRequest"
+                "$ref": "#/components/schemas/LogoutRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshTokenRequest"
+                "$ref": "#/components/schemas/LogoutRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshTokenRequest"
+                "$ref": "#/components/schemas/LogoutRequest"
               }
             }
           }
@@ -516,6 +516,20 @@
             "nullable": true
           },
           "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LogoutRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "accessToken": {
             "type": "string",
             "nullable": true
           }

@@ -10,6 +10,7 @@ docs/AuthResponseApiResponse.md
 docs/BooleanApiResponse.md
 docs/ErrorResponse.md
 docs/LoginRequest.md
+docs/LogoutRequest.md
 docs/RefreshTokenRequest.md
 docs/RegisterRequest.md
 docs/UserProfileDto.md

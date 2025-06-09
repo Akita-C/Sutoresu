@@ -3,10 +3,12 @@ import { useAuthActions } from "../stores/auth-store";
 import { LoginRequest, RegisterRequest } from "../types";
 import { authService } from "../services/auth-service";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export const useLoginMutation = () => {
   const queryClient = useQueryClient();
   const { setAuth, clearAuth } = useAuthActions();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: (credentials: LoginRequest) => authService.login(credentials),
@@ -16,10 +18,9 @@ export const useLoginMutation = () => {
 
         if (accessToken && refreshToken && user) {
           setAuth({ user, accessToken, refreshToken });
-
+          toast.success("Welcome back!");
           queryClient.invalidateQueries({ queryKey: ["user", "profile"] });
-
-          toast.success(response.message || "Login successful");
+          router.push("/dashboard");
         }
       } else {
         clearAuth();
@@ -46,11 +47,8 @@ export const useRegisterMutation = () => {
 
         if (user && accessToken && refreshToken) {
           setAuth({ user, accessToken, refreshToken });
-
-          // Invalidate user-related queries
+          toast.success("Account created successfully!");
           queryClient.invalidateQueries({ queryKey: ["user", "profile"] });
-
-          toast.success(response.message || "Registration successful");
         }
       } else {
         clearAuth();
@@ -70,7 +68,13 @@ export const useLogoutMutation = () => {
   const { clearAuth } = useAuthActions();
 
   return useMutation({
-    mutationFn: (refreshToken: string) => authService.logout(refreshToken),
+    mutationFn: ({
+      accessToken,
+      refreshToken,
+    }: {
+      accessToken: string;
+      refreshToken: string;
+    }) => authService.logout(accessToken, refreshToken),
     onSuccess: () => {
       clearAuth();
 

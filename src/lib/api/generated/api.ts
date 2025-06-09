@@ -179,6 +179,25 @@ export interface LoginRequest {
 /**
  *
  * @export
+ * @interface LogoutRequest
+ */
+export interface LogoutRequest {
+  /**
+   *
+   * @type {string}
+   * @memberof LogoutRequest
+   */
+  refreshToken?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof LogoutRequest
+   */
+  accessToken?: string | null;
+}
+/**
+ *
+ * @export
  * @interface RefreshTokenRequest
  */
 export interface RefreshTokenRequest {
@@ -365,12 +384,12 @@ export const AuthApiAxiosParamCreator = function (
     },
     /**
      *
-     * @param {RefreshTokenRequest} [refreshTokenRequest]
+     * @param {LogoutRequest} [logoutRequest]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     apiV1AuthLogoutPost: async (
-      refreshTokenRequest?: RefreshTokenRequest,
+      logoutRequest?: LogoutRequest,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/Auth/logout`;
@@ -407,7 +426,7 @@ export const AuthApiAxiosParamCreator = function (
         ...options.headers,
       };
       localVarRequestOptions.data = serializeDataIfNeeded(
-        refreshTokenRequest,
+        logoutRequest,
         localVarRequestOptions,
         configuration,
       );
@@ -714,12 +733,12 @@ export const AuthApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @param {RefreshTokenRequest} [refreshTokenRequest]
+     * @param {LogoutRequest} [logoutRequest]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async apiV1AuthLogoutPost(
-      refreshTokenRequest?: RefreshTokenRequest,
+      logoutRequest?: LogoutRequest,
       options?: RawAxiosRequestConfig,
     ): Promise<
       (
@@ -729,7 +748,7 @@ export const AuthApiFp = function (configuration?: Configuration) {
     > {
       const localVarAxiosArgs =
         await localVarAxiosParamCreator.apiV1AuthLogoutPost(
-          refreshTokenRequest,
+          logoutRequest,
           options,
         );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
@@ -930,16 +949,16 @@ export const AuthApiFactory = function (
     },
     /**
      *
-     * @param {RefreshTokenRequest} [refreshTokenRequest]
+     * @param {LogoutRequest} [logoutRequest]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     apiV1AuthLogoutPost(
-      refreshTokenRequest?: RefreshTokenRequest,
+      logoutRequest?: LogoutRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<BooleanApiResponse> {
       return localVarFp
-        .apiV1AuthLogoutPost(refreshTokenRequest, options)
+        .apiV1AuthLogoutPost(logoutRequest, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -1036,17 +1055,17 @@ export class AuthApi extends BaseAPI {
 
   /**
    *
-   * @param {RefreshTokenRequest} [refreshTokenRequest]
+   * @param {LogoutRequest} [logoutRequest]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof AuthApi
    */
   public apiV1AuthLogoutPost(
-    refreshTokenRequest?: RefreshTokenRequest,
+    logoutRequest?: LogoutRequest,
     options?: RawAxiosRequestConfig,
   ) {
     return AuthApiFp(this.configuration)
-      .apiV1AuthLogoutPost(refreshTokenRequest, options)
+      .apiV1AuthLogoutPost(logoutRequest, options)
       .then((request) => request(this.axios, this.basePath));
   }
 

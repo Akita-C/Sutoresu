@@ -1,6 +1,9 @@
+"use client";
+
 import { UserProfileDto } from "../types";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
+import { useShallow } from "zustand/shallow";
 
 export interface AuthState {
   // State
@@ -73,21 +76,27 @@ export const useAuthStore = create<AuthState>()(
 );
 
 export const useAuth = () =>
-  useAuthStore((state) => ({
-    isAuthenticated: state.isAuthenticated,
-    user: state.user,
-  }));
+  useAuthStore(
+    useShallow((state) => ({
+      isAuthenticated: state.isAuthenticated,
+      user: state.user,
+    })),
+  );
 
 export const useAuthActions = () =>
-  useAuthStore((state) => ({
-    setAuth: state.setAuth,
-    setUser: state.setUser,
-    updateTokens: state.updateTokens,
-    clearAuth: state.clearAuth,
-  }));
+  useAuthStore(
+    useShallow((state) => ({
+      setAuth: state.setAuth,
+      setUser: state.setUser,
+      updateTokens: state.updateTokens,
+      clearAuth: state.clearAuth,
+    })),
+  );
 
 export const useAuthTokens = () =>
-  useAuthStore((state) => ({
-    accessToken: state.accessToken,
-    refreshToken: state.refreshToken,
-  }));
+  useAuthStore(
+    useShallow((state) => ({
+      accessToken: state.accessToken,
+      refreshToken: state.refreshToken,
+    })),
+  );
