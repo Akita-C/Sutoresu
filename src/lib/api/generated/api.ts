@@ -135,6 +135,31 @@ export interface BooleanApiResponse {
 /**
  *
  * @export
+ * @interface ChangePasswordRequest
+ */
+export interface ChangePasswordRequest {
+  /**
+   *
+   * @type {string}
+   * @memberof ChangePasswordRequest
+   */
+  currentPassword?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof ChangePasswordRequest
+   */
+  newPassword?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof ChangePasswordRequest
+   */
+  confirmNewPassword?: string | null;
+}
+/**
+ *
+ * @export
  * @interface ErrorResponse
  */
 export interface ErrorResponse {
@@ -156,6 +181,98 @@ export interface ErrorResponse {
    * @memberof ErrorResponse
    */
   errors?: Array<string> | null;
+}
+/**
+ *
+ * @export
+ * @interface ImageResponse
+ */
+export interface ImageResponse {
+  /**
+   *
+   * @type {string}
+   * @memberof ImageResponse
+   */
+  publicId?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof ImageResponse
+   */
+  url?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof ImageResponse
+   */
+  secureUrl?: string | null;
+  /**
+   *
+   * @type {number}
+   * @memberof ImageResponse
+   */
+  width?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof ImageResponse
+   */
+  height?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ImageResponse
+   */
+  format?: string | null;
+  /**
+   *
+   * @type {number}
+   * @memberof ImageResponse
+   */
+  bytes?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ImageResponse
+   */
+  createdAt?: string;
+  /**
+   *
+   * @type {{ [key: string]: string; }}
+   * @memberof ImageResponse
+   */
+  transformations?: { [key: string]: string } | null;
+}
+/**
+ *
+ * @export
+ * @interface ImageResponseApiResponse
+ */
+export interface ImageResponseApiResponse {
+  /**
+   *
+   * @type {boolean}
+   * @memberof ImageResponseApiResponse
+   */
+  success?: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof ImageResponseApiResponse
+   */
+  message?: string | null;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof ImageResponseApiResponse
+   */
+  errors?: Array<string> | null;
+  /**
+   *
+   * @type {ImageResponse}
+   * @memberof ImageResponseApiResponse
+   */
+  data?: ImageResponse;
 }
 /**
  *
@@ -242,6 +359,19 @@ export interface RegisterRequest {
 /**
  *
  * @export
+ * @interface UpdateUserProfileRequest
+ */
+export interface UpdateUserProfileRequest {
+  /**
+   *
+   * @type {string}
+   * @memberof UpdateUserProfileRequest
+   */
+  name?: string | null;
+}
+/**
+ *
+ * @export
  * @interface UserProfileDto
  */
 export interface UserProfileDto {
@@ -287,6 +417,18 @@ export interface UserProfileDto {
    * @memberof UserProfileDto
    */
   lastLoginAt?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof UserProfileDto
+   */
+  avatarUrl?: string | null;
+  /**
+   *
+   * @type {{ [key: string]: string; }}
+   * @memberof UserProfileDto
+   */
+  avatarTransformations?: { [key: string]: string } | null;
 }
 /**
  *
@@ -1138,6 +1280,496 @@ export class AuthApi extends BaseAPI {
   ) {
     return AuthApiFp(this.configuration)
       .apiV1AuthRevokePost(refreshTokenRequest, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+}
+
+/**
+ * UsersApi - axios parameter creator
+ * @export
+ */
+export const UsersApiAxiosParamCreator = function (
+  configuration?: Configuration,
+) {
+  return {
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1UsersAvatarDelete: async (
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      const localVarPath = `/api/v1/Users/avatar`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "DELETE",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication Bearer required
+      await setApiKeyToObject(
+        localVarHeaderParameter,
+        "Authorization",
+        configuration,
+      );
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {File} avatar
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1UsersAvatarPost: async (
+      avatar: File,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'avatar' is not null or undefined
+      assertParamExists("apiV1UsersAvatarPost", "avatar", avatar);
+      const localVarPath = `/api/v1/Users/avatar`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+      const localVarFormParams = new ((configuration &&
+        configuration.formDataCtor) ||
+        FormData)();
+
+      // authentication Bearer required
+      await setApiKeyToObject(
+        localVarHeaderParameter,
+        "Authorization",
+        configuration,
+      );
+
+      if (avatar !== undefined) {
+        localVarFormParams.append("Avatar", avatar as any);
+      }
+
+      localVarHeaderParameter["Content-Type"] = "multipart/form-data";
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = localVarFormParams;
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {ChangePasswordRequest} [changePasswordRequest]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1UsersChangePasswordPost: async (
+      changePasswordRequest?: ChangePasswordRequest,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      const localVarPath = `/api/v1/Users/change-password`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "POST",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication Bearer required
+      await setApiKeyToObject(
+        localVarHeaderParameter,
+        "Authorization",
+        configuration,
+      );
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        changePasswordRequest,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {UpdateUserProfileRequest} [updateUserProfileRequest]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1UsersProfilePut: async (
+      updateUserProfileRequest?: UpdateUserProfileRequest,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      const localVarPath = `/api/v1/Users/profile`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = {
+        method: "PUT",
+        ...baseOptions,
+        ...options,
+      };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication Bearer required
+      await setApiKeyToObject(
+        localVarHeaderParameter,
+        "Authorization",
+        configuration,
+      );
+
+      localVarHeaderParameter["Content-Type"] = "application/json";
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions =
+        baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        updateUserProfileRequest,
+        localVarRequestOptions,
+        configuration,
+      );
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * UsersApi - functional programming interface
+ * @export
+ */
+export const UsersApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = UsersApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async apiV1UsersAvatarDelete(
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<BooleanApiResponse>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.apiV1UsersAvatarDelete(options);
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["UsersApi.apiV1UsersAvatarDelete"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @param {File} avatar
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async apiV1UsersAvatarPost(
+      avatar: File,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<ImageResponseApiResponse>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.apiV1UsersAvatarPost(avatar, options);
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["UsersApi.apiV1UsersAvatarPost"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @param {ChangePasswordRequest} [changePasswordRequest]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async apiV1UsersChangePasswordPost(
+      changePasswordRequest?: ChangePasswordRequest,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<BooleanApiResponse>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.apiV1UsersChangePasswordPost(
+          changePasswordRequest,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["UsersApi.apiV1UsersChangePasswordPost"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @param {UpdateUserProfileRequest} [updateUserProfileRequest]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async apiV1UsersProfilePut(
+      updateUserProfileRequest?: UpdateUserProfileRequest,
+      options?: RawAxiosRequestConfig,
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<BooleanApiResponse>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.apiV1UsersProfilePut(
+          updateUserProfileRequest,
+          options,
+        );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["UsersApi.apiV1UsersProfilePut"]?.[
+          localVarOperationServerIndex
+        ]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+  };
+};
+
+/**
+ * UsersApi - factory interface
+ * @export
+ */
+export const UsersApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
+  const localVarFp = UsersApiFp(configuration);
+  return {
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1UsersAvatarDelete(
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<BooleanApiResponse> {
+      return localVarFp
+        .apiV1UsersAvatarDelete(options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {File} avatar
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1UsersAvatarPost(
+      avatar: File,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ImageResponseApiResponse> {
+      return localVarFp
+        .apiV1UsersAvatarPost(avatar, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {ChangePasswordRequest} [changePasswordRequest]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1UsersChangePasswordPost(
+      changePasswordRequest?: ChangePasswordRequest,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<BooleanApiResponse> {
+      return localVarFp
+        .apiV1UsersChangePasswordPost(changePasswordRequest, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {UpdateUserProfileRequest} [updateUserProfileRequest]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1UsersProfilePut(
+      updateUserProfileRequest?: UpdateUserProfileRequest,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<BooleanApiResponse> {
+      return localVarFp
+        .apiV1UsersProfilePut(updateUserProfileRequest, options)
+        .then((request) => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * UsersApi - object-oriented interface
+ * @export
+ * @class UsersApi
+ * @extends {BaseAPI}
+ */
+export class UsersApi extends BaseAPI {
+  /**
+   *
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UsersApi
+   */
+  public apiV1UsersAvatarDelete(options?: RawAxiosRequestConfig) {
+    return UsersApiFp(this.configuration)
+      .apiV1UsersAvatarDelete(options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {File} avatar
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UsersApi
+   */
+  public apiV1UsersAvatarPost(avatar: File, options?: RawAxiosRequestConfig) {
+    return UsersApiFp(this.configuration)
+      .apiV1UsersAvatarPost(avatar, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {ChangePasswordRequest} [changePasswordRequest]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UsersApi
+   */
+  public apiV1UsersChangePasswordPost(
+    changePasswordRequest?: ChangePasswordRequest,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return UsersApiFp(this.configuration)
+      .apiV1UsersChangePasswordPost(changePasswordRequest, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {UpdateUserProfileRequest} [updateUserProfileRequest]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UsersApi
+   */
+  public apiV1UsersProfilePut(
+    updateUserProfileRequest?: UpdateUserProfileRequest,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return UsersApiFp(this.configuration)
+      .apiV1UsersProfilePut(updateUserProfileRequest, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

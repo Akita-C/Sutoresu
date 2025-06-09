@@ -12,6 +12,8 @@ Name | Type | Description | Notes
 **isEmailVerified** | **boolean** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
 **lastLoginAt** | **string** |  | [optional] [default to undefined]
+**avatarUrl** | **string** |  | [optional] [default to undefined]
+**avatarTransformations** | **{ [key: string]: string; }** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -26,6 +28,8 @@ const instance: UserProfileDto = {
     isEmailVerified,
     createdAt,
     lastLoginAt,
+    avatarUrl,
+    avatarTransformations,
 };
 ```
 

@@ -66,6 +66,7 @@ export const useRegisterMutation = () => {
 export const useLogoutMutation = () => {
   const queryClient = useQueryClient();
   const { clearAuth } = useAuthActions();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: ({
@@ -82,6 +83,8 @@ export const useLogoutMutation = () => {
       queryClient.clear();
 
       toast.success("Logout successful");
+
+      router.push("/login");
     },
     onError: (error) => {
       // Clear auth even if API call fails
@@ -90,6 +93,8 @@ export const useLogoutMutation = () => {
 
       toast.error("Logout completed");
       console.error("Logout error:", error);
+
+      router.push("/login");
     },
   });
 };

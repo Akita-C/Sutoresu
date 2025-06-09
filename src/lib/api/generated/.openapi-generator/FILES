@@ -8,12 +8,17 @@ docs/AuthApi.md
 docs/AuthResponse.md
 docs/AuthResponseApiResponse.md
 docs/BooleanApiResponse.md
+docs/ChangePasswordRequest.md
 docs/ErrorResponse.md
+docs/ImageResponse.md
+docs/ImageResponseApiResponse.md
 docs/LoginRequest.md
 docs/LogoutRequest.md
 docs/RefreshTokenRequest.md
 docs/RegisterRequest.md
+docs/UpdateUserProfileRequest.md
 docs/UserProfileDto.md
 docs/UserProfileDtoApiResponse.md
+docs/UsersApi.md
 git_push.sh
 index.ts

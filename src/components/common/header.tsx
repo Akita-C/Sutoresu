@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ThemeToggleSimple } from "@/components/common/theme-toggle-simple";
 import { cn } from "@/lib/utils";
+import { AuthGuard } from "@/features/auth/components/auth-guard";
+import { UserAvatar } from "@/features/auth/components/user-avatar";
 
 // Mock data cho Products menu
 const productsData = {
@@ -229,12 +231,19 @@ export function Header() {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-3">
-            <Button variant="default" size="sm" asChild>
-              <Link href="/login" className="flex items-center gap-2">
-                <LogIn className="h-4 w-4" />
-                <span className="hidden sm:inline">Log in</span>
-              </Link>
-            </Button>
+            <AuthGuard
+              requireAuth={true}
+              fallback={
+                <Button variant="default" size="sm" asChild>
+                  <Link href="/login" className="flex items-center gap-2">
+                    <LogIn className="h-4 w-4" />
+                    <span className="hidden sm:inline">Log in</span>
+                  </Link>
+                </Button>
+              }
+            >
+              <UserAvatar />
+            </AuthGuard>
 
             {/* Theme Toggle */}
             <ThemeToggleSimple />
