@@ -7,6 +7,7 @@ All URIs are relative to *http://localhost*
 |[**apiV1UsersAvatarDelete**](#apiv1usersavatardelete) | **DELETE** /api/v1/Users/avatar | |
 |[**apiV1UsersAvatarPost**](#apiv1usersavatarpost) | **POST** /api/v1/Users/avatar | |
 |[**apiV1UsersChangePasswordPost**](#apiv1userschangepasswordpost) | **POST** /api/v1/Users/change-password | |
+|[**apiV1UsersProfileGet**](#apiv1usersprofileget) | **GET** /api/v1/Users/profile | |
 |[**apiV1UsersProfilePut**](#apiv1usersprofileput) | **PUT** /api/v1/Users/profile | |
 
 # **apiV1UsersAvatarDelete**
@@ -157,6 +158,52 @@ const { status, data } = await apiInstance.apiV1UsersChangePasswordPost(
 |**200** | OK |  -  |
 |**400** | Bad Request |  -  |
 |**401** | Unauthorized |  -  |
+|**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **apiV1UsersProfileGet**
+> UserProfileDtoApiResponse apiV1UsersProfileGet()
+
+
+### Example
+
+```typescript
+import {
+    UsersApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UsersApi(configuration);
+
+const { status, data } = await apiInstance.apiV1UsersProfileGet();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**UserProfileDtoApiResponse**
+
+### Authorization
+
+[Bearer](../README.md#Bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
+|**404** | Not Found |  -  |
 |**500** | Internal Server Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -41,12 +41,18 @@ export function UserAvatar() {
 
   const initials = user.name ? getInitials(user.name) : "U";
 
+  const avatarUrl = user.avatarTransformations?.medium || user.avatarUrl || "";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src="" alt={user.name || "User"} />
+            <AvatarImage
+              src={avatarUrl}
+              alt={user.name || "User"}
+              className="object-cover"
+            />
             <AvatarFallback className="bg-primary text-white dark:text-gray-100 text-sm font-medium">
               {initials}
             </AvatarFallback>
@@ -62,6 +68,11 @@ export function UserAvatar() {
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
+            {/* {user.role && (
+              <p className="text-xs leading-none text-muted-foreground capitalize">
+                {user.role}
+              </p>
+            )} */}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

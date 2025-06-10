@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { useAuth } from "../stores/auth-store";
-import { useProfileQuery } from "../hooks/use-auth-queries";
+import { useProfileQuery } from "@/features/users";
 
 interface AuthGuardProps {
   children: ReactNode;

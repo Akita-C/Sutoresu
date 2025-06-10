@@ -6,7 +6,6 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 |[**apiV1AuthLoginPost**](#apiv1authloginpost) | **POST** /api/v1/Auth/login | |
 |[**apiV1AuthLogoutPost**](#apiv1authlogoutpost) | **POST** /api/v1/Auth/logout | |
-|[**apiV1AuthProfileGet**](#apiv1authprofileget) | **GET** /api/v1/Auth/profile | |
 |[**apiV1AuthRefreshPost**](#apiv1authrefreshpost) | **POST** /api/v1/Auth/refresh | |
 |[**apiV1AuthRegisterPost**](#apiv1authregisterpost) | **POST** /api/v1/Auth/register | |
 |[**apiV1AuthRevokeAllPost**](#apiv1authrevokeallpost) | **POST** /api/v1/Auth/revoke-all | |
@@ -115,52 +114,6 @@ const { status, data } = await apiInstance.apiV1AuthLogoutPost(
 |-------------|-------------|------------------|
 |**200** | OK |  -  |
 |**400** | Bad Request |  -  |
-|**500** | Internal Server Error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **apiV1AuthProfileGet**
-> UserProfileDtoApiResponse apiV1AuthProfileGet()
-
-
-### Example
-
-```typescript
-import {
-    AuthApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new AuthApi(configuration);
-
-const { status, data } = await apiInstance.apiV1AuthProfileGet();
-```
-
-### Parameters
-This endpoint does not have any parameters.
-
-
-### Return type
-
-**UserProfileDtoApiResponse**
-
-### Authorization
-
-[Bearer](../README.md#Bearer)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | OK |  -  |
-|**401** | Unauthorized |  -  |
-|**404** | Not Found |  -  |
 |**500** | Internal Server Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

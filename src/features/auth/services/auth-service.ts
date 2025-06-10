@@ -6,15 +6,15 @@ import {
   LogoutRequest,
   RefreshTokenRequest,
   RegisterRequest,
-  UserProfileDto,
 } from "@/lib/api";
+import { BaseService } from "@/lib/services";
 import { ServiceResponse } from "@/lib/types";
-import { AxiosError } from "axios";
 
-export class AuthService {
+export class AuthService extends BaseService {
   private authApi: AuthApi;
 
   constructor() {
+    super();
     this.authApi = new AuthApi(
       apiClient.getConfiguration(),
       undefined,
@@ -29,18 +29,16 @@ export class AuthService {
       const response = await this.authApi.apiV1AuthLoginPost(credentials);
 
       if (response.data.success && response.data.data) {
-        return {
-          success: true,
-          data: response.data.data,
-          message: response.data.message || "Login successful",
-        };
+        return this.createSuccessResponse(
+          response.data.data,
+          response.data.message || "Login successful",
+        );
       }
 
-      return {
-        success: false,
-        message: response.data.message || "Login failed",
-        errors: response.data.errors || [],
-      };
+      return this.createErrorResponse(
+        response.data.message || "Login failed",
+        response.data.errors || [],
+      );
     } catch (error) {
       return this.handleError(error, "Login failed");
     }
@@ -53,18 +51,16 @@ export class AuthService {
       const response = await this.authApi.apiV1AuthRegisterPost(userData);
 
       if (response.data.success && response.data.data) {
-        return {
-          success: true,
-          data: response.data.data,
-          message: response.data.message || "Registration successful",
-        };
+        return this.createSuccessResponse(
+          response.data.data,
+          response.data.message || "Registration successful",
+        );
       }
 
-      return {
-        success: false,
-        message: response.data.message || "Registration failed",
-        errors: response.data.errors || [],
-      };
+      return this.createErrorResponse(
+        response.data.message || "Registration failed",
+        response.data.errors || [],
+      );
     } catch (error) {
       return this.handleError(error, "Registration failed");
     }
@@ -78,11 +74,10 @@ export class AuthService {
       const request: LogoutRequest = { accessToken, refreshToken };
       const response = await this.authApi.apiV1AuthLogoutPost(request);
 
-      return {
-        success: true,
-        data: response.data.data || true,
-        message: response.data.message || "Logout successful",
-      };
+      return this.createSuccessResponse(
+        response.data.data || true,
+        response.data.message || "Logout successful",
+      );
     } catch (error) {
       return this.handleError(error, "Logout failed");
     }
@@ -96,42 +91,18 @@ export class AuthService {
       const response = await this.authApi.apiV1AuthRefreshPost(request);
 
       if (response.data.success && response.data.data) {
-        return {
-          success: true,
-          data: response.data.data,
-          message: response.data.message || "Token refreshed successfully",
-        };
+        return this.createSuccessResponse(
+          response.data.data,
+          response.data.message || "Token refreshed successfully",
+        );
       }
 
-      return {
-        success: false,
-        message: response.data.message || "Token refresh failed",
-        errors: response.data.errors || [],
-      };
+      return this.createErrorResponse(
+        response.data.message || "Token refresh failed",
+        response.data.errors || [],
+      );
     } catch (error) {
       return this.handleError(error, "Token refresh failed");
-    }
-  }
-
-  async getProfile(): Promise<ServiceResponse<UserProfileDto>> {
-    try {
-      const response = await this.authApi.apiV1AuthProfileGet();
-
-      if (response.data.success && response.data.data) {
-        return {
-          success: true,
-          data: response.data.data,
-          message: response.data.message || "Profile retrieved successfully",
-        };
-      }
-
-      return {
-        success: false,
-        message: response.data.message || "Failed to get profile",
-        errors: response.data.errors || [],
-      };
-    } catch (error) {
-      return this.handleError(error, "Failed to get profile");
     }
   }
 
@@ -140,11 +111,10 @@ export class AuthService {
       const request: RefreshTokenRequest = { refreshToken };
       const response = await this.authApi.apiV1AuthRevokePost(request);
 
-      return {
-        success: true,
-        data: response.data.data || true,
-        message: response.data.message || "Token revoked successfully",
-      };
+      return this.createSuccessResponse(
+        response.data.data || true,
+        response.data.message || "Token revoked successfully",
+      );
     } catch (error) {
       return this.handleError(error, "Failed to revoke token");
     }
@@ -154,43 +124,13 @@ export class AuthService {
     try {
       const response = await this.authApi.apiV1AuthRevokeAllPost();
 
-      return {
-        success: true,
-        data: response.data.data || true,
-        message: response.data.message || "All tokens revoked successfully",
-      };
+      return this.createSuccessResponse(
+        response.data.data || true,
+        response.data.message || "All tokens revoked successfully",
+      );
     } catch (error) {
       return this.handleError(error, "Failed to revoke all tokens");
     }
-  }
-
-  private handleError(
-    error: unknown,
-    defaultMessage: string,
-  ): ServiceResponse<never> {
-    if (error instanceof AxiosError) {
-      const response = error.response?.data;
-
-      return {
-        success: false,
-        message: response?.message || error.message || defaultMessage,
-        errors: response?.errors || [error.message || defaultMessage],
-      };
-    }
-
-    if (error instanceof Error) {
-      return {
-        success: false,
-        message: error.message || defaultMessage,
-        errors: [error.message || defaultMessage],
-      };
-    }
-
-    return {
-      success: false,
-      message: defaultMessage,
-      errors: [defaultMessage],
-    };
   }
 }
 
