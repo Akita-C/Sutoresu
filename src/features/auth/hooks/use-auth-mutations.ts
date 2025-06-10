@@ -19,7 +19,7 @@ export const useLoginMutation = () => {
         if (accessToken && refreshToken && user) {
           setAuth({ user, accessToken, refreshToken });
           toast.success("Welcome back!");
-          queryClient.invalidateQueries({ queryKey: ["user", "profile"] });
+          queryClient.setQueryData(["user", "profile"], user);
           router.push("/dashboard");
         }
       } else {
@@ -48,7 +48,7 @@ export const useRegisterMutation = () => {
         if (user && accessToken && refreshToken) {
           setAuth({ user, accessToken, refreshToken });
           toast.success("Account created successfully!");
-          queryClient.invalidateQueries({ queryKey: ["user", "profile"] });
+          queryClient.setQueryData(["user", "profile"], user);
         }
       } else {
         clearAuth();

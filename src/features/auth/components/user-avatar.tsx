@@ -12,15 +12,7 @@ import { LogOut, Settings, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { useLogoutMutation } from "../hooks/use-auth-mutations";
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part.charAt(0))
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
+import { getInitials } from "@/lib/utils";
 
 export function UserAvatar() {
   const { user } = useAuth();
@@ -39,8 +31,7 @@ export function UserAvatar() {
     }
   };
 
-  const initials = user.name ? getInitials(user.name) : "U";
-
+  const initials = getInitials(user.name || "");
   const avatarUrl = user.avatarTransformations?.medium || user.avatarUrl || "";
 
   return (
