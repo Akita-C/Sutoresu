@@ -11,10 +11,7 @@ export const useQuiz = (id: string, enabled = true) => {
   });
 };
 
-export const useQuizzes = (
-  filters?: QuizFilters,
-  pagination?: QuizPaginationParams,
-) => {
+export const useQuizzes = (filters?: QuizFilters, pagination?: QuizPaginationParams) => {
   return useInfiniteQuery({
     queryKey: ["quizzes", filters],
     queryFn: ({ pageParam }) =>
@@ -33,10 +30,21 @@ export const useQuizzes = (
   });
 };
 
-export const useMyQuizzes = () => {
-  return useQuery({
-    queryKey: ["quizzes", "my"],
-    queryFn: () => quizService.getMyQuizzes(),
+export const useMyQuizzes = (filters?: QuizFilters, pagination?: QuizPaginationParams) => {
+  return useInfiniteQuery({
+    queryKey: ["quizzes", "my", filters],
+    queryFn: ({ pageParam }) =>
+      quizService.getMyQuizzes(filters, {
+        ...pagination,
+        cursor: pageParam || undefined,
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.success && lastPage.data?.hasNextPage) {
+        return lastPage.data.nextCursor;
+      }
+      return undefined;
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
@@ -49,11 +57,7 @@ export const usePublicQuizzes = (limit?: number) => {
   });
 };
 
-export const useQuizSearch = (
-  query: string,
-  limit?: number,
-  enabled = true,
-) => {
+export const useQuizSearch = (query: string, limit?: number, enabled = true) => {
   return useQuery({
     queryKey: ["quizzes", "search", query, limit],
     queryFn: () => quizService.searchQuizzes(query, limit),
@@ -70,11 +74,7 @@ export const useCategoryCounts = () => {
   });
 };
 
-export const useQuizzesByCategory = (
-  category: string,
-  limit?: number,
-  enabled = true,
-) => {
+export const useQuizzesByCategory = (category: string, limit?: number, enabled = true) => {
   return useQuery({
     queryKey: ["quizzes", "category", category, limit],
     queryFn: () => quizService.getQuizzesByCategory(category, limit),

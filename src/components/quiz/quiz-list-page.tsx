@@ -54,7 +54,7 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
     return (
       <div className="flex gap-8">
         <div className="w-80 flex-shrink-0">
-          <div className="sticky top-6">
+          <div className="sticky top-16">
             <QuizFiltersComponent filters={filters} onFiltersChange={handleFiltersChange} onSearch={handleSearch} />
           </div>
         </div>

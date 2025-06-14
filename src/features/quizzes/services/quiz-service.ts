@@ -1,17 +1,7 @@
-import {
-  QuizzesApi,
-  QuizDto,
-  QuizSummaryDto,
-  QuizSummaryDtoPagedResponse,
-} from "@/lib/api/generated";
+import { QuizzesApi, QuizDto, QuizSummaryDto, QuizSummaryDtoPagedResponse } from "@/lib/api/generated";
 import { BaseService } from "@/lib/services";
 import { ServiceResponse } from "@/lib/types";
-import {
-  QuizFilters,
-  QuizPaginationParams,
-  CreateQuizRequest,
-  UpdateQuizRequest,
-} from "../types";
+import { QuizFilters, QuizPaginationParams, CreateQuizRequest, UpdateQuizRequest } from "../types";
 import { apiClient } from "@/lib/api";
 
 export class QuizService extends BaseService {
@@ -19,11 +9,7 @@ export class QuizService extends BaseService {
 
   constructor() {
     super();
-    this.quizzesApi = new QuizzesApi(
-      apiClient.getConfiguration(),
-      undefined,
-      apiClient.getAxiosInstance(),
-    );
+    this.quizzesApi = new QuizzesApi(apiClient.getConfiguration(), undefined, apiClient.getAxiosInstance());
   }
 
   async getQuizzes(
@@ -49,10 +35,7 @@ export class QuizService extends BaseService {
         );
       }
 
-      return this.createErrorResponse(
-        response.data.message || "Failed to get quizzes",
-        response.data.errors || [],
-      );
+      return this.createErrorResponse(response.data.message || "Failed to get quizzes", response.data.errors || []);
     } catch (error) {
       return this.handleError(error, "Failed to get quizzes");
     }
@@ -63,24 +46,30 @@ export class QuizService extends BaseService {
       const response = await this.quizzesApi.apiV1QuizzesIdGet(id);
 
       if (response.data.success && response.data.data) {
-        return this.createSuccessResponse(
-          response.data.data,
-          response.data.message || "Quiz retrieved successfully",
-        );
+        return this.createSuccessResponse(response.data.data, response.data.message || "Quiz retrieved successfully");
       }
 
-      return this.createErrorResponse(
-        response.data.message || "Quiz not found",
-        response.data.errors || [],
-      );
+      return this.createErrorResponse(response.data.message || "Quiz not found", response.data.errors || []);
     } catch (error) {
       return this.handleError(error, "Failed to get quiz");
     }
   }
 
-  async getMyQuizzes(): Promise<ServiceResponse<QuizSummaryDto[]>> {
+  async getMyQuizzes(
+    filters?: QuizFilters,
+    pagination?: QuizPaginationParams,
+  ): Promise<ServiceResponse<QuizSummaryDtoPagedResponse>> {
     try {
-      const response = await this.quizzesApi.apiV1QuizzesMyGet();
+      const response = await this.quizzesApi.apiV1QuizzesMyGet(
+        filters?.search,
+        filters?.category,
+        filters?.isPublic,
+        undefined, // creatorId is not needed for "my" quizzes
+        filters?.sortBy,
+        filters?.isDescending,
+        pagination?.pageSize,
+        pagination?.cursor,
+      );
 
       if (response.data.success && response.data.data) {
         return this.createSuccessResponse(
@@ -98,9 +87,7 @@ export class QuizService extends BaseService {
     }
   }
 
-  async getPublicQuizzes(
-    limit?: number,
-  ): Promise<ServiceResponse<QuizSummaryDto[]>> {
+  async getPublicQuizzes(limit?: number): Promise<ServiceResponse<QuizSummaryDto[]>> {
     try {
       const response = await this.quizzesApi.apiV1QuizzesPublicGet(limit);
 
@@ -120,27 +107,15 @@ export class QuizService extends BaseService {
     }
   }
 
-  async searchQuizzes(
-    query: string,
-    limit?: number,
-  ): Promise<ServiceResponse<QuizSummaryDto[]>> {
+  async searchQuizzes(query: string, limit?: number): Promise<ServiceResponse<QuizSummaryDto[]>> {
     try {
-      const response = await this.quizzesApi.apiV1QuizzesSearchGet(
-        query,
-        limit,
-      );
+      const response = await this.quizzesApi.apiV1QuizzesSearchGet(query, limit);
 
       if (response.data.success && response.data.data) {
-        return this.createSuccessResponse(
-          response.data.data,
-          response.data.message || "Search completed successfully",
-        );
+        return this.createSuccessResponse(response.data.data, response.data.message || "Search completed successfully");
       }
 
-      return this.createErrorResponse(
-        response.data.message || "Search failed",
-        response.data.errors || [],
-      );
+      return this.createErrorResponse(response.data.message || "Search failed", response.data.errors || []);
     } catch (error) {
       return this.handleError(error, "Search failed");
     }
@@ -166,15 +141,9 @@ export class QuizService extends BaseService {
     }
   }
 
-  async getQuizzesByCategory(
-    category: string,
-    limit?: number,
-  ): Promise<ServiceResponse<QuizSummaryDto[]>> {
+  async getQuizzesByCategory(category: string, limit?: number): Promise<ServiceResponse<QuizSummaryDto[]>> {
     try {
-      const response = await this.quizzesApi.apiV1QuizzesCategoryCategoryGet(
-        category,
-        limit,
-      );
+      const response = await this.quizzesApi.apiV1QuizzesCategoryCategoryGet(category, limit);
 
       if (response.data.success && response.data.data) {
         return this.createSuccessResponse(
@@ -192,9 +161,7 @@ export class QuizService extends BaseService {
     }
   }
 
-  async createQuiz(
-    quizData: CreateQuizRequest,
-  ): Promise<ServiceResponse<QuizDto>> {
+  async createQuiz(quizData: CreateQuizRequest): Promise<ServiceResponse<QuizDto>> {
     try {
       const response = await this.quizzesApi.apiV1QuizzesPost(
         quizData.title,
@@ -207,25 +174,16 @@ export class QuizService extends BaseService {
       );
 
       if (response.data.success && response.data.data) {
-        return this.createSuccessResponse(
-          response.data.data,
-          response.data.message || "Quiz created successfully",
-        );
+        return this.createSuccessResponse(response.data.data, response.data.message || "Quiz created successfully");
       }
 
-      return this.createErrorResponse(
-        response.data.message || "Failed to create quiz",
-        response.data.errors || [],
-      );
+      return this.createErrorResponse(response.data.message || "Failed to create quiz", response.data.errors || []);
     } catch (error) {
       return this.handleError(error, "Failed to create quiz");
     }
   }
 
-  async updateQuiz(
-    id: string,
-    quizData: UpdateQuizRequest,
-  ): Promise<ServiceResponse<QuizDto>> {
+  async updateQuiz(id: string, quizData: UpdateQuizRequest): Promise<ServiceResponse<QuizDto>> {
     try {
       const response = await this.quizzesApi.apiV1QuizzesIdPut(
         id,
@@ -239,16 +197,10 @@ export class QuizService extends BaseService {
       );
 
       if (response.data.success && response.data.data) {
-        return this.createSuccessResponse(
-          response.data.data,
-          response.data.message || "Quiz updated successfully",
-        );
+        return this.createSuccessResponse(response.data.data, response.data.message || "Quiz updated successfully");
       }
 
-      return this.createErrorResponse(
-        response.data.message || "Failed to update quiz",
-        response.data.errors || [],
-      );
+      return this.createErrorResponse(response.data.message || "Failed to update quiz", response.data.errors || []);
     } catch (error) {
       return this.handleError(error, "Failed to update quiz");
     }
@@ -291,10 +243,7 @@ export class QuizService extends BaseService {
         );
       }
 
-      return this.createErrorResponse(
-        response.data.message || "Failed to get quizzes",
-        response.data.errors || [],
-      );
+      return this.createErrorResponse(response.data.message || "Failed to get quizzes", response.data.errors || []);
     } catch (error) {
       return this.handleError(error, "Failed to get quizzes");
     }

@@ -6,8 +6,7 @@ export const metadata: Metadata = {
     template: "%s | Sutoresu",
     default: "Quizzes | Sutoresu",
   },
-  description:
-    "Browse, create and take interactive quizzes on Sutoresu learning platform.",
+  description: "Browse, create and take interactive quizzes on Sutoresu learning platform.",
 };
 
 export default function QuizzesLayout({ children }: PropsWithChildren) {

@@ -476,7 +476,7 @@ const { status, data } = await apiInstance.apiV1QuizzesIdPut(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **apiV1QuizzesMyGet**
-> QuizSummaryDtoIEnumerableApiResponse apiV1QuizzesMyGet()
+> QuizSummaryDtoPagedResponseApiResponse apiV1QuizzesMyGet()
 
 
 ### Example
@@ -490,16 +490,44 @@ import {
 const configuration = new Configuration();
 const apiInstance = new QuizzesApi(configuration);
 
-const { status, data } = await apiInstance.apiV1QuizzesMyGet();
+let search: string; // (optional) (default to undefined)
+let category: string; // (optional) (default to undefined)
+let isPublic: boolean; // (optional) (default to undefined)
+let creatorId: string; // (optional) (default to undefined)
+let sortBy: string; // (optional) (default to undefined)
+let isDescending: boolean; // (optional) (default to undefined)
+let pageSize: number; // (optional) (default to undefined)
+let cursor: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.apiV1QuizzesMyGet(
+    search,
+    category,
+    isPublic,
+    creatorId,
+    sortBy,
+    isDescending,
+    pageSize,
+    cursor
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **search** | [**string**] |  | (optional) defaults to undefined|
+| **category** | [**string**] |  | (optional) defaults to undefined|
+| **isPublic** | [**boolean**] |  | (optional) defaults to undefined|
+| **creatorId** | [**string**] |  | (optional) defaults to undefined|
+| **sortBy** | [**string**] |  | (optional) defaults to undefined|
+| **isDescending** | [**boolean**] |  | (optional) defaults to undefined|
+| **pageSize** | [**number**] |  | (optional) defaults to undefined|
+| **cursor** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
 
-**QuizSummaryDtoIEnumerableApiResponse**
+**QuizSummaryDtoPagedResponseApiResponse**
 
 ### Authorization
 
@@ -515,6 +543,7 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | OK |  -  |
+|**400** | Bad Request |  -  |
 |**401** | Unauthorized |  -  |
 |**500** | Internal Server Error |  -  |
 

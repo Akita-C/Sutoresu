@@ -31,13 +31,7 @@ import {
 } from "./common";
 import type { RequestArgs } from "./base";
 // @ts-ignore
-import {
-  BASE_PATH,
-  COLLECTION_FORMATS,
-  BaseAPI,
-  RequiredError,
-  operationServerMap,
-} from "./base";
+import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from "./base";
 
 /**
  *
@@ -734,6 +728,7 @@ export interface QuestionDtoPagedResponseApiResponse {
  */
 
 export const QuestionType = {
+  NUMBER_0: 0,
   NUMBER_1: 1,
   NUMBER_2: 2,
   NUMBER_3: 3,
@@ -1319,12 +1314,125 @@ export interface UserProfileDtoApiResponse {
 }
 
 /**
+ * AdminDatabaseSeedingApi - axios parameter creator
+ * @export
+ */
+export const AdminDatabaseSeedingApiAxiosParamCreator = function (configuration?: Configuration) {
+  return {
+    /**
+     * Run all database seeders to populate with sample data. Requires X-Admin-Key header.
+     * @summary Seed database with sample data
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    seedDatabase: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/admin/seed/all`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication Bearer required
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * AdminDatabaseSeedingApi - functional programming interface
+ * @export
+ */
+export const AdminDatabaseSeedingApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = AdminDatabaseSeedingApiAxiosParamCreator(configuration);
+  return {
+    /**
+     * Run all database seeders to populate with sample data. Requires X-Admin-Key header.
+     * @summary Seed database with sample data
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async seedDatabase(
+      options?: RawAxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.seedDatabase(options);
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["AdminDatabaseSeedingApi.seedDatabase"]?.[localVarOperationServerIndex]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+  };
+};
+
+/**
+ * AdminDatabaseSeedingApi - factory interface
+ * @export
+ */
+export const AdminDatabaseSeedingApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
+  const localVarFp = AdminDatabaseSeedingApiFp(configuration);
+  return {
+    /**
+     * Run all database seeders to populate with sample data. Requires X-Admin-Key header.
+     * @summary Seed database with sample data
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    seedDatabase(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+      return localVarFp.seedDatabase(options).then((request) => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * AdminDatabaseSeedingApi - object-oriented interface
+ * @export
+ * @class AdminDatabaseSeedingApi
+ * @extends {BaseAPI}
+ */
+export class AdminDatabaseSeedingApi extends BaseAPI {
+  /**
+   * Run all database seeders to populate with sample data. Requires X-Admin-Key header.
+   * @summary Seed database with sample data
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AdminDatabaseSeedingApi
+   */
+  public seedDatabase(options?: RawAxiosRequestConfig) {
+    return AdminDatabaseSeedingApiFp(this.configuration)
+      .seedDatabase(options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+}
+
+/**
  * AuthApi - axios parameter creator
  * @export
  */
-export const AuthApiAxiosParamCreator = function (
-  configuration?: Configuration,
-) {
+export const AuthApiAxiosParamCreator = function (configuration?: Configuration) {
   return {
     /**
      *
@@ -1344,36 +1452,19 @@ export const AuthApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        loginRequest,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(loginRequest, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1398,36 +1489,19 @@ export const AuthApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        logoutRequest,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(logoutRequest, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1452,36 +1526,19 @@ export const AuthApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        refreshTokenRequest,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(refreshTokenRequest, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1506,36 +1563,19 @@ export const AuthApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        registerRequest,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(registerRequest, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1547,9 +1587,7 @@ export const AuthApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1AuthRevokeAllPost: async (
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1AuthRevokeAllPost: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/Auth/revoke-all`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1558,29 +1596,16 @@ export const AuthApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1605,36 +1630,19 @@ export const AuthApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        refreshTokenRequest,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(refreshTokenRequest, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1660,22 +1668,11 @@ export const AuthApiFp = function (configuration?: Configuration) {
     async apiV1AuthLoginPost(
       loginRequest?: LoginRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<AuthResponseApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1AuthLoginPost(
-          loginRequest,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthResponseApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthLoginPost(loginRequest, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.apiV1AuthLoginPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.apiV1AuthLoginPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1693,22 +1690,11 @@ export const AuthApiFp = function (configuration?: Configuration) {
     async apiV1AuthLogoutPost(
       logoutRequest?: LogoutRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1AuthLogoutPost(
-          logoutRequest,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthLogoutPost(logoutRequest, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.apiV1AuthLogoutPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.apiV1AuthLogoutPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1726,22 +1712,11 @@ export const AuthApiFp = function (configuration?: Configuration) {
     async apiV1AuthRefreshPost(
       refreshTokenRequest?: RefreshTokenRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<AuthResponseApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1AuthRefreshPost(
-          refreshTokenRequest,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthResponseApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRefreshPost(refreshTokenRequest, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.apiV1AuthRefreshPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.apiV1AuthRefreshPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1759,22 +1734,11 @@ export const AuthApiFp = function (configuration?: Configuration) {
     async apiV1AuthRegisterPost(
       registerRequest?: RegisterRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<AuthResponseApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1AuthRegisterPost(
-          registerRequest,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthResponseApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRegisterPost(registerRequest, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.apiV1AuthRegisterPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.apiV1AuthRegisterPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1790,19 +1754,11 @@ export const AuthApiFp = function (configuration?: Configuration) {
      */
     async apiV1AuthRevokeAllPost(
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1AuthRevokeAllPost(options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRevokeAllPost(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.apiV1AuthRevokeAllPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.apiV1AuthRevokeAllPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1820,22 +1776,11 @@ export const AuthApiFp = function (configuration?: Configuration) {
     async apiV1AuthRevokePost(
       refreshTokenRequest?: RefreshTokenRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1AuthRevokePost(
-          refreshTokenRequest,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRevokePost(refreshTokenRequest, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["AuthApi.apiV1AuthRevokePost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["AuthApi.apiV1AuthRevokePost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -1851,11 +1796,7 @@ export const AuthApiFp = function (configuration?: Configuration) {
  * AuthApi - factory interface
  * @export
  */
-export const AuthApiFactory = function (
-  configuration?: Configuration,
-  basePath?: string,
-  axios?: AxiosInstance,
-) {
+export const AuthApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
   const localVarFp = AuthApiFp(configuration);
   return {
     /**
@@ -1868,9 +1809,7 @@ export const AuthApiFactory = function (
       loginRequest?: LoginRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<AuthResponseApiResponse> {
-      return localVarFp
-        .apiV1AuthLoginPost(loginRequest, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1AuthLoginPost(loginRequest, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -1882,9 +1821,7 @@ export const AuthApiFactory = function (
       logoutRequest?: LogoutRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp
-        .apiV1AuthLogoutPost(logoutRequest, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1AuthLogoutPost(logoutRequest, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -1896,9 +1833,7 @@ export const AuthApiFactory = function (
       refreshTokenRequest?: RefreshTokenRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<AuthResponseApiResponse> {
-      return localVarFp
-        .apiV1AuthRefreshPost(refreshTokenRequest, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1AuthRefreshPost(refreshTokenRequest, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -1910,21 +1845,15 @@ export const AuthApiFactory = function (
       registerRequest?: RegisterRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<AuthResponseApiResponse> {
-      return localVarFp
-        .apiV1AuthRegisterPost(registerRequest, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1AuthRegisterPost(registerRequest, options).then((request) => request(axios, basePath));
     },
     /**
      *
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1AuthRevokeAllPost(
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp
-        .apiV1AuthRevokeAllPost(options)
-        .then((request) => request(axios, basePath));
+    apiV1AuthRevokeAllPost(options?: RawAxiosRequestConfig): AxiosPromise<BooleanApiResponse> {
+      return localVarFp.apiV1AuthRevokeAllPost(options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -1936,9 +1865,7 @@ export const AuthApiFactory = function (
       refreshTokenRequest?: RefreshTokenRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp
-        .apiV1AuthRevokePost(refreshTokenRequest, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1AuthRevokePost(refreshTokenRequest, options).then((request) => request(axios, basePath));
     },
   };
 };
@@ -1957,10 +1884,7 @@ export class AuthApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof AuthApi
    */
-  public apiV1AuthLoginPost(
-    loginRequest?: LoginRequest,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1AuthLoginPost(loginRequest?: LoginRequest, options?: RawAxiosRequestConfig) {
     return AuthApiFp(this.configuration)
       .apiV1AuthLoginPost(loginRequest, options)
       .then((request) => request(this.axios, this.basePath));
@@ -1973,10 +1897,7 @@ export class AuthApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof AuthApi
    */
-  public apiV1AuthLogoutPost(
-    logoutRequest?: LogoutRequest,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1AuthLogoutPost(logoutRequest?: LogoutRequest, options?: RawAxiosRequestConfig) {
     return AuthApiFp(this.configuration)
       .apiV1AuthLogoutPost(logoutRequest, options)
       .then((request) => request(this.axios, this.basePath));
@@ -1989,10 +1910,7 @@ export class AuthApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof AuthApi
    */
-  public apiV1AuthRefreshPost(
-    refreshTokenRequest?: RefreshTokenRequest,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1AuthRefreshPost(refreshTokenRequest?: RefreshTokenRequest, options?: RawAxiosRequestConfig) {
     return AuthApiFp(this.configuration)
       .apiV1AuthRefreshPost(refreshTokenRequest, options)
       .then((request) => request(this.axios, this.basePath));
@@ -2005,10 +1923,7 @@ export class AuthApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof AuthApi
    */
-  public apiV1AuthRegisterPost(
-    registerRequest?: RegisterRequest,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1AuthRegisterPost(registerRequest?: RegisterRequest, options?: RawAxiosRequestConfig) {
     return AuthApiFp(this.configuration)
       .apiV1AuthRegisterPost(registerRequest, options)
       .then((request) => request(this.axios, this.basePath));
@@ -2033,10 +1948,7 @@ export class AuthApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof AuthApi
    */
-  public apiV1AuthRevokePost(
-    refreshTokenRequest?: RefreshTokenRequest,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1AuthRevokePost(refreshTokenRequest?: RefreshTokenRequest, options?: RawAxiosRequestConfig) {
     return AuthApiFp(this.configuration)
       .apiV1AuthRevokePost(refreshTokenRequest, options)
       .then((request) => request(this.axios, this.basePath));
@@ -2047,9 +1959,7 @@ export class AuthApi extends BaseAPI {
  * QuestionsApi - axios parameter creator
  * @export
  */
-export const QuestionsApiAxiosParamCreator = function (
-  configuration?: Configuration,
-) {
+export const QuestionsApiAxiosParamCreator = function (configuration?: Configuration) {
   return {
     /**
      *
@@ -2062,11 +1972,7 @@ export const QuestionsApiAxiosParamCreator = function (
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'requestBody' is not null or undefined
-      assertParamExists(
-        "apiV1QuestionsBatchByQuizzesPost",
-        "requestBody",
-        requestBody,
-      );
+      assertParamExists("apiV1QuestionsBatchByQuizzesPost", "requestBody", requestBody);
       const localVarPath = `/api/v1/Questions/batch/by-quizzes`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2075,36 +1981,19 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        requestBody,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2122,11 +2011,7 @@ export const QuestionsApiAxiosParamCreator = function (
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'requestBody' is not null or undefined
-      assertParamExists(
-        "apiV1QuestionsBatchCountsPost",
-        "requestBody",
-        requestBody,
-      );
+      assertParamExists("apiV1QuestionsBatchCountsPost", "requestBody", requestBody);
       const localVarPath = `/api/v1/Questions/batch/counts`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2135,36 +2020,19 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        requestBody,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2182,11 +2050,7 @@ export const QuestionsApiAxiosParamCreator = function (
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'requestBody' is not null or undefined
-      assertParamExists(
-        "apiV1QuestionsBatchDelete",
-        "requestBody",
-        requestBody,
-      );
+      assertParamExists("apiV1QuestionsBatchDelete", "requestBody", requestBody);
       const localVarPath = `/api/v1/Questions/batch`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2195,36 +2059,19 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "DELETE",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "DELETE", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        requestBody,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2242,11 +2089,7 @@ export const QuestionsApiAxiosParamCreator = function (
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'updateQuestionBulkItem' is not null or undefined
-      assertParamExists(
-        "apiV1QuestionsBatchPut",
-        "updateQuestionBulkItem",
-        updateQuestionBulkItem,
-      );
+      assertParamExists("apiV1QuestionsBatchPut", "updateQuestionBulkItem", updateQuestionBulkItem);
       const localVarPath = `/api/v1/Questions/batch`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2255,31 +2098,18 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "PUT",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "PUT", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
       localVarRequestOptions.data = serializeDataIfNeeded(
         updateQuestionBulkItem,
         localVarRequestOptions,
@@ -2309,31 +2139,18 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
       localVarRequestOptions.data = serializeDataIfNeeded(
         bulkCreateQuestionsRequest,
         localVarRequestOptions,
@@ -2375,20 +2192,12 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (quizId !== undefined) {
         localVarQueryParameter["QuizId"] = quizId;
@@ -2419,13 +2228,8 @@ export const QuestionsApiAxiosParamCreator = function (
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2438,16 +2242,10 @@ export const QuestionsApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsIdDelete: async (
-      id: string,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1QuestionsIdDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuestionsIdDelete", "id", id);
-      const localVarPath = `/api/v1/Questions/{id}`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
+      const localVarPath = `/api/v1/Questions/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -2455,29 +2253,16 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "DELETE",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "DELETE", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2490,16 +2275,10 @@ export const QuestionsApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsIdGet: async (
-      id: string,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1QuestionsIdGet: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuestionsIdGet", "id", id);
-      const localVarPath = `/api/v1/Questions/{id}`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
+      const localVarPath = `/api/v1/Questions/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -2507,29 +2286,16 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2562,10 +2328,7 @@ export const QuestionsApiAxiosParamCreator = function (
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuestionsIdPut", "id", id);
-      const localVarPath = `/api/v1/Questions/{id}`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
+      const localVarPath = `/api/v1/Questions/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -2573,23 +2336,13 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "PUT",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "PUT", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
-      const localVarFormParams = new ((configuration &&
-        configuration.formDataCtor) ||
-        FormData)();
+      const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (content !== undefined) {
         localVarFormParams.append("Content", content as any);
@@ -2600,10 +2353,7 @@ export const QuestionsApiAxiosParamCreator = function (
       }
 
       if (timeLimitInSeconds !== undefined) {
-        localVarFormParams.append(
-          "TimeLimitInSeconds",
-          timeLimitInSeconds as any,
-        );
+        localVarFormParams.append("TimeLimitInSeconds", timeLimitInSeconds as any);
       }
 
       if (points !== undefined) {
@@ -2625,13 +2375,8 @@ export const QuestionsApiAxiosParamCreator = function (
       localVarHeaderParameter["Content-Type"] = "multipart/form-data";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -2671,23 +2416,13 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
-      const localVarFormParams = new ((configuration &&
-        configuration.formDataCtor) ||
-        FormData)();
+      const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (content !== undefined) {
         localVarFormParams.append("Content", content as any);
@@ -2698,10 +2433,7 @@ export const QuestionsApiAxiosParamCreator = function (
       }
 
       if (timeLimitInSeconds !== undefined) {
-        localVarFormParams.append(
-          "TimeLimitInSeconds",
-          timeLimitInSeconds as any,
-        );
+        localVarFormParams.append("TimeLimitInSeconds", timeLimitInSeconds as any);
       }
 
       if (points !== undefined) {
@@ -2727,13 +2459,8 @@ export const QuestionsApiAxiosParamCreator = function (
       localVarHeaderParameter["Content-Type"] = "multipart/form-data";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -2747,10 +2474,7 @@ export const QuestionsApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsQuizQuizIdGet: async (
-      quizId: string,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1QuestionsQuizQuizIdGet: async (quizId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'quizId' is not null or undefined
       assertParamExists("apiV1QuestionsQuizQuizIdGet", "quizId", quizId);
       const localVarPath = `/api/v1/Questions/quiz/{quizId}`.replace(
@@ -2764,29 +2488,16 @@ export const QuestionsApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2801,8 +2512,7 @@ export const QuestionsApiAxiosParamCreator = function (
  * @export
  */
 export const QuestionsApiFp = function (configuration?: Configuration) {
-  const localVarAxiosParamCreator =
-    QuestionsApiAxiosParamCreator(configuration);
+  const localVarAxiosParamCreator = QuestionsApiAxiosParamCreator(configuration);
   return {
     /**
      *
@@ -2813,22 +2523,11 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsBatchByQuizzesPost(
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuestionDtoIEnumerableApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsBatchByQuizzesPost(
-          requestBody,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoIEnumerableApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchByQuizzesPost(requestBody, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBatchByQuizzesPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBatchByQuizzesPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2846,22 +2545,11 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsBatchCountsPost(
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<GuidInt32DictionaryApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsBatchCountsPost(
-          requestBody,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GuidInt32DictionaryApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchCountsPost(requestBody, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBatchCountsPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBatchCountsPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2879,22 +2567,11 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsBatchDelete(
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsBatchDelete(
-          requestBody,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchDelete(requestBody, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBatchDelete"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBatchDelete"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2912,22 +2589,11 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsBatchPut(
       updateQuestionBulkItem: Array<UpdateQuestionBulkItem>,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuestionDtoIEnumerableApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsBatchPut(
-          updateQuestionBulkItem,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoIEnumerableApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchPut(updateQuestionBulkItem, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBatchPut"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBatchPut"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2945,22 +2611,14 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsBulkPost(
       bulkCreateQuestionsRequest?: BulkCreateQuestionsRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BulkCreateQuestionsResponseApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsBulkPost(
-          bulkCreateQuestionsRequest,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BulkCreateQuestionsResponseApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBulkPost(
+        bulkCreateQuestionsRequest,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBulkPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBulkPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2990,28 +2648,20 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
       pageSize?: number,
       cursor?: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuestionDtoPagedResponseApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsGet(
-          quizId,
-          search,
-          questionType,
-          sortBy,
-          isDescending,
-          pageSize,
-          cursor,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoPagedResponseApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsGet(
+        quizId,
+        search,
+        questionType,
+        sortBy,
+        isDescending,
+        pageSize,
+        cursor,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3029,19 +2679,11 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsIdDelete(
       id: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsIdDelete(id, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsIdDelete(id, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsIdDelete"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsIdDelete"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3059,19 +2701,11 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsIdGet(
       id: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuestionDtoApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsIdGet(id, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsIdGet(id, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsIdGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsIdGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3103,29 +2737,21 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
       configuration?: string,
       explanation?: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuestionDtoApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsIdPut(
-          id,
-          content,
-          questionType,
-          timeLimitInSeconds,
-          points,
-          image,
-          configuration,
-          explanation,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsIdPut(
+        id,
+        content,
+        questionType,
+        timeLimitInSeconds,
+        points,
+        image,
+        configuration,
+        explanation,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsIdPut"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsIdPut"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3157,29 +2783,21 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
       explanation?: string,
       quizId?: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuestionDtoApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsPost(
-          content,
-          questionType,
-          timeLimitInSeconds,
-          points,
-          image,
-          configuration,
-          explanation,
-          quizId,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsPost(
+        content,
+        questionType,
+        timeLimitInSeconds,
+        points,
+        image,
+        configuration,
+        explanation,
+        quizId,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3197,22 +2815,11 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsQuizQuizIdGet(
       quizId: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuestionDtoIEnumerableApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuestionsQuizQuizIdGet(
-          quizId,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoIEnumerableApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsQuizQuizIdGet(quizId, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsQuizQuizIdGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsQuizQuizIdGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3228,11 +2835,7 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
  * QuestionsApi - factory interface
  * @export
  */
-export const QuestionsApiFactory = function (
-  configuration?: Configuration,
-  basePath?: string,
-  axios?: AxiosInstance,
-) {
+export const QuestionsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
   const localVarFp = QuestionsApiFp(configuration);
   return {
     /**
@@ -3259,9 +2862,7 @@ export const QuestionsApiFactory = function (
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<GuidInt32DictionaryApiResponse> {
-      return localVarFp
-        .apiV1QuestionsBatchCountsPost(requestBody, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1QuestionsBatchCountsPost(requestBody, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -3273,9 +2874,7 @@ export const QuestionsApiFactory = function (
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp
-        .apiV1QuestionsBatchDelete(requestBody, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1QuestionsBatchDelete(requestBody, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -3328,16 +2927,7 @@ export const QuestionsApiFactory = function (
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuestionDtoPagedResponseApiResponse> {
       return localVarFp
-        .apiV1QuestionsGet(
-          quizId,
-          search,
-          questionType,
-          sortBy,
-          isDescending,
-          pageSize,
-          cursor,
-          options,
-        )
+        .apiV1QuestionsGet(quizId, search, questionType, sortBy, isDescending, pageSize, cursor, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -3346,13 +2936,8 @@ export const QuestionsApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsIdDelete(
-      id: string,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp
-        .apiV1QuestionsIdDelete(id, options)
-        .then((request) => request(axios, basePath));
+    apiV1QuestionsIdDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<BooleanApiResponse> {
+      return localVarFp.apiV1QuestionsIdDelete(id, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -3360,13 +2945,8 @@ export const QuestionsApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsIdGet(
-      id: string,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<QuestionDtoApiResponse> {
-      return localVarFp
-        .apiV1QuestionsIdGet(id, options)
-        .then((request) => request(axios, basePath));
+    apiV1QuestionsIdGet(id: string, options?: RawAxiosRequestConfig): AxiosPromise<QuestionDtoApiResponse> {
+      return localVarFp.apiV1QuestionsIdGet(id, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -3454,9 +3034,7 @@ export const QuestionsApiFactory = function (
       quizId: string,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuestionDtoIEnumerableApiResponse> {
-      return localVarFp
-        .apiV1QuestionsQuizQuizIdGet(quizId, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1QuestionsQuizQuizIdGet(quizId, options).then((request) => request(axios, basePath));
     },
   };
 };
@@ -3475,10 +3053,7 @@ export class QuestionsApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuestionsApi
    */
-  public apiV1QuestionsBatchByQuizzesPost(
-    requestBody: Array<string>,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1QuestionsBatchByQuizzesPost(requestBody: Array<string>, options?: RawAxiosRequestConfig) {
     return QuestionsApiFp(this.configuration)
       .apiV1QuestionsBatchByQuizzesPost(requestBody, options)
       .then((request) => request(this.axios, this.basePath));
@@ -3491,10 +3066,7 @@ export class QuestionsApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuestionsApi
    */
-  public apiV1QuestionsBatchCountsPost(
-    requestBody: Array<string>,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1QuestionsBatchCountsPost(requestBody: Array<string>, options?: RawAxiosRequestConfig) {
     return QuestionsApiFp(this.configuration)
       .apiV1QuestionsBatchCountsPost(requestBody, options)
       .then((request) => request(this.axios, this.basePath));
@@ -3507,10 +3079,7 @@ export class QuestionsApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuestionsApi
    */
-  public apiV1QuestionsBatchDelete(
-    requestBody: Array<string>,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1QuestionsBatchDelete(requestBody: Array<string>, options?: RawAxiosRequestConfig) {
     return QuestionsApiFp(this.configuration)
       .apiV1QuestionsBatchDelete(requestBody, options)
       .then((request) => request(this.axios, this.basePath));
@@ -3572,16 +3141,7 @@ export class QuestionsApi extends BaseAPI {
     options?: RawAxiosRequestConfig,
   ) {
     return QuestionsApiFp(this.configuration)
-      .apiV1QuestionsGet(
-        quizId,
-        search,
-        questionType,
-        sortBy,
-        isDescending,
-        pageSize,
-        cursor,
-        options,
-      )
+      .apiV1QuestionsGet(quizId, search, questionType, sortBy, isDescending, pageSize, cursor, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3698,10 +3258,7 @@ export class QuestionsApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuestionsApi
    */
-  public apiV1QuestionsQuizQuizIdGet(
-    quizId: string,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1QuestionsQuizQuizIdGet(quizId: string, options?: RawAxiosRequestConfig) {
     return QuestionsApiFp(this.configuration)
       .apiV1QuestionsQuizQuizIdGet(quizId, options)
       .then((request) => request(this.axios, this.basePath));
@@ -3712,9 +3269,7 @@ export class QuestionsApi extends BaseAPI {
  * QuizzesApi - axios parameter creator
  * @export
  */
-export const QuizzesApiAxiosParamCreator = function (
-  configuration?: Configuration,
-) {
+export const QuizzesApiAxiosParamCreator = function (configuration?: Configuration) {
   return {
     /**
      *
@@ -3736,36 +3291,19 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "DELETE",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "DELETE", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        requestBody,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -3792,36 +3330,19 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        requestBody,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -3833,9 +3354,7 @@ export const QuizzesApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesCategoriesCountsGet: async (
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1QuizzesCategoriesCountsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/Quizzes/categories/counts`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3844,29 +3363,16 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -3886,11 +3392,7 @@ export const QuizzesApiAxiosParamCreator = function (
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'category' is not null or undefined
-      assertParamExists(
-        "apiV1QuizzesCategoryCategoryGet",
-        "category",
-        category,
-      );
+      assertParamExists("apiV1QuizzesCategoryCategoryGet", "category", category);
       const localVarPath = `/api/v1/Quizzes/category/{category}`.replace(
         `{${"category"}}`,
         encodeURIComponent(String(category)),
@@ -3902,33 +3404,20 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (limit !== undefined) {
         localVarQueryParameter["limit"] = limit;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -3967,20 +3456,12 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (search !== undefined) {
         localVarQueryParameter["Search"] = search;
@@ -4015,13 +3496,8 @@ export const QuizzesApiAxiosParamCreator = function (
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4034,16 +3510,10 @@ export const QuizzesApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesIdDelete: async (
-      id: string,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1QuizzesIdDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuizzesIdDelete", "id", id);
-      const localVarPath = `/api/v1/Quizzes/{id}`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
+      const localVarPath = `/api/v1/Quizzes/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -4051,29 +3521,16 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "DELETE",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "DELETE", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4086,16 +3543,10 @@ export const QuizzesApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesIdGet: async (
-      id: string,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1QuizzesIdGet: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuizzesIdGet", "id", id);
-      const localVarPath = `/api/v1/Quizzes/{id}`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
+      const localVarPath = `/api/v1/Quizzes/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -4103,29 +3554,16 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4158,10 +3596,7 @@ export const QuizzesApiAxiosParamCreator = function (
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuizzesIdPut", "id", id);
-      const localVarPath = `/api/v1/Quizzes/{id}`.replace(
-        `{${"id"}}`,
-        encodeURIComponent(String(id)),
-      );
+      const localVarPath = `/api/v1/Quizzes/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -4169,23 +3604,13 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "PUT",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "PUT", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
-      const localVarFormParams = new ((configuration &&
-        configuration.formDataCtor) ||
-        FormData)();
+      const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (title !== undefined) {
         localVarFormParams.append("Title", title as any);
@@ -4212,22 +3637,14 @@ export const QuizzesApiAxiosParamCreator = function (
       }
 
       if (estimatedDurationMinutes !== undefined) {
-        localVarFormParams.append(
-          "EstimatedDurationMinutes",
-          estimatedDurationMinutes as any,
-        );
+        localVarFormParams.append("EstimatedDurationMinutes", estimatedDurationMinutes as any);
       }
 
       localVarHeaderParameter["Content-Type"] = "multipart/form-data";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -4237,10 +3654,26 @@ export const QuizzesApiAxiosParamCreator = function (
     },
     /**
      *
+     * @param {string} [search]
+     * @param {string} [category]
+     * @param {boolean} [isPublic]
+     * @param {string} [creatorId]
+     * @param {string} [sortBy]
+     * @param {boolean} [isDescending]
+     * @param {number} [pageSize]
+     * @param {string} [cursor]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     apiV1QuizzesMyGet: async (
+      search?: string,
+      category?: string,
+      isPublic?: boolean,
+      creatorId?: string,
+      sortBy?: string,
+      isDescending?: boolean,
+      pageSize?: number,
+      cursor?: string,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/Quizzes/my`;
@@ -4251,29 +3684,48 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
+
+      if (search !== undefined) {
+        localVarQueryParameter["Search"] = search;
+      }
+
+      if (category !== undefined) {
+        localVarQueryParameter["Category"] = category;
+      }
+
+      if (isPublic !== undefined) {
+        localVarQueryParameter["IsPublic"] = isPublic;
+      }
+
+      if (creatorId !== undefined) {
+        localVarQueryParameter["CreatorId"] = creatorId;
+      }
+
+      if (sortBy !== undefined) {
+        localVarQueryParameter["SortBy"] = sortBy;
+      }
+
+      if (isDescending !== undefined) {
+        localVarQueryParameter["IsDescending"] = isDescending;
+      }
+
+      if (pageSize !== undefined) {
+        localVarQueryParameter["PageSize"] = pageSize;
+      }
+
+      if (cursor !== undefined) {
+        localVarQueryParameter["Cursor"] = cursor;
+      }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4310,23 +3762,13 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
-      const localVarFormParams = new ((configuration &&
-        configuration.formDataCtor) ||
-        FormData)();
+      const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (title !== undefined) {
         localVarFormParams.append("Title", title as any);
@@ -4353,22 +3795,14 @@ export const QuizzesApiAxiosParamCreator = function (
       }
 
       if (estimatedDurationMinutes !== undefined) {
-        localVarFormParams.append(
-          "EstimatedDurationMinutes",
-          estimatedDurationMinutes as any,
-        );
+        localVarFormParams.append("EstimatedDurationMinutes", estimatedDurationMinutes as any);
       }
 
       localVarHeaderParameter["Content-Type"] = "multipart/form-data";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -4382,10 +3816,7 @@ export const QuizzesApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesPublicGet: async (
-      limit?: number,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1QuizzesPublicGet: async (limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/Quizzes/public`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4394,33 +3825,20 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (limit !== undefined) {
         localVarQueryParameter["limit"] = limit;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4449,20 +3867,12 @@ export const QuizzesApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (q !== undefined) {
         localVarQueryParameter["q"] = q;
@@ -4473,13 +3883,8 @@ export const QuizzesApiAxiosParamCreator = function (
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4505,22 +3910,11 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
     async apiV1QuizzesBatchDelete(
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesBatchDelete(
-          requestBody,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesBatchDelete(requestBody, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesBatchDelete"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesBatchDelete"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4538,22 +3932,11 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
     async apiV1QuizzesBatchPost(
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuizDtoIEnumerableApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesBatchPost(
-          requestBody,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizDtoIEnumerableApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesBatchPost(requestBody, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesBatchPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesBatchPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4569,21 +3952,11 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
      */
     async apiV1QuizzesCategoriesCountsGet(
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<StringInt32DictionaryApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesCategoriesCountsGet(
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringInt32DictionaryApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesCategoriesCountsGet(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesCategoriesCountsGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesCategoriesCountsGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4603,23 +3976,15 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       category: string,
       limit?: number,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesCategoryCategoryGet(
-          category,
-          limit,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesCategoryCategoryGet(
+        category,
+        limit,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesCategoryCategoryGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesCategoryCategoryGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4651,12 +4016,7 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       pageSize?: number,
       cursor?: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuizSummaryDtoPagedResponseApiResponse>
-    > {
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoPagedResponseApiResponse>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesGet(
         search,
         category,
@@ -4670,9 +4030,7 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4690,19 +4048,11 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
     async apiV1QuizzesIdDelete(
       id: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesIdDelete(id, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesIdDelete(id, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesIdDelete"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesIdDelete"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4720,19 +4070,11 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
     async apiV1QuizzesIdGet(
       id: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuizDtoApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesIdGet(id, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizDtoApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesIdGet(id, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesIdGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesIdGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4764,29 +4106,21 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       tags?: string,
       estimatedDurationMinutes?: number,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuizDtoApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesIdPut(
-          id,
-          title,
-          description,
-          thumbnail,
-          isPublic,
-          category,
-          tags,
-          estimatedDurationMinutes,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizDtoApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesIdPut(
+        id,
+        title,
+        description,
+        thumbnail,
+        isPublic,
+        category,
+        tags,
+        estimatedDurationMinutes,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesIdPut"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesIdPut"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4797,24 +4131,42 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @param {string} [search]
+     * @param {string} [category]
+     * @param {boolean} [isPublic]
+     * @param {string} [creatorId]
+     * @param {string} [sortBy]
+     * @param {boolean} [isDescending]
+     * @param {number} [pageSize]
+     * @param {string} [cursor]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async apiV1QuizzesMyGet(
+      search?: string,
+      category?: string,
+      isPublic?: boolean,
+      creatorId?: string,
+      sortBy?: string,
+      isDescending?: boolean,
+      pageSize?: number,
+      cursor?: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesMyGet(options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoPagedResponseApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesMyGet(
+        search,
+        category,
+        isPublic,
+        creatorId,
+        sortBy,
+        isDescending,
+        pageSize,
+        cursor,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesMyGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesMyGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4844,28 +4196,20 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       tags?: string,
       estimatedDurationMinutes?: number,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuizDtoApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesPost(
-          title,
-          description,
-          thumbnail,
-          isPublic,
-          category,
-          tags,
-          estimatedDurationMinutes,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizDtoApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesPost(
+        title,
+        description,
+        thumbnail,
+        isPublic,
+        category,
+        tags,
+        estimatedDurationMinutes,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4883,19 +4227,11 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
     async apiV1QuizzesPublicGet(
       limit?: number,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesPublicGet(limit, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesPublicGet(limit, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesPublicGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesPublicGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4915,23 +4251,11 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       q: string,
       limit?: number,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1QuizzesSearchGet(
-          q,
-          limit,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesSearchGet(q, limit, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesSearchGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesSearchGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4947,11 +4271,7 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
  * QuizzesApi - factory interface
  * @export
  */
-export const QuizzesApiFactory = function (
-  configuration?: Configuration,
-  basePath?: string,
-  axios?: AxiosInstance,
-) {
+export const QuizzesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
   const localVarFp = QuizzesApiFp(configuration);
   return {
     /**
@@ -4964,9 +4284,7 @@ export const QuizzesApiFactory = function (
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp
-        .apiV1QuizzesBatchDelete(requestBody, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1QuizzesBatchDelete(requestBody, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -4978,21 +4296,15 @@ export const QuizzesApiFactory = function (
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizDtoIEnumerableApiResponse> {
-      return localVarFp
-        .apiV1QuizzesBatchPost(requestBody, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1QuizzesBatchPost(requestBody, options).then((request) => request(axios, basePath));
     },
     /**
      *
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesCategoriesCountsGet(
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<StringInt32DictionaryApiResponse> {
-      return localVarFp
-        .apiV1QuizzesCategoriesCountsGet(options)
-        .then((request) => request(axios, basePath));
+    apiV1QuizzesCategoriesCountsGet(options?: RawAxiosRequestConfig): AxiosPromise<StringInt32DictionaryApiResponse> {
+      return localVarFp.apiV1QuizzesCategoriesCountsGet(options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -5035,17 +4347,7 @@ export const QuizzesApiFactory = function (
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizSummaryDtoPagedResponseApiResponse> {
       return localVarFp
-        .apiV1QuizzesGet(
-          search,
-          category,
-          isPublic,
-          creatorId,
-          sortBy,
-          isDescending,
-          pageSize,
-          cursor,
-          options,
-        )
+        .apiV1QuizzesGet(search, category, isPublic, creatorId, sortBy, isDescending, pageSize, cursor, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -5054,13 +4356,8 @@ export const QuizzesApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesIdDelete(
-      id: string,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp
-        .apiV1QuizzesIdDelete(id, options)
-        .then((request) => request(axios, basePath));
+    apiV1QuizzesIdDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<BooleanApiResponse> {
+      return localVarFp.apiV1QuizzesIdDelete(id, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -5068,13 +4365,8 @@ export const QuizzesApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesIdGet(
-      id: string,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<QuizDtoApiResponse> {
-      return localVarFp
-        .apiV1QuizzesIdGet(id, options)
-        .then((request) => request(axios, basePath));
+    apiV1QuizzesIdGet(id: string, options?: RawAxiosRequestConfig): AxiosPromise<QuizDtoApiResponse> {
+      return localVarFp.apiV1QuizzesIdGet(id, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -5116,14 +4408,30 @@ export const QuizzesApiFactory = function (
     },
     /**
      *
+     * @param {string} [search]
+     * @param {string} [category]
+     * @param {boolean} [isPublic]
+     * @param {string} [creatorId]
+     * @param {string} [sortBy]
+     * @param {boolean} [isDescending]
+     * @param {number} [pageSize]
+     * @param {string} [cursor]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     apiV1QuizzesMyGet(
+      search?: string,
+      category?: string,
+      isPublic?: boolean,
+      creatorId?: string,
+      sortBy?: string,
+      isDescending?: boolean,
+      pageSize?: number,
+      cursor?: string,
       options?: RawAxiosRequestConfig,
-    ): AxiosPromise<QuizSummaryDtoIEnumerableApiResponse> {
+    ): AxiosPromise<QuizSummaryDtoPagedResponseApiResponse> {
       return localVarFp
-        .apiV1QuizzesMyGet(options)
+        .apiV1QuizzesMyGet(search, category, isPublic, creatorId, sortBy, isDescending, pageSize, cursor, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -5149,16 +4457,7 @@ export const QuizzesApiFactory = function (
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizDtoApiResponse> {
       return localVarFp
-        .apiV1QuizzesPost(
-          title,
-          description,
-          thumbnail,
-          isPublic,
-          category,
-          tags,
-          estimatedDurationMinutes,
-          options,
-        )
+        .apiV1QuizzesPost(title, description, thumbnail, isPublic, category, tags, estimatedDurationMinutes, options)
         .then((request) => request(axios, basePath));
     },
     /**
@@ -5171,9 +4470,7 @@ export const QuizzesApiFactory = function (
       limit?: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizSummaryDtoIEnumerableApiResponse> {
-      return localVarFp
-        .apiV1QuizzesPublicGet(limit, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1QuizzesPublicGet(limit, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -5187,9 +4484,7 @@ export const QuizzesApiFactory = function (
       limit?: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizSummaryDtoIEnumerableApiResponse> {
-      return localVarFp
-        .apiV1QuizzesSearchGet(q, limit, options)
-        .then((request) => request(axios, basePath));
+      return localVarFp.apiV1QuizzesSearchGet(q, limit, options).then((request) => request(axios, basePath));
     },
   };
 };
@@ -5208,10 +4503,7 @@ export class QuizzesApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuizzesApi
    */
-  public apiV1QuizzesBatchDelete(
-    requestBody: Array<string>,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1QuizzesBatchDelete(requestBody: Array<string>, options?: RawAxiosRequestConfig) {
     return QuizzesApiFp(this.configuration)
       .apiV1QuizzesBatchDelete(requestBody, options)
       .then((request) => request(this.axios, this.basePath));
@@ -5224,10 +4516,7 @@ export class QuizzesApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuizzesApi
    */
-  public apiV1QuizzesBatchPost(
-    requestBody: Array<string>,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1QuizzesBatchPost(requestBody: Array<string>, options?: RawAxiosRequestConfig) {
     return QuizzesApiFp(this.configuration)
       .apiV1QuizzesBatchPost(requestBody, options)
       .then((request) => request(this.axios, this.basePath));
@@ -5253,11 +4542,7 @@ export class QuizzesApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuizzesApi
    */
-  public apiV1QuizzesCategoryCategoryGet(
-    category: string,
-    limit?: number,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1QuizzesCategoryCategoryGet(category: string, limit?: number, options?: RawAxiosRequestConfig) {
     return QuizzesApiFp(this.configuration)
       .apiV1QuizzesCategoryCategoryGet(category, limit, options)
       .then((request) => request(this.axios, this.basePath));
@@ -5289,17 +4574,7 @@ export class QuizzesApi extends BaseAPI {
     options?: RawAxiosRequestConfig,
   ) {
     return QuizzesApiFp(this.configuration)
-      .apiV1QuizzesGet(
-        search,
-        category,
-        isPublic,
-        creatorId,
-        sortBy,
-        isDescending,
-        pageSize,
-        cursor,
-        options,
-      )
+      .apiV1QuizzesGet(search, category, isPublic, creatorId, sortBy, isDescending, pageSize, cursor, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -5355,29 +4630,37 @@ export class QuizzesApi extends BaseAPI {
     options?: RawAxiosRequestConfig,
   ) {
     return QuizzesApiFp(this.configuration)
-      .apiV1QuizzesIdPut(
-        id,
-        title,
-        description,
-        thumbnail,
-        isPublic,
-        category,
-        tags,
-        estimatedDurationMinutes,
-        options,
-      )
+      .apiV1QuizzesIdPut(id, title, description, thumbnail, isPublic, category, tags, estimatedDurationMinutes, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
   /**
    *
+   * @param {string} [search]
+   * @param {string} [category]
+   * @param {boolean} [isPublic]
+   * @param {string} [creatorId]
+   * @param {string} [sortBy]
+   * @param {boolean} [isDescending]
+   * @param {number} [pageSize]
+   * @param {string} [cursor]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof QuizzesApi
    */
-  public apiV1QuizzesMyGet(options?: RawAxiosRequestConfig) {
+  public apiV1QuizzesMyGet(
+    search?: string,
+    category?: string,
+    isPublic?: boolean,
+    creatorId?: string,
+    sortBy?: string,
+    isDescending?: boolean,
+    pageSize?: number,
+    cursor?: string,
+    options?: RawAxiosRequestConfig,
+  ) {
     return QuizzesApiFp(this.configuration)
-      .apiV1QuizzesMyGet(options)
+      .apiV1QuizzesMyGet(search, category, isPublic, creatorId, sortBy, isDescending, pageSize, cursor, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -5405,16 +4688,7 @@ export class QuizzesApi extends BaseAPI {
     options?: RawAxiosRequestConfig,
   ) {
     return QuizzesApiFp(this.configuration)
-      .apiV1QuizzesPost(
-        title,
-        description,
-        thumbnail,
-        isPublic,
-        category,
-        tags,
-        estimatedDurationMinutes,
-        options,
-      )
+      .apiV1QuizzesPost(title, description, thumbnail, isPublic, category, tags, estimatedDurationMinutes, options)
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -5425,10 +4699,7 @@ export class QuizzesApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuizzesApi
    */
-  public apiV1QuizzesPublicGet(
-    limit?: number,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1QuizzesPublicGet(limit?: number, options?: RawAxiosRequestConfig) {
     return QuizzesApiFp(this.configuration)
       .apiV1QuizzesPublicGet(limit, options)
       .then((request) => request(this.axios, this.basePath));
@@ -5442,11 +4713,7 @@ export class QuizzesApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuizzesApi
    */
-  public apiV1QuizzesSearchGet(
-    q: string,
-    limit?: number,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1QuizzesSearchGet(q: string, limit?: number, options?: RawAxiosRequestConfig) {
     return QuizzesApiFp(this.configuration)
       .apiV1QuizzesSearchGet(q, limit, options)
       .then((request) => request(this.axios, this.basePath));
@@ -5457,18 +4724,14 @@ export class QuizzesApi extends BaseAPI {
  * UsersApi - axios parameter creator
  * @export
  */
-export const UsersApiAxiosParamCreator = function (
-  configuration?: Configuration,
-) {
+export const UsersApiAxiosParamCreator = function (configuration?: Configuration) {
   return {
     /**
      *
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1UsersAvatarDelete: async (
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1UsersAvatarDelete: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/Users/avatar`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -5477,29 +4740,16 @@ export const UsersApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "DELETE",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "DELETE", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -5512,10 +4762,7 @@ export const UsersApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1UsersAvatarPost: async (
-      avatar: File,
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1UsersAvatarPost: async (avatar: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'avatar' is not null or undefined
       assertParamExists("apiV1UsersAvatarPost", "avatar", avatar);
       const localVarPath = `/api/v1/Users/avatar`;
@@ -5526,23 +4773,13 @@ export const UsersApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
-      const localVarFormParams = new ((configuration &&
-        configuration.formDataCtor) ||
-        FormData)();
+      const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       if (avatar !== undefined) {
         localVarFormParams.append("Avatar", avatar as any);
@@ -5551,13 +4788,8 @@ export const UsersApiAxiosParamCreator = function (
       localVarHeaderParameter["Content-Type"] = "multipart/form-data";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -5583,36 +4815,19 @@ export const UsersApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "POST",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
-      localVarRequestOptions.data = serializeDataIfNeeded(
-        changePasswordRequest,
-        localVarRequestOptions,
-        configuration,
-      );
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(changePasswordRequest, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -5624,9 +4839,7 @@ export const UsersApiAxiosParamCreator = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1UsersProfileGet: async (
-      options: RawAxiosRequestConfig = {},
-    ): Promise<RequestArgs> => {
+    apiV1UsersProfileGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/Users/profile`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -5635,29 +4848,16 @@ export const UsersApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "GET",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -5682,31 +4882,18 @@ export const UsersApiAxiosParamCreator = function (
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = {
-        method: "PUT",
-        ...baseOptions,
-        ...options,
-      };
+      const localVarRequestOptions = { method: "PUT", ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
       // authentication Bearer required
-      await setApiKeyToObject(
-        localVarHeaderParameter,
-        "Authorization",
-        configuration,
-      );
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
 
       localVarHeaderParameter["Content-Type"] = "application/json";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions =
-        baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = {
-        ...localVarHeaderParameter,
-        ...headersFromBaseOptions,
-        ...options.headers,
-      };
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
       localVarRequestOptions.data = serializeDataIfNeeded(
         updateUserProfileRequest,
         localVarRequestOptions,
@@ -5735,19 +4922,11 @@ export const UsersApiFp = function (configuration?: Configuration) {
      */
     async apiV1UsersAvatarDelete(
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1UsersAvatarDelete(options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersAvatarDelete(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["UsersApi.apiV1UsersAvatarDelete"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["UsersApi.apiV1UsersAvatarDelete"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -5765,19 +4944,11 @@ export const UsersApiFp = function (configuration?: Configuration) {
     async apiV1UsersAvatarPost(
       avatar: File,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<ImageResponseApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1UsersAvatarPost(avatar, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImageResponseApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersAvatarPost(avatar, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["UsersApi.apiV1UsersAvatarPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["UsersApi.apiV1UsersAvatarPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -5795,22 +4966,14 @@ export const UsersApiFp = function (configuration?: Configuration) {
     async apiV1UsersChangePasswordPost(
       changePasswordRequest?: ChangePasswordRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1UsersChangePasswordPost(
-          changePasswordRequest,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersChangePasswordPost(
+        changePasswordRequest,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["UsersApi.apiV1UsersChangePasswordPost"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["UsersApi.apiV1UsersChangePasswordPost"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -5826,19 +4989,11 @@ export const UsersApiFp = function (configuration?: Configuration) {
      */
     async apiV1UsersProfileGet(
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<UserProfileDtoApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1UsersProfileGet(options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserProfileDtoApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersProfileGet(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["UsersApi.apiV1UsersProfileGet"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["UsersApi.apiV1UsersProfileGet"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -5856,22 +5011,11 @@ export const UsersApiFp = function (configuration?: Configuration) {
     async apiV1UsersProfilePut(
       updateUserProfileRequest?: UpdateUserProfileRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<
-      (
-        axios?: AxiosInstance,
-        basePath?: string,
-      ) => AxiosPromise<BooleanApiResponse>
-    > {
-      const localVarAxiosArgs =
-        await localVarAxiosParamCreator.apiV1UsersProfilePut(
-          updateUserProfileRequest,
-          options,
-        );
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersProfilePut(updateUserProfileRequest, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["UsersApi.apiV1UsersProfilePut"]?.[
-          localVarOperationServerIndex
-        ]?.url;
+        operationServerMap["UsersApi.apiV1UsersProfilePut"]?.[localVarOperationServerIndex]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -5887,11 +5031,7 @@ export const UsersApiFp = function (configuration?: Configuration) {
  * UsersApi - factory interface
  * @export
  */
-export const UsersApiFactory = function (
-  configuration?: Configuration,
-  basePath?: string,
-  axios?: AxiosInstance,
-) {
+export const UsersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
   const localVarFp = UsersApiFp(configuration);
   return {
     /**
@@ -5899,12 +5039,8 @@ export const UsersApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1UsersAvatarDelete(
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp
-        .apiV1UsersAvatarDelete(options)
-        .then((request) => request(axios, basePath));
+    apiV1UsersAvatarDelete(options?: RawAxiosRequestConfig): AxiosPromise<BooleanApiResponse> {
+      return localVarFp.apiV1UsersAvatarDelete(options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -5912,13 +5048,8 @@ export const UsersApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1UsersAvatarPost(
-      avatar: File,
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<ImageResponseApiResponse> {
-      return localVarFp
-        .apiV1UsersAvatarPost(avatar, options)
-        .then((request) => request(axios, basePath));
+    apiV1UsersAvatarPost(avatar: File, options?: RawAxiosRequestConfig): AxiosPromise<ImageResponseApiResponse> {
+      return localVarFp.apiV1UsersAvatarPost(avatar, options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -5939,12 +5070,8 @@ export const UsersApiFactory = function (
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1UsersProfileGet(
-      options?: RawAxiosRequestConfig,
-    ): AxiosPromise<UserProfileDtoApiResponse> {
-      return localVarFp
-        .apiV1UsersProfileGet(options)
-        .then((request) => request(axios, basePath));
+    apiV1UsersProfileGet(options?: RawAxiosRequestConfig): AxiosPromise<UserProfileDtoApiResponse> {
+      return localVarFp.apiV1UsersProfileGet(options).then((request) => request(axios, basePath));
     },
     /**
      *
@@ -6002,10 +5129,7 @@ export class UsersApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UsersApi
    */
-  public apiV1UsersChangePasswordPost(
-    changePasswordRequest?: ChangePasswordRequest,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1UsersChangePasswordPost(changePasswordRequest?: ChangePasswordRequest, options?: RawAxiosRequestConfig) {
     return UsersApiFp(this.configuration)
       .apiV1UsersChangePasswordPost(changePasswordRequest, options)
       .then((request) => request(this.axios, this.basePath));
@@ -6030,10 +5154,7 @@ export class UsersApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UsersApi
    */
-  public apiV1UsersProfilePut(
-    updateUserProfileRequest?: UpdateUserProfileRequest,
-    options?: RawAxiosRequestConfig,
-  ) {
+  public apiV1UsersProfilePut(updateUserProfileRequest?: UpdateUserProfileRequest, options?: RawAxiosRequestConfig) {
     return UsersApiFp(this.configuration)
       .apiV1UsersProfilePut(updateUserProfileRequest, options)
       .then((request) => request(this.axios, this.basePath));
