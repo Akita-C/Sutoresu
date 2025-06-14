@@ -7,19 +7,10 @@ export const metadata: Metadata = {
   title: "Browse Quizzes | Sutoresu",
   description:
     "Discover and take interactive quizzes on various topics. Browse public quizzes, filter by categories, and test your knowledge with our engaging quiz platform.",
-  keywords: [
-    "quizzes",
-    "interactive learning",
-    "education",
-    "test",
-    "knowledge",
-    "trivia",
-    "study",
-  ],
+  keywords: ["quizzes", "interactive learning", "education", "test", "knowledge", "trivia", "study"],
   openGraph: {
     title: "Browse Quizzes | Sutoresu",
-    description:
-      "Discover and take interactive quizzes on various topics. Test your knowledge with engaging quizzes.",
+    description: "Discover and take interactive quizzes on various topics. Test your knowledge with engaging quizzes.",
     type: "website",
     siteName: "Sutoresu",
   },
@@ -43,20 +34,10 @@ export default async function QuizzesPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const searchParams = await searchParamsPromise;
-  const search =
-    typeof searchParams.search === "string" ? searchParams.search : undefined;
-  const category =
-    typeof searchParams.category === "string"
-      ? searchParams.category
-      : undefined;
-  const isPublic =
-    searchParams.public === "true"
-      ? true
-      : searchParams.public === "false"
-        ? false
-        : undefined;
-  const sortBy =
-    typeof searchParams.sortBy === "string" ? searchParams.sortBy : undefined;
+  const search = typeof searchParams.search === "string" ? searchParams.search : undefined;
+  const category = typeof searchParams.category === "string" ? searchParams.category : undefined;
+  const isPublic = searchParams.public === "true" ? true : searchParams.public === "false" ? false : undefined;
+  const sortBy = typeof searchParams.sortBy === "string" ? searchParams.sortBy : undefined;
   const isDescending = searchParams.desc === "true";
 
   const initialFilters = {
@@ -72,8 +53,7 @@ export default async function QuizzesPage({
       <div className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight mb-2">Quiz Library</h1>
         <p className="text-muted-foreground text-lg">
-          Explore our collection of interactive quizzes and expand your
-          knowledge
+          Explore our collection of interactive quizzes and expand your knowledge
         </p>
       </div>
 

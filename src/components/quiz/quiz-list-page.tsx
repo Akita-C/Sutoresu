@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useOptimistic } from "react";
+import { useState } from "react";
 import { useQuizzes } from "@/features/quizzes";
 import { QuizFilters } from "@/features/quizzes";
 import { QuizCard } from "./quiz-card";
@@ -19,57 +19,35 @@ interface QuizListPageProps {
 export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
   const [filters, setFilters] = useState<QuizFilters>(initialFilters);
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [isPending, startTransition] = useTransition();
 
-  const [optimisticFilters, setOptimisticFilters] = useOptimistic(
-    filters,
-    (_, newFilters: QuizFilters) => newFilters,
-  );
-
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    refetch,
-  } = useQuizzes(optimisticFilters);
+  const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useQuizzes(filters);
 
   const handleFiltersChange = (newFilters: QuizFilters) => {
-    startTransition(() => {
-      setOptimisticFilters(newFilters);
-      setFilters(newFilters);
+    setFilters(newFilters);
 
-      const params = new URLSearchParams();
-      if (newFilters.search) params.set("search", newFilters.search);
-      if (newFilters.category) params.set("category", newFilters.category);
-      if (newFilters.isPublic !== undefined)
-        params.set("public", newFilters.isPublic.toString());
-      if (newFilters.sortBy) params.set("sortBy", newFilters.sortBy);
-      if (newFilters.isDescending) params.set("desc", "true");
+    const params = new URLSearchParams();
+    if (newFilters.search) params.set("search", newFilters.search);
+    if (newFilters.category) params.set("category", newFilters.category);
+    if (newFilters.isPublic !== undefined) params.set("public", newFilters.isPublic.toString());
+    if (newFilters.sortBy) params.set("sortBy", newFilters.sortBy);
+    if (newFilters.isDescending) params.set("desc", "true");
 
-      const url = params.toString() ? `?${params.toString()}` : "/quizzes";
-      window.history.replaceState(null, "", url);
-    });
+    const url = params.toString() ? `?${params.toString()}` : "/quizzes";
+    window.history.replaceState(null, "", url);
   };
 
   const handleSearch = (query: string) => {
-    startTransition(() => {
-      const newFilters = { ...optimisticFilters };
-      if (query.trim()) {
-        newFilters.search = query.trim();
-      } else {
-        delete newFilters.search;
-      }
-      handleFiltersChange(newFilters);
-    });
+    const newFilters = { ...filters };
+    if (query.trim()) {
+      newFilters.search = query.trim();
+    } else {
+      delete newFilters.search;
+    }
+    handleFiltersChange(newFilters);
   };
 
   const handleLoadMore = () => {
-    startTransition(() => {
-      fetchNextPage();
-    });
+    fetchNextPage();
   };
 
   if (error) {
@@ -77,11 +55,7 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
       <div className="flex gap-8">
         <div className="w-80 flex-shrink-0">
           <div className="sticky top-6">
-            <QuizFiltersComponent
-              filters={optimisticFilters}
-              onFiltersChange={handleFiltersChange}
-              onSearch={handleSearch}
-            />
+            <QuizFiltersComponent filters={filters} onFiltersChange={handleFiltersChange} onSearch={handleSearch} />
           </div>
         </div>
 
@@ -90,12 +64,7 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
               <span>Failed to load quizzes. Please try again.</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => refetch()}
-                className="ml-4"
-              >
+              <Button variant="outline" size="sm" onClick={() => refetch()} className="ml-4">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Retry
               </Button>
@@ -106,16 +75,11 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
     );
   }
 
-  const allQuizzes =
-    data?.pages?.flatMap((page) =>
-      page.success ? page.data?.data || [] : [],
-    ) || [];
+  const allQuizzes = data?.pages?.flatMap((page) => (page.success ? page.data?.data || [] : [])) || [];
 
   const gridClasses = cn(
     "grid gap-6",
-    view === "grid"
-      ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      : "grid-cols-1",
+    view === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1",
   );
 
   return (
@@ -124,11 +88,7 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
         <div className="sticky top-18 space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-4">Search & Filter</h3>
-            <QuizFiltersComponent
-              filters={optimisticFilters}
-              onFiltersChange={handleFiltersChange}
-              onSearch={handleSearch}
-            />
+            <QuizFiltersComponent filters={filters} onFiltersChange={handleFiltersChange} onSearch={handleSearch} />
           </div>
 
           <div>
@@ -144,10 +104,10 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
                 {allQuizzes.length > 0
                   ? `Found ${allQuizzes.length} quiz${allQuizzes.length === 1 ? "" : "es"}`
                   : "No quizzes found"}
-                {isPending && (
+                {isLoading && (
                   <div className="mt-2 inline-flex items-center text-xs">
                     <RefreshCw className="h-3 w-3 animate-spin mr-1" />
-                    Updating results...
+                    Loading...
                   </div>
                 )}
               </div>
@@ -161,9 +121,7 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold">Browse Quizzes</h2>
-              <p className="text-muted-foreground text-sm mt-1">
-                Discover and take interactive quizzes
-              </p>
+              <p className="text-muted-foreground text-sm mt-1">Discover and take interactive quizzes</p>
             </div>
           </div>
 
@@ -171,9 +129,7 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
             {isLoading ? (
               <QuizSkeleton variant={view} count={12} />
             ) : allQuizzes.length > 0 ? (
-              allQuizzes.map((quiz) => (
-                <QuizCard key={quiz.id} quiz={quiz} variant={view} />
-              ))
+              allQuizzes.map((quiz) => <QuizCard key={quiz.id} quiz={quiz} variant={view} />)
             ) : (
               <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
                 <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
@@ -185,10 +141,7 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
                     ? "Try adjusting your search terms or filters to find more quizzes"
                     : "Be the first to create a quiz and share your knowledge!"}
                 </p>
-                <Button
-                  variant="outline"
-                  onClick={() => handleFiltersChange({})}
-                >
+                <Button variant="outline" onClick={() => handleFiltersChange({})}>
                   Clear All Filters
                 </Button>
               </div>
@@ -197,13 +150,8 @@ export function QuizListPage({ initialFilters = {} }: QuizListPageProps) {
 
           {hasNextPage && (
             <div className="flex justify-center pt-8">
-              <Button
-                variant="outline"
-                onClick={handleLoadMore}
-                disabled={isFetchingNextPage || isPending}
-                className="min-w-32"
-              >
-                {isFetchingNextPage || isPending ? (
+              <Button variant="outline" onClick={handleLoadMore} disabled={isFetchingNextPage} className="min-w-32">
+                {isFetchingNextPage ? (
                   <>
                     <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Loading...
