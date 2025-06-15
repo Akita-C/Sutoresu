@@ -48,6 +48,8 @@ function SortableMatchItem({ id, item, onUpdate, onRemove, canRemove, side }: So
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const placeholderText = side === "left" ? "Left item" : "Right item";
+
   return (
     <div ref={setNodeRef} style={style} className="flex items-center gap-2 p-3 border rounded-lg bg-background">
       <div
@@ -61,7 +63,7 @@ function SortableMatchItem({ id, item, onUpdate, onRemove, canRemove, side }: So
       <Input
         value={item.text}
         onChange={(e) => onUpdate(e.target.value)}
-        placeholder={`${side === "left" ? "Left" : "Right"} item`}
+        placeholder={placeholderText}
         className="flex-1"
       />
 

@@ -69,21 +69,34 @@ export function getQuestionTypeLabel(type: QuestionType): string {
   }
 }
 
+export function getQuestionTypeStyles(type: QuestionType) {
+  const baseClasses = "px-2 py-1 rounded text-xs font-medium";
+
+  const colorMap: Record<number, string> = {
+    [QuestionType.NUMBER_1]: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+    [QuestionType.NUMBER_2]: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
+    [QuestionType.NUMBER_3]: "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400",
+    [QuestionType.NUMBER_4]: "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400",
+    [QuestionType.NUMBER_5]: "bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400",
+  };
+
+  return {
+    base: baseClasses,
+    color: colorMap[type] ?? "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400",
+  };
+}
+
 export function getQuestionTypeColor(type: QuestionType): string {
-  switch (type) {
-    case QuestionType.NUMBER_1:
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
-    case QuestionType.NUMBER_2:
-      return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
-    case QuestionType.NUMBER_3:
-      return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
-    case QuestionType.NUMBER_4:
-      return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400";
-    case QuestionType.NUMBER_5:
-      return "bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
-  }
+  return getQuestionTypeStyles(type).color;
+}
+
+export function getQuestionCardStyles(question: LocalQuestion, isDragging: boolean = false) {
+  return {
+    base: "group transition-all duration-200",
+    dragging: isDragging,
+    isNew: question.isNew,
+    isModified: question.isModified && !question.isNew,
+  };
 }
 
 export const questionTypeOptions = [

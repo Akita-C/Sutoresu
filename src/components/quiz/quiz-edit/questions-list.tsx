@@ -16,6 +16,7 @@ import {
 
 import { LocalQuestion } from "./types";
 import { GripVertical, MoreVertical, Edit, Trash2, Clock, Trophy } from "lucide-react";
+import { cn } from "@/lib/utils";
 import * as utils from "./utils";
 
 interface QuestionsListProps {
@@ -61,15 +62,19 @@ function SortableQuestionItem({ question, index, onEdit, onDelete }: SortableQue
     transition,
   };
 
+  const cardStyles = utils.getQuestionCardStyles(question, isDragging);
+  const typeStyles = utils.getQuestionTypeStyles(question.questionType);
+
   return (
     <Card
       ref={setNodeRef}
       style={style}
-      className={`group transition-all duration-200 ${
-        isDragging ? "shadow-lg scale-105 rotate-1" : ""
-      } ${question.isNew ? "border-green-200 bg-green-50/30" : ""} ${
-        question.isModified ? "border-blue-200 bg-blue-50/30" : ""
-      }`}
+      className={cn(
+        cardStyles.base,
+        cardStyles.dragging && "shadow-lg scale-105 rotate-1",
+        cardStyles.isNew && "border-green-200 bg-green-50/30",
+        cardStyles.isModified && "border-blue-200 bg-blue-50/30",
+      )}
     >
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
@@ -90,9 +95,7 @@ function SortableQuestionItem({ question, index, onEdit, onDelete }: SortableQue
           {/* Question Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <div
-                className={`px-2 py-1 rounded text-xs font-medium ${utils.getQuestionTypeColor(question.questionType)}`}
-              >
+              <div className={cn(typeStyles.base, typeStyles.color)}>
                 {utils.getQuestionTypeLabel(question.questionType)}
               </div>
 
