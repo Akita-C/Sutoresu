@@ -1,13 +1,17 @@
 import { useQueries } from "@tanstack/react-query";
 import { drawService } from "../services/draw-service";
 
-export const useDrawRoomData = (playerId: string | undefined, roomId: string | undefined) => {
+export const useDrawRoomData = (
+  playerId: string | undefined,
+  roomId: string | undefined,
+  connectionId: string | null,
+) => {
   return useQueries({
     queries: [
       {
         queryKey: ["draw-room-players", playerId, roomId],
         queryFn: async () => (await drawService.getDrawRoomPlayers(playerId!, roomId!)).data,
-        enabled: !!playerId && !!roomId,
+        enabled: !!playerId && !!roomId && !!connectionId,
       },
       {
         queryKey: ["draw-room", roomId],

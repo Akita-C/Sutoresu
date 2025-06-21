@@ -23,6 +23,12 @@ export interface DrawRoom {
   config: { maxPlayers: number; maxRoundPerPlayers: number };
 }
 
+export interface DrawWaitingRoomMessage {
+  senderId: string;
+  senderName: string;
+  message: string;
+}
+
 export interface DrawGameHubContract {
   server: {
     JoinRoom(roomId: string, request: DrawPlayerJoinRequest): Promise<void>;
