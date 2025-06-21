@@ -1,4 +1,4 @@
-import RoomPage from "@/features/drawing/pages/room-page";
+import DrawRoomPage from "@/features/drawing/pages/draw-room-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   keywords: ["draw", "room", "friends"],
 };
 
-export default function Page() {
-  return <RoomPage />;
+interface PageProps {
+  params: Promise<{ roomId: string }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const { roomId } = await params;
+  return <DrawRoomPage roomId={roomId} />;
 }

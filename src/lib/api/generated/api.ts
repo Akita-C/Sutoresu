@@ -303,6 +303,168 @@ export interface CreateQuestionItem {
 /**
  *
  * @export
+ * @interface DrawHost
+ */
+export interface DrawHost {
+  /**
+   *
+   * @type {string}
+   * @memberof DrawHost
+   */
+  hostId?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof DrawHost
+   */
+  hostName?: string | null;
+}
+/**
+ *
+ * @export
+ * @interface DrawPlayer
+ */
+export interface DrawPlayer {
+  /**
+   *
+   * @type {string}
+   * @memberof DrawPlayer
+   */
+  connectionId?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof DrawPlayer
+   */
+  playerId?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof DrawPlayer
+   */
+  playerName?: string | null;
+  /**
+   *
+   * @type {string}
+   * @memberof DrawPlayer
+   */
+  playerAvatar?: string | null;
+}
+/**
+ *
+ * @export
+ * @interface DrawPlayerListApiResponse
+ */
+export interface DrawPlayerListApiResponse {
+  /**
+   *
+   * @type {boolean}
+   * @memberof DrawPlayerListApiResponse
+   */
+  success?: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof DrawPlayerListApiResponse
+   */
+  message?: string | null;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof DrawPlayerListApiResponse
+   */
+  errors?: Array<string> | null;
+  /**
+   *
+   * @type {Array<DrawPlayer>}
+   * @memberof DrawPlayerListApiResponse
+   */
+  data?: Array<DrawPlayer> | null;
+}
+/**
+ *
+ * @export
+ * @interface DrawRoom
+ */
+export interface DrawRoom {
+  /**
+   *
+   * @type {string}
+   * @memberof DrawRoom
+   */
+  roomId?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof DrawRoom
+   */
+  roomName?: string | null;
+  /**
+   *
+   * @type {DrawHost}
+   * @memberof DrawRoom
+   */
+  host?: DrawHost;
+  /**
+   *
+   * @type {DrawRoomConfig}
+   * @memberof DrawRoom
+   */
+  config?: DrawRoomConfig;
+}
+/**
+ *
+ * @export
+ * @interface DrawRoomApiResponse
+ */
+export interface DrawRoomApiResponse {
+  /**
+   *
+   * @type {boolean}
+   * @memberof DrawRoomApiResponse
+   */
+  success?: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof DrawRoomApiResponse
+   */
+  message?: string | null;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof DrawRoomApiResponse
+   */
+  errors?: Array<string> | null;
+  /**
+   *
+   * @type {DrawRoom}
+   * @memberof DrawRoomApiResponse
+   */
+  data?: DrawRoom;
+}
+/**
+ *
+ * @export
+ * @interface DrawRoomConfig
+ */
+export interface DrawRoomConfig {
+  /**
+   *
+   * @type {number}
+   * @memberof DrawRoomConfig
+   */
+  maxPlayers?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DrawRoomConfig
+   */
+  maxRoundPerPlayers?: number;
+}
+/**
+ *
+ * @export
  * @interface ErrorResponse
  */
 export interface ErrorResponse {
@@ -324,6 +486,37 @@ export interface ErrorResponse {
    * @memberof ErrorResponse
    */
   errors?: Array<string> | null;
+}
+/**
+ *
+ * @export
+ * @interface GuidApiResponse
+ */
+export interface GuidApiResponse {
+  /**
+   *
+   * @type {boolean}
+   * @memberof GuidApiResponse
+   */
+  success?: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof GuidApiResponse
+   */
+  message?: string | null;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof GuidApiResponse
+   */
+  errors?: Array<string> | null;
+  /**
+   *
+   * @type {string}
+   * @memberof GuidApiResponse
+   */
+  data?: string;
 }
 /**
  *
@@ -1951,6 +2144,349 @@ export class AuthApi extends BaseAPI {
   public apiV1AuthRevokePost(refreshTokenRequest?: RefreshTokenRequest, options?: RawAxiosRequestConfig) {
     return AuthApiFp(this.configuration)
       .apiV1AuthRevokePost(refreshTokenRequest, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+}
+
+/**
+ * DrawGameApi - axios parameter creator
+ * @export
+ */
+export const DrawGameApiAxiosParamCreator = function (configuration?: Configuration) {
+  return {
+    /**
+     *
+     * @param {string} [roomName]
+     * @param {number} [configMaxPlayers]
+     * @param {number} [configMaxRoundPerPlayers]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1DrawGameCreatePost: async (
+      roomName?: string,
+      configMaxPlayers?: number,
+      configMaxRoundPerPlayers?: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      const localVarPath = `/api/v1/DrawGame/create`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+      const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+      // authentication Bearer required
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
+
+      if (roomName !== undefined) {
+        localVarFormParams.append("RoomName", roomName as any);
+      }
+
+      if (configMaxPlayers !== undefined) {
+        localVarFormParams.append("Config.MaxPlayers", configMaxPlayers as any);
+      }
+
+      if (configMaxRoundPerPlayers !== undefined) {
+        localVarFormParams.append("Config.MaxRoundPerPlayers", configMaxRoundPerPlayers as any);
+      }
+
+      localVarHeaderParameter["Content-Type"] = "multipart/form-data";
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = localVarFormParams;
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} roomId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1DrawGameRoomRoomIdGet: async (roomId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'roomId' is not null or undefined
+      assertParamExists("apiV1DrawGameRoomRoomIdGet", "roomId", roomId);
+      const localVarPath = `/api/v1/DrawGame/room/{roomId}`.replace(
+        `{${"roomId"}}`,
+        encodeURIComponent(String(roomId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication Bearer required
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} roomId
+     * @param {string} [playerId]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1DrawGameRoomRoomIdPlayersGet: async (
+      roomId: string,
+      playerId?: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'roomId' is not null or undefined
+      assertParamExists("apiV1DrawGameRoomRoomIdPlayersGet", "roomId", roomId);
+      const localVarPath = `/api/v1/DrawGame/room/{roomId}/players`.replace(
+        `{${"roomId"}}`,
+        encodeURIComponent(String(roomId)),
+      );
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: "GET", ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication Bearer required
+      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
+
+      if (playerId !== undefined) {
+        localVarQueryParameter["playerId"] = playerId;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * DrawGameApi - functional programming interface
+ * @export
+ */
+export const DrawGameApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = DrawGameApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @param {string} [roomName]
+     * @param {number} [configMaxPlayers]
+     * @param {number} [configMaxRoundPerPlayers]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async apiV1DrawGameCreatePost(
+      roomName?: string,
+      configMaxPlayers?: number,
+      configMaxRoundPerPlayers?: number,
+      options?: RawAxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GuidApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1DrawGameCreatePost(
+        roomName,
+        configMaxPlayers,
+        configMaxRoundPerPlayers,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DrawGameApi.apiV1DrawGameCreatePost"]?.[localVarOperationServerIndex]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @param {string} roomId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async apiV1DrawGameRoomRoomIdGet(
+      roomId: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DrawRoomApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1DrawGameRoomRoomIdGet(roomId, options);
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DrawGameApi.apiV1DrawGameRoomRoomIdGet"]?.[localVarOperationServerIndex]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+    /**
+     *
+     * @param {string} roomId
+     * @param {string} [playerId]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async apiV1DrawGameRoomRoomIdPlayersGet(
+      roomId: string,
+      playerId?: string,
+      options?: RawAxiosRequestConfig,
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DrawPlayerListApiResponse>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1DrawGameRoomRoomIdPlayersGet(
+        roomId,
+        playerId,
+        options,
+      );
+      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+      const localVarOperationServerBasePath =
+        operationServerMap["DrawGameApi.apiV1DrawGameRoomRoomIdPlayersGet"]?.[localVarOperationServerIndex]?.url;
+      return (axios, basePath) =>
+        createRequestFunction(
+          localVarAxiosArgs,
+          globalAxios,
+          BASE_PATH,
+          configuration,
+        )(axios, localVarOperationServerBasePath || basePath);
+    },
+  };
+};
+
+/**
+ * DrawGameApi - factory interface
+ * @export
+ */
+export const DrawGameApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+  const localVarFp = DrawGameApiFp(configuration);
+  return {
+    /**
+     *
+     * @param {string} [roomName]
+     * @param {number} [configMaxPlayers]
+     * @param {number} [configMaxRoundPerPlayers]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1DrawGameCreatePost(
+      roomName?: string,
+      configMaxPlayers?: number,
+      configMaxRoundPerPlayers?: number,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<GuidApiResponse> {
+      return localVarFp
+        .apiV1DrawGameCreatePost(roomName, configMaxPlayers, configMaxRoundPerPlayers, options)
+        .then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} roomId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1DrawGameRoomRoomIdGet(roomId: string, options?: RawAxiosRequestConfig): AxiosPromise<DrawRoomApiResponse> {
+      return localVarFp.apiV1DrawGameRoomRoomIdGet(roomId, options).then((request) => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} roomId
+     * @param {string} [playerId]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    apiV1DrawGameRoomRoomIdPlayersGet(
+      roomId: string,
+      playerId?: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<DrawPlayerListApiResponse> {
+      return localVarFp
+        .apiV1DrawGameRoomRoomIdPlayersGet(roomId, playerId, options)
+        .then((request) => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * DrawGameApi - object-oriented interface
+ * @export
+ * @class DrawGameApi
+ * @extends {BaseAPI}
+ */
+export class DrawGameApi extends BaseAPI {
+  /**
+   *
+   * @param {string} [roomName]
+   * @param {number} [configMaxPlayers]
+   * @param {number} [configMaxRoundPerPlayers]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DrawGameApi
+   */
+  public apiV1DrawGameCreatePost(
+    roomName?: string,
+    configMaxPlayers?: number,
+    configMaxRoundPerPlayers?: number,
+    options?: RawAxiosRequestConfig,
+  ) {
+    return DrawGameApiFp(this.configuration)
+      .apiV1DrawGameCreatePost(roomName, configMaxPlayers, configMaxRoundPerPlayers, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} roomId
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DrawGameApi
+   */
+  public apiV1DrawGameRoomRoomIdGet(roomId: string, options?: RawAxiosRequestConfig) {
+    return DrawGameApiFp(this.configuration)
+      .apiV1DrawGameRoomRoomIdGet(roomId, options)
+      .then((request) => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} roomId
+   * @param {string} [playerId]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DrawGameApi
+   */
+  public apiV1DrawGameRoomRoomIdPlayersGet(roomId: string, playerId?: string, options?: RawAxiosRequestConfig) {
+    return DrawGameApiFp(this.configuration)
+      .apiV1DrawGameRoomRoomIdPlayersGet(roomId, playerId, options)
       .then((request) => request(this.axios, this.basePath));
   }
 }

@@ -14,7 +14,15 @@ docs/BulkCreateQuestionsResponse.md
 docs/BulkCreateQuestionsResponseApiResponse.md
 docs/ChangePasswordRequest.md
 docs/CreateQuestionItem.md
+docs/DrawGameApi.md
+docs/DrawHost.md
+docs/DrawPlayer.md
+docs/DrawPlayerListApiResponse.md
+docs/DrawRoom.md
+docs/DrawRoomApiResponse.md
+docs/DrawRoomConfig.md
 docs/ErrorResponse.md
+docs/GuidApiResponse.md
 docs/GuidInt32DictionaryApiResponse.md
 docs/ImageResponse.md
 docs/ImageResponseApiResponse.md
