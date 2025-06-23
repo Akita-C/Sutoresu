@@ -6,14 +6,15 @@ interface PlayerAvatarProps {
   src: string;
   fallback: string;
   className?: string;
+  isHost?: boolean;
 }
 
-export default function PlayerAvatar({ src, fallback, className }: PlayerAvatarProps) {
+export default function PlayerAvatar({ src, fallback, className, isHost }: PlayerAvatarProps) {
   return (
     <Avatar className={cn("size-16 overflow-visible relative cursor-pointer", className)}>
       <AvatarImage src={src} className="rounded-full" />
       <AvatarFallback>{fallback}</AvatarFallback>
-      <Crown className="text-yellow-400 absolute -top-1 right-0 size-6 rotate-30" />
+      {isHost && <Crown className="text-yellow-400 absolute -top-1 right-0 size-6 rotate-30" />}
     </Avatar>
   );
 }

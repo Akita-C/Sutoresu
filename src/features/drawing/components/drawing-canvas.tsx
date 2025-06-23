@@ -4,25 +4,39 @@ import { useEffect, useRef } from "react";
 import { useDrawingStore } from "../stores/drawing-store";
 import { useShallow } from "zustand/react/shallow";
 import { Canvas, Circle, Line, Rect, PencilBrush, TPointerEvent, TPointerEventInfo, FabricObject } from "fabric";
+import { useThrottledCallback } from "use-debounce";
 
 interface DrawingCanvasProps {
   width?: number;
   height?: number;
   className?: string;
+  onCanvasUpdate?: (canvasData: string) => void;
 }
 
-export function DrawingCanvas({ width = 800, height = 600, className = "" }: DrawingCanvasProps) {
+export function DrawingCanvas({ width = 800, height = 600, className = "", onCanvasUpdate }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<Canvas | null>(null);
 
-  const { canvas, currentTool, setCanvas, setIsDrawing, addToHistory } = useDrawingStore(
+  const { canvas, currentTool, setCanvas, setIsDrawing, addToHistory, isDrawing } = useDrawingStore(
     useShallow((state) => ({
       canvas: state.canvas,
       currentTool: state.currentTool,
       setCanvas: state.setCanvas,
       setIsDrawing: state.setIsDrawing,
       addToHistory: state.addToHistory,
+      isDrawing: state.isDrawing,
     })),
+  );
+
+  const throttledCanvasUpdate = useThrottledCallback(
+    (canvasData: string) => {
+      if (onCanvasUpdate) {
+        console.log("🚀 Sending canvas update...");
+        onCanvasUpdate(canvasData);
+      }
+    },
+    100,
+    { leading: true, trailing: true },
   );
 
   useEffect(() => {
@@ -46,8 +60,18 @@ export function DrawingCanvas({ width = 800, height = 600, className = "" }: Dra
     // Event listeners for history
     fabricCanvas.on("path:created", () => {
       setTimeout(() => {
-        addToHistory(JSON.stringify(fabricCanvas.toJSON()));
+        const canvasData = JSON.stringify(fabricCanvas.toJSON());
+        addToHistory(canvasData);
+        throttledCanvasUpdate(canvasData);
       }, 10);
+    });
+
+    fabricCanvas.on("mouse:move", () => {
+      const drawingState = isDrawing;
+      if (drawingState) {
+        const canvasData = JSON.stringify(fabricCanvas.toJSON());
+        throttledCanvasUpdate(canvasData);
+      }
     });
 
     fabricCanvas.on("mouse:down", () => setIsDrawing(true));
@@ -189,13 +213,17 @@ export function DrawingCanvas({ width = 800, height = 600, className = "" }: Dra
       }
 
       canvas.renderAll();
+      const canvasData = JSON.stringify(canvas.toJSON());
+      throttledCanvasUpdate(canvasData);
     };
 
     const handleMouseUp = () => {
       if (isDown && shape) {
         // Add to history only when shape drawing is complete
         setTimeout(() => {
-          addToHistory(JSON.stringify(canvas.toJSON()));
+          const canvasData = JSON.stringify(canvas.toJSON());
+          addToHistory(canvasData);
+          throttledCanvasUpdate(canvasData);
         }, 10);
       }
       isDown = false;

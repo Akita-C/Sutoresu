@@ -1,3 +1,5 @@
+import { DrawGameState } from "../stores/draw-game-store";
+
 export type CreateDrawRoomRequest = {
   roomName: string;
   config: {
@@ -35,6 +37,8 @@ export interface DrawGameHubContract {
     LeaveRoom(roomId: string, player: DrawPlayer): Promise<void>;
     SendRoomMessage(roomId: string, message: string): Promise<void>;
     KickPlayer(roomId: string, player: DrawPlayer): Promise<void>;
+    SetRoomState(roomId: string, state: DrawGameState["phase"]): Promise<void>;
+    SendCanvasUpdate(roomId: string, canvasData: string): Promise<void>;
   };
   client: {
     JoinRoom(player: DrawPlayer): void;
@@ -43,6 +47,8 @@ export interface DrawGameHubContract {
     UserLeft(player: DrawPlayer): void;
     RoomMessageReceived(senderId: string, senderName: string, message: string): void;
     RoomDeleted(): void;
+    RoomStateUpdated(state: DrawGameState["phase"]): void;
+    CanvasUpdated(canvasData: string): void;
   };
 }
 

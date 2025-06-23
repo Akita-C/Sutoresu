@@ -48,7 +48,7 @@ export function DrawingToolbar() {
   );
 
   return (
-    <div className="flex items-center gap-2 p-4 bg-card border border-border rounded-lg">
+    <div className="flex items-center gap-2 p-4 bg-card/50 border border-border rounded-lg">
       {/* Tools */}
       <div className="flex items-center gap-1">
         {TOOLS.map((tool) => {

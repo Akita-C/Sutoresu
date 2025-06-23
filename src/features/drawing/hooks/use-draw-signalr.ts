@@ -116,6 +116,8 @@ export const useDrawGameHub = ({ autoConnect = false, onStateChange, onError }: 
     LeaveRoom: server.LeaveRoom,
     SendRoomMessage: server.SendRoomMessage,
     KickPlayer: server.KickPlayer,
+    SetRoomState: server.SetRoomState,
+    SendCanvasUpdate: server.SendCanvasUpdate,
     // Event handlers
     registerEvents,
     unregisterEvents,

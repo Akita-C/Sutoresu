@@ -22,6 +22,7 @@ export interface DrawingState {
   clearCanvas: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
+  syncCanvas: (canvasData: string) => void;
 }
 
 export const useDrawingStore = create<DrawingState>((set, get) => ({
@@ -110,4 +111,18 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
 
   canUndo: () => get().historyIndex > 0,
   canRedo: () => get().historyIndex < get().history.length - 1,
+  syncCanvas: (canvasData) => {
+    const { canvas } = get();
+    if (canvas && canvasData) {
+      canvas.loadFromJSON(canvasData).then(() => {
+        // Ensure all objects are non-selectable after loading
+        canvas.forEachObject((obj) => {
+          obj.selectable = false;
+          obj.evented = false;
+        });
+        canvas.selection = false;
+        canvas.renderAll();
+      });
+    }
+  },
 }));

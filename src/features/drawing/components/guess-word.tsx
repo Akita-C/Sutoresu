@@ -1,0 +1,7 @@
+export default function GuessWord() {
+  return (
+    <div className="w-full bg-card/40 rounded-lg flex justify-center items-center">
+      <span className="font-mono font-bold tracking-[0.5em] text-center">Buf__lo</span>
+    </div>
+  );
+}
