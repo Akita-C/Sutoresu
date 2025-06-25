@@ -1,38 +1,65 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useDrawingStore } from "../stores/drawing-store";
+import { Ref, useEffect, useImperativeHandle, useRef } from "react";
+import { useDrawingStore } from "../../stores/drawing-store";
 import { useShallow } from "zustand/react/shallow";
 import { Canvas, Circle, Line, Rect, PencilBrush, TPointerEvent, TPointerEventInfo, FabricObject } from "fabric";
 import { useThrottledCallback } from "use-debounce";
+import { DrawAction, ShapeActionData } from "../../types";
 
 interface DrawingCanvasProps {
   width?: number;
   height?: number;
   className?: string;
-  onCanvasUpdate?: (canvasData: string) => void;
+  onActionEmit?: (action: DrawAction) => void;
+  ref?: Ref<DrawingCanvasRef>;
 }
 
-export function DrawingCanvas({ width = 800, height = 600, className = "", onCanvasUpdate }: DrawingCanvasProps) {
+export interface DrawingCanvasRef {
+  applyExternalAction: (action: DrawAction) => void;
+}
+
+export function DrawingCanvas({ width = 800, height = 600, className = "", onActionEmit, ref }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<Canvas | null>(null);
 
-  const { canvas, currentTool, setCanvas, setIsDrawing, addToHistory, isDrawing } = useDrawingStore(
+  const {
+    canvas,
+    currentTool,
+    setCanvas,
+    setIsDrawing,
+    addAction,
+    createStrokeAction,
+    createShapeAction,
+    applyAction,
+  } = useDrawingStore(
     useShallow((state) => ({
       canvas: state.canvas,
       currentTool: state.currentTool,
       setCanvas: state.setCanvas,
       setIsDrawing: state.setIsDrawing,
-      addToHistory: state.addToHistory,
-      isDrawing: state.isDrawing,
+      addAction: state.addAction,
+      createStrokeAction: state.createStrokeAction,
+      createShapeAction: state.createShapeAction,
+      applyAction: state.applyAction,
     })),
   );
 
-  const throttledCanvasUpdate = useThrottledCallback(
-    (canvasData: string) => {
-      if (onCanvasUpdate) {
-        console.log("🚀 Sending canvas update...");
-        onCanvasUpdate(canvasData);
+  useImperativeHandle(
+    ref,
+    () => ({
+      applyExternalAction: (action: DrawAction) => {
+        addAction(action);
+        applyAction(action);
+      },
+    }),
+    [addAction, applyAction],
+  );
+
+  const throttledActionEmit = useThrottledCallback(
+    (action: DrawAction) => {
+      if (onActionEmit) {
+        onActionEmit(action);
       }
     },
     100,
@@ -54,23 +81,13 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onCan
     fabricCanvasRef.current = fabricCanvas;
     setCanvas(fabricCanvas);
 
-    // Add initial state to history
-    addToHistory(JSON.stringify(fabricCanvas.toJSON()));
-
-    // Event listeners for history
-    fabricCanvas.on("path:created", () => {
-      setTimeout(() => {
-        const canvasData = JSON.stringify(fabricCanvas.toJSON());
-        addToHistory(canvasData);
-        throttledCanvasUpdate(canvasData);
-      }, 10);
-    });
-
-    fabricCanvas.on("mouse:move", () => {
-      const drawingState = isDrawing;
-      if (drawingState) {
-        const canvasData = JSON.stringify(fabricCanvas.toJSON());
-        throttledCanvasUpdate(canvasData);
+    // Handle stroke completion
+    fabricCanvas.on("path:created", (e) => {
+      if (e.path) {
+        const pathData = e.path.toSVG();
+        const action = createStrokeAction(pathData);
+        addAction(action);
+        throttledActionEmit(action);
       }
     });
 
@@ -80,7 +97,7 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onCan
     return () => {
       fabricCanvas.dispose();
     };
-  }, [width, height, setCanvas, addToHistory, setIsDrawing]);
+  }, [width, height, setCanvas, addAction, createStrokeAction, setIsDrawing]);
 
   // Update canvas settings when tool changes
   useEffect(() => {
@@ -213,19 +230,43 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onCan
       }
 
       canvas.renderAll();
-      const canvasData = JSON.stringify(canvas.toJSON());
-      throttledCanvasUpdate(canvasData);
     };
 
     const handleMouseUp = () => {
       if (isDown && shape) {
-        // Add to history only when shape drawing is complete
-        setTimeout(() => {
-          const canvasData = JSON.stringify(canvas.toJSON());
-          addToHistory(canvasData);
-          throttledCanvasUpdate(canvasData);
-        }, 10);
+        const properties: ShapeActionData["properties"] = {
+          left: origX,
+          top: origY,
+          color: currentTool.color,
+          strokeWidth: currentTool.width,
+        };
+
+        switch (currentTool.type) {
+          case "rectangle":
+            const rect = shape as Rect;
+            properties.width = rect.width;
+            properties.height = rect.height;
+            if (rect.left !== origX) properties.left = rect.left;
+            if (rect.top !== origY) properties.top = rect.top;
+            break;
+          case "circle":
+            const circle = shape as Circle;
+            properties.radius = circle.radius;
+            break;
+          case "line":
+            const line = shape as Line;
+            properties.x1 = origX;
+            properties.y1 = origY;
+            properties.x2 = line.x2;
+            properties.y2 = line.y2;
+            break;
+        }
+
+        const action = createShapeAction(currentTool.type as ShapeActionData["shapeType"], properties);
+        addAction(action);
+        throttledActionEmit(action);
       }
+
       isDown = false;
       shape = null;
     };
@@ -239,7 +280,7 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onCan
       canvas.off("mouse:move", handleMouseMove);
       canvas.off("mouse:up", handleMouseUp);
     };
-  }, [canvas, currentTool, addToHistory]);
+  }, [canvas, currentTool, addAction, createShapeAction]);
 
   return (
     <div className={`border border-border rounded-lg overflow-hidden ${className}`}>

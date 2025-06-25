@@ -1,4 +1,5 @@
 import { DrawGameState } from "../stores/draw-game-store";
+import { DrawAction } from "./draw-action";
 
 export type CreateDrawRoomRequest = {
   roomName: string;
@@ -38,7 +39,7 @@ export interface DrawGameHubContract {
     SendRoomMessage(roomId: string, message: string): Promise<void>;
     KickPlayer(roomId: string, player: DrawPlayer): Promise<void>;
     SetRoomState(roomId: string, state: DrawGameState["phase"]): Promise<void>;
-    SendCanvasUpdate(roomId: string, canvasData: string): Promise<void>;
+    SendDrawAction(roomId: string, action: DrawAction): Promise<void>;
   };
   client: {
     JoinRoom(player: DrawPlayer): void;
@@ -48,7 +49,7 @@ export interface DrawGameHubContract {
     RoomMessageReceived(senderId: string, senderName: string, message: string): void;
     RoomDeleted(): void;
     RoomStateUpdated(state: DrawGameState["phase"]): void;
-    CanvasUpdated(canvasData: string): void;
+    DrawActionReceived(action: DrawAction): void;
   };
 }
 
@@ -58,3 +59,5 @@ export type EventHandler = (...args: unknown[]) => void;
 export type DrawGameEventHandlers = {
   [K in keyof DrawGameHubContract["client"] as `on${K}`]?: DrawGameHubContract["client"][K];
 };
+
+export * from "./draw-action";

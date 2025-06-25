@@ -8,16 +8,15 @@ import { useDrawRoomData } from "../hooks/use-draw-queries";
 import DrawRoomPageSkeleton from "../skeletons/draw-room-page.skeleton";
 import { useDrawGameHub } from "../hooks/use-draw-signalr";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDrawCacheUpdater } from "../hooks/use-draw-cache-updater";
 import DrawWaitingRoomChatbox from "../components/draw-waiting-room-chatbox";
 import { useDrawGameStore } from "../stores/draw-game-store";
-import { DrawingCanvas } from "../components/drawing-canvas";
-import { DrawingToolbar } from "../components/drawing-toolbar";
+import { DrawingCanvas, DrawingCanvasRef } from "../components/canvas/drawing-canvas";
+import { DrawingToolbar } from "../components/canvas/drawing-toolbar";
 import DrawDrawingRoomChatbox from "../components/draw-drawing-room-chatbox";
 import GuessWord from "../components/guess-word";
 import DrawingPlayerList from "../components/drawing-player-list";
-import { useDrawingStore } from "../stores/drawing-store";
 
 interface DrawRoomPageProps {
   roomId: string;
@@ -26,13 +25,15 @@ interface DrawRoomPageProps {
 export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
   const { user } = useAuth();
   const [myConnectionId, setMyConnectionId] = useState<string | null>(null);
+  const canvasRef = useRef<DrawingCanvasRef>(null);
+
   const { players, room, isLoading } = useDrawRoomData(user?.id, roomId, myConnectionId);
   const {
     JoinRoom,
     LeaveRoom,
     SendRoomMessage,
     SetRoomState,
-    SendCanvasUpdate,
+    SendDrawAction,
     registerEvents,
     unregisterEvents,
     isConnected,
@@ -44,7 +45,6 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
   });
   const { addPlayer, removePlayer } = useDrawCacheUpdater(roomId, user?.id);
   const { phase, setPhase, waitingRoomMessages, setWaitingRoomMessages } = useDrawGameStore();
-  const { syncCanvas } = useDrawingStore();
 
   useEffect(() => {
     if (!isConnected) return;
@@ -71,8 +71,8 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       onRoomStateUpdated(state) {
         setPhase(state);
       },
-      onCanvasUpdated(canvasData) {
-        syncCanvas(canvasData);
+      onDrawActionReceived(action) {
+        canvasRef.current?.applyExternalAction(action);
       },
     });
   }, [isConnected]);
@@ -150,11 +150,17 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
               <DrawingPlayerList />
             </aside>
             <main className="w-[800px] space-y-2">
-              <DrawingToolbar />
-              <DrawingCanvas
-                onCanvasUpdate={(canvasData) => {
+              <DrawingToolbar
+                onActionEmit={(action) => {
                   if (!isConnected || !roomId || !myConnectionId) return;
-                  SendCanvasUpdate(roomId, canvasData);
+                  SendDrawAction(roomId, action);
+                }}
+              />
+              <DrawingCanvas
+                ref={canvasRef}
+                onActionEmit={(action) => {
+                  if (!isConnected || !roomId || !myConnectionId) return;
+                  SendDrawAction(roomId, action);
                 }}
               />
               <GuessWord />

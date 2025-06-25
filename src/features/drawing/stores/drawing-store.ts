@@ -1,5 +1,13 @@
 import { create } from "zustand";
-import { Canvas } from "fabric";
+import { Canvas, Circle, Line, Path, Rect } from "fabric";
+import {
+  ActionData,
+  DrawAction,
+  DrawActionType,
+  ShapeActionData,
+  StrokeActionData,
+  UndoRedoActionData,
+} from "../types";
 
 export interface DrawingTool {
   type: "brush" | "eraser" | "line" | "rectangle" | "circle";
@@ -11,19 +19,31 @@ export interface DrawingState {
   canvas: Canvas | null;
   currentTool: DrawingTool;
   isDrawing: boolean;
-  history: string[];
-  historyIndex: number;
+  actions: DrawAction[];
+  undoneActions: string[]; // IDs of undone actions
   setCanvas: (canvas: Canvas) => void;
   setTool: (tool: Partial<DrawingTool>) => void;
   setIsDrawing: (isDrawing: boolean) => void;
-  addToHistory: (canvasData: string) => void;
-  undo: () => void;
-  redo: () => void;
-  clearCanvas: () => void;
+
+  // Action-based methods
+  addAction: (action: DrawAction) => void;
+  applyAction: (action: DrawAction) => void;
+  createStrokeAction: (pathData: string) => DrawAction;
+  createShapeAction: (shapeType: ShapeActionData["shapeType"], properties: ShapeActionData["properties"]) => DrawAction;
+  createClearAction: () => DrawAction;
+  createUndoAction: () => DrawAction | null;
+  createRedoAction: () => DrawAction | null;
+  rebuildCanvas: () => void;
+
+  // Legacy methods for UI
+  undo: () => DrawAction | null;
+  redo: () => DrawAction | null;
+  clearCanvas: () => DrawAction;
   canUndo: () => boolean;
   canRedo: () => boolean;
-  syncCanvas: (canvasData: string) => void;
 }
+
+const generateActionId = () => `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
 export const useDrawingStore = create<DrawingState>((set, get) => ({
   canvas: null,
@@ -33,96 +53,218 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
     width: 5,
   },
   isDrawing: false,
-  history: [],
-  historyIndex: -1,
+  actions: [],
+  undoneActions: [],
+
   setCanvas: (canvas) => set({ canvas }),
   setTool: (tool) =>
     set((state) => ({
       currentTool: { ...state.currentTool, ...tool },
     })),
   setIsDrawing: (isDrawing) => set({ isDrawing }),
-  addToHistory: (canvasData) =>
-    set((state) => {
-      // Prevent duplicate consecutive states
-      if (state.history.length > 0 && state.history[state.historyIndex] === canvasData) {
-        return state;
-      }
 
-      const newHistory = state.history.slice(0, state.historyIndex + 1);
-      newHistory.push(canvasData);
+  addAction: (action) =>
+    set((state) => ({
+      actions: [...state.actions, action],
+      undoneActions: [], // Clear redo stack when new action is added
+    })),
 
-      // Limit history size to prevent memory issues
-      if (newHistory.length > 50) {
-        newHistory.shift();
-        return {
-          history: newHistory,
-          historyIndex: newHistory.length - 1,
-        };
-      }
+  applyAction: (action) => {
+    const { canvas } = get();
+    if (!canvas) return;
 
-      return {
-        history: newHistory,
-        historyIndex: newHistory.length - 1,
-      };
-    }),
-  undo: () => {
-    const { canvas, history, historyIndex } = get();
-    if (canvas && historyIndex > 0) {
-      const prevState = history[historyIndex - 1];
-      canvas.loadFromJSON(prevState).then(() => {
-        // Ensure all objects are non-selectable after loading
-        canvas.forEachObject((obj) => {
-          obj.selectable = false;
-          obj.evented = false;
+    switch (action.type) {
+      case "STROKE": {
+        const data = action.data as StrokeActionData;
+        const path = new Path(data.path, {
+          stroke: data.color,
+          strokeWidth: data.width,
+          fill: "",
+          selectable: false,
+          evented: false,
         });
-        canvas.selection = false;
-        canvas.renderAll();
-        set({ historyIndex: historyIndex - 1 });
-      });
+        canvas.add(path);
+        break;
+      }
+      case "SHAPE": {
+        const data = action.data as ShapeActionData;
+        let shape;
+
+        switch (data.shapeType) {
+          case "rectangle":
+            shape = new Rect({
+              left: data.properties.left,
+              top: data.properties.top,
+              width: data.properties.width,
+              height: data.properties.height,
+              fill: "transparent",
+              stroke: data.properties.color,
+              strokeWidth: data.properties.strokeWidth,
+              selectable: false,
+              evented: false,
+            });
+            break;
+          case "circle":
+            shape = new Circle({
+              left: data.properties.left,
+              top: data.properties.top,
+              radius: data.properties.radius,
+              fill: "transparent",
+              stroke: data.properties.color,
+              strokeWidth: data.properties.strokeWidth,
+              selectable: false,
+              evented: false,
+            });
+            break;
+          case "line":
+            shape = new Line([data.properties.x1!, data.properties.y1!, data.properties.x2!, data.properties.y2!], {
+              stroke: data.properties.color,
+              strokeWidth: data.properties.strokeWidth,
+              selectable: false,
+              evented: false,
+            });
+            break;
+        }
+
+        if (shape) {
+          canvas.add(shape);
+        }
+        break;
+      }
+      case "CLEAR": {
+        canvas.clear();
+        canvas.backgroundColor = "#ffffff";
+        break;
+      }
+      case "UNDO": {
+        const data = action.data as UndoRedoActionData;
+        set((state) => ({
+          undoneActions: [...state.undoneActions, data.targetActionId],
+        }));
+        get().rebuildCanvas();
+        return;
+      }
+      case "REDO": {
+        const data = action.data as UndoRedoActionData;
+        set((state) => ({
+          undoneActions: state.undoneActions.filter((id) => id !== data.targetActionId),
+        }));
+        get().rebuildCanvas();
+        return;
+      }
     }
+
+    canvas.renderAll();
+  },
+
+  rebuildCanvas: () => {
+    const { canvas, actions, undoneActions } = get();
+    if (!canvas) return;
+
+    canvas.clear();
+    canvas.backgroundColor = "#ffffff";
+
+    // Apply all actions except undone ones
+    actions.forEach((action) => {
+      if (!undoneActions.includes(action.id) && action.type !== "UNDO" && action.type !== "REDO") {
+        get().applyAction(action);
+      }
+    });
+  },
+
+  createStrokeAction: (pathData) => ({
+    id: generateActionId(),
+    type: "STROKE" as DrawActionType,
+    timestamp: Date.now(),
+    data: {
+      path: pathData,
+      color: get().currentTool.color,
+      width: get().currentTool.width,
+      tool: get().currentTool.type === "eraser" ? "eraser" : "brush",
+    } as StrokeActionData,
+  }),
+
+  createShapeAction: (shapeType, properties) => ({
+    id: generateActionId(),
+    type: "SHAPE" as DrawActionType,
+    timestamp: Date.now(),
+    data: {
+      shapeType,
+      properties: {
+        ...properties,
+        color: get().currentTool.color,
+        strokeWidth: get().currentTool.width,
+      },
+    } as ShapeActionData,
+  }),
+
+  createClearAction: () => ({
+    id: generateActionId(),
+    type: "CLEAR" as DrawActionType,
+    timestamp: Date.now(),
+    data: {} as ActionData,
+  }),
+
+  createUndoAction: () => {
+    const { actions, undoneActions } = get();
+    const availableActions = actions.filter(
+      (a) => !undoneActions.includes(a.id) && a.type !== "UNDO" && a.type !== "REDO",
+    );
+
+    if (availableActions.length === 0) return null;
+
+    const lastAction = availableActions[availableActions.length - 1];
+    return {
+      id: generateActionId(),
+      type: "UNDO" as DrawActionType,
+      timestamp: Date.now(),
+      data: { targetActionId: lastAction.id } as UndoRedoActionData,
+    };
+  },
+
+  createRedoAction: () => {
+    const { undoneActions } = get();
+    if (undoneActions.length === 0) return null;
+
+    const lastUndoneId = undoneActions[undoneActions.length - 1];
+    return {
+      id: generateActionId(),
+      type: "REDO" as DrawActionType,
+      timestamp: Date.now(),
+      data: { targetActionId: lastUndoneId } as UndoRedoActionData,
+    };
+  },
+
+  // UI methods that return actions for syncing
+  undo: () => {
+    const action = get().createUndoAction();
+    if (action) {
+      get().addAction(action);
+      get().applyAction(action);
+    }
+    return action;
   },
 
   redo: () => {
-    const { canvas, history, historyIndex } = get();
-    if (canvas && historyIndex < history.length - 1) {
-      const nextState = history[historyIndex + 1];
-      canvas.loadFromJSON(nextState).then(() => {
-        // Ensure all objects are non-selectable after loading
-        canvas.forEachObject((obj) => {
-          obj.selectable = false;
-          obj.evented = false;
-        });
-        canvas.selection = false;
-        canvas.renderAll();
-        set({ historyIndex: historyIndex + 1 });
-      });
+    const action = get().createRedoAction();
+    if (action) {
+      get().addAction(action);
+      get().applyAction(action);
     }
+    return action;
   },
 
   clearCanvas: () => {
-    const { canvas, addToHistory } = get();
-    if (canvas) {
-      canvas.clear();
-      canvas.backgroundColor = "#ffffff";
-      canvas.renderAll();
-      addToHistory(JSON.stringify(canvas.toJSON()));
-    }
+    const action = get().createClearAction();
+    get().addAction(action);
+    get().applyAction(action);
+    return action;
   },
 
-  canUndo: () => get().historyIndex > 0,
-  canRedo: () => get().historyIndex < get().history.length - 1,
-  syncCanvas: (canvasData) => {
-    const { canvas } = get();
-    if (canvas && canvasData) {
-      canvas.loadFromJSON(canvasData).then(() => {
-        // Ensure all objects are non-selectable after loading
-        canvas.forEachObject((obj) => {
-          obj.selectable = false;
-          obj.evented = false;
-        });
-        canvas.selection = false;
-        canvas.renderAll();
-      });
-    }
+  canUndo: () => {
+    const { actions, undoneActions } = get();
+    return actions.some((a) => !undoneActions.includes(a.id) && a.type !== "UNDO" && a.type !== "REDO");
   },
+
+  canRedo: () => get().undoneActions.length > 0,
 }));

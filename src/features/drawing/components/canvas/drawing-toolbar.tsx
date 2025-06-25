@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { Brush, Eraser, Minus, Square, Circle, Undo2, Redo2, Trash2, Palette } from "lucide-react";
-import { useDrawingStore } from "../stores/drawing-store";
+import { useDrawingStore } from "../../stores/drawing-store";
 import { useShallow } from "zustand/react/shallow";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DrawAction } from "../../types";
 
 const COLORS = [
   "#000000",
@@ -34,7 +35,11 @@ const TOOLS = [
   { type: "circle" as const, icon: Circle, label: "Circle" },
 ];
 
-export function DrawingToolbar() {
+interface DrawingToolbarProps {
+  onActionEmit?: (action: DrawAction) => void;
+}
+
+export function DrawingToolbar({ onActionEmit }: DrawingToolbarProps) {
   const { currentTool, setTool, undo, redo, clearCanvas, canUndo, canRedo } = useDrawingStore(
     useShallow((state) => ({
       currentTool: state.currentTool,
@@ -46,6 +51,27 @@ export function DrawingToolbar() {
       canRedo: state.canRedo(),
     })),
   );
+
+  const handleUndo = () => {
+    const action = undo();
+    if (action && onActionEmit) {
+      onActionEmit(action);
+    }
+  };
+
+  const handleRedo = () => {
+    const action = redo();
+    if (action && onActionEmit) {
+      onActionEmit(action);
+    }
+  };
+
+  const handleClear = () => {
+    const action = clearCanvas();
+    if (onActionEmit) {
+      onActionEmit(action);
+    }
+  };
 
   return (
     <div className="flex items-center gap-2 p-4 bg-card/50 border border-border rounded-lg">
@@ -112,13 +138,13 @@ export function DrawingToolbar() {
 
       {/* Actions */}
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="sm" onClick={undo} disabled={!canUndo} title="Undo">
+        <Button variant="ghost" size="sm" onClick={handleUndo} disabled={!canUndo} title="Undo">
           <Undo2 className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" onClick={redo} disabled={!canRedo} title="Redo">
+        <Button variant="ghost" size="sm" onClick={handleRedo} disabled={!canRedo} title="Redo">
           <Redo2 className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" onClick={clearCanvas} title="Clear Canvas">
+        <Button variant="ghost" size="sm" onClick={handleClear} title="Clear Canvas">
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
