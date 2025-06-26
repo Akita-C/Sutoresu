@@ -74,19 +74,19 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
     if (!canvas) return;
 
     switch (action.type) {
-      case "STROKE": {
+      case "Stroke": {
         const data = action.data as StrokeActionData;
-        const path = new Path(data.path, {
-          stroke: data.color,
-          strokeWidth: data.width,
-          fill: "",
-          selectable: false,
-          evented: false,
-        });
+        const pathObject = JSON.parse(data.path);
+        pathObject.stroke = data.color;
+        pathObject.strokeWidth = data.width;
+        pathObject.fill = "";
+        pathObject.selectable = false;
+        pathObject.evented = false;
+        const path = new Path(pathObject.path, pathObject);
         canvas.add(path);
         break;
       }
-      case "SHAPE": {
+      case "Shape": {
         const data = action.data as ShapeActionData;
         let shape;
 
@@ -131,12 +131,12 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
         }
         break;
       }
-      case "CLEAR": {
+      case "Clear": {
         canvas.clear();
         canvas.backgroundColor = "#ffffff";
         break;
       }
-      case "UNDO": {
+      case "Undo": {
         const data = action.data as UndoRedoActionData;
         set((state) => ({
           undoneActions: [...state.undoneActions, data.targetActionId],
@@ -144,7 +144,7 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
         get().rebuildCanvas();
         return;
       }
-      case "REDO": {
+      case "Redo": {
         const data = action.data as UndoRedoActionData;
         set((state) => ({
           undoneActions: state.undoneActions.filter((id) => id !== data.targetActionId),
@@ -166,7 +166,7 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
 
     // Apply all actions except undone ones
     actions.forEach((action) => {
-      if (!undoneActions.includes(action.id) && action.type !== "UNDO" && action.type !== "REDO") {
+      if (!undoneActions.includes(action.id) && action.type !== "Undo" && action.type !== "Redo") {
         get().applyAction(action);
       }
     });
@@ -174,11 +174,11 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
 
   createStrokeAction: (pathData) => ({
     id: generateActionId(),
-    type: "STROKE" as DrawActionType,
+    type: "Stroke" as DrawActionType,
     timestamp: Date.now(),
     data: {
       path: pathData,
-      color: get().currentTool.color,
+      color: get().currentTool.type === "eraser" ? "#ffffff" : get().currentTool.color,
       width: get().currentTool.width,
       tool: get().currentTool.type === "eraser" ? "eraser" : "brush",
     } as StrokeActionData,
@@ -186,7 +186,7 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
 
   createShapeAction: (shapeType, properties) => ({
     id: generateActionId(),
-    type: "SHAPE" as DrawActionType,
+    type: "Shape" as DrawActionType,
     timestamp: Date.now(),
     data: {
       shapeType,
@@ -200,7 +200,7 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
 
   createClearAction: () => ({
     id: generateActionId(),
-    type: "CLEAR" as DrawActionType,
+    type: "Clear" as DrawActionType,
     timestamp: Date.now(),
     data: {} as ActionData,
   }),
@@ -208,7 +208,7 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
   createUndoAction: () => {
     const { actions, undoneActions } = get();
     const availableActions = actions.filter(
-      (a) => !undoneActions.includes(a.id) && a.type !== "UNDO" && a.type !== "REDO",
+      (a) => !undoneActions.includes(a.id) && a.type !== "Undo" && a.type !== "Redo",
     );
 
     if (availableActions.length === 0) return null;
@@ -216,7 +216,7 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
     const lastAction = availableActions[availableActions.length - 1];
     return {
       id: generateActionId(),
-      type: "UNDO" as DrawActionType,
+      type: "Undo" as DrawActionType,
       timestamp: Date.now(),
       data: { targetActionId: lastAction.id } as UndoRedoActionData,
     };
@@ -229,7 +229,7 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
     const lastUndoneId = undoneActions[undoneActions.length - 1];
     return {
       id: generateActionId(),
-      type: "REDO" as DrawActionType,
+      type: "Redo" as DrawActionType,
       timestamp: Date.now(),
       data: { targetActionId: lastUndoneId } as UndoRedoActionData,
     };
@@ -263,7 +263,7 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
 
   canUndo: () => {
     const { actions, undoneActions } = get();
-    return actions.some((a) => !undoneActions.includes(a.id) && a.type !== "UNDO" && a.type !== "REDO");
+    return actions.some((a) => !undoneActions.includes(a.id) && a.type !== "Undo" && a.type !== "Redo");
   },
 
   canRedo: () => get().undoneActions.length > 0,

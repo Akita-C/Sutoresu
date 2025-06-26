@@ -84,7 +84,7 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
     // Handle stroke completion
     fabricCanvas.on("path:created", (e) => {
       if (e.path) {
-        const pathData = e.path.toSVG();
+        const pathData = JSON.stringify(e.path.toDatalessObject());
         const action = createStrokeAction(pathData);
         addAction(action);
         throttledActionEmit(action);

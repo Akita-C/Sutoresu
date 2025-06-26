@@ -5,7 +5,7 @@ export type DrawAction = {
   data: ActionData;
 };
 
-export type DrawActionType = "STROKE" | "SHAPE" | "CLEAR" | "UNDO" | "REDO";
+export type DrawActionType = "Stroke" | "Shape" | "Clear" | "Undo" | "Redo";
 
 export type ActionData = StrokeActionData | ShapeActionData | UndoRedoActionData;
 
