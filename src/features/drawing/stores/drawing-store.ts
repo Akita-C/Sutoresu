@@ -64,10 +64,21 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
   setIsDrawing: (isDrawing) => set({ isDrawing }),
 
   addAction: (action) =>
-    set((state) => ({
-      actions: [...state.actions, action],
-      undoneActions: [], // Clear redo stack when new action is added
-    })),
+    set((state) => {
+      if (action.type === "Undo" || action.type === "Redo") {
+        return {
+          actions: [...state.actions, action],
+          undoneActions: state.undoneActions,
+        };
+      } else {
+        const filteredActions = state.actions.filter((a) => !state.undoneActions.includes(a.id));
+
+        return {
+          actions: [...filteredActions, action],
+          undoneActions: [],
+        };
+      }
+    }),
 
   applyAction: (action) => {
     const { canvas } = get();
