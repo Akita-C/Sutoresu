@@ -40,6 +40,7 @@ export interface DrawGameHubContract {
     KickPlayer(roomId: string, player: DrawPlayer): Promise<void>;
     SetRoomState(roomId: string, state: DrawGameState["phase"]): Promise<void>;
     SendDrawAction(roomId: string, action: DrawAction): Promise<void>;
+    SendLiveDrawAction(roomId: string, action: DrawAction): Promise<void>;
   };
   client: {
     JoinRoom(player: DrawPlayer): void;
@@ -50,6 +51,7 @@ export interface DrawGameHubContract {
     RoomDeleted(): void;
     RoomStateUpdated(state: DrawGameState["phase"]): void;
     DrawActionReceived(action: DrawAction): void;
+    LiveDrawActionReceived(action: DrawAction): void;
   };
 }
 

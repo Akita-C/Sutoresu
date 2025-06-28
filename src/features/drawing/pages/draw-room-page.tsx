@@ -34,6 +34,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     SendRoomMessage,
     SetRoomState,
     SendDrawAction,
+    SendLiveDrawAction,
     registerEvents,
     unregisterEvents,
     isConnected,
@@ -66,12 +67,18 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
         toast.success(`${drawPlayer.playerName} left the room`);
       },
       onRoomMessageReceived(senderId, senderName, message) {
-        setWaitingRoomMessages([...waitingRoomMessages, { senderId, senderName, message }]);
+        setWaitingRoomMessages([
+          ...waitingRoomMessages,
+          { senderId: senderId, senderName: senderName, message: message },
+        ]);
       },
       onRoomStateUpdated(state) {
         setPhase(state);
       },
       onDrawActionReceived(action) {
+        canvasRef.current?.applyExternalAction(action);
+      },
+      onLiveDrawActionReceived(action) {
         canvasRef.current?.applyExternalAction(action);
       },
     });
@@ -102,6 +109,9 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
 
   if (isLoading) return <DrawRoomPageSkeleton />;
 
+  console.log("room", room);
+  console.log("players", players);
+
   return (
     <>
       {phase === "waiting" && (
@@ -112,7 +122,10 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
             className="absolute top-1/2 -translate-y-1/2 right-8"
             onSendMessage={(message) => {
               if (!user?.id || !user?.name) return;
-              setWaitingRoomMessages([...waitingRoomMessages, { senderId: user.id!, senderName: user.name!, message }]);
+              setWaitingRoomMessages([
+                ...waitingRoomMessages,
+                { senderId: user.id!, senderName: user.name!, message: message },
+              ]);
               SendRoomMessage(roomId, message);
             }}
           />
@@ -161,6 +174,10 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
                 onActionEmit={(action) => {
                   if (!isConnected || !roomId || !myConnectionId) return;
                   SendDrawAction(roomId, action);
+                }}
+                onLiveActionEmit={(action) => {
+                  if (!isConnected || !roomId || !myConnectionId) return;
+                  SendLiveDrawAction(roomId, action);
                 }}
               />
               <GuessWord />

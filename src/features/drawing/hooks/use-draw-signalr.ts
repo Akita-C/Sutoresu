@@ -2,6 +2,7 @@ import { useAuthStore } from "@/features/auth";
 import { HubConnection, HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DrawGameEventHandlers, DrawGameHubContract, EventHandler, SignalRMethod } from "../types";
+import { MessagePackHubProtocol } from "@microsoft/signalr-protocol-msgpack";
 
 interface UseDrawGameHubConfig {
   autoConnect?: boolean;
@@ -63,6 +64,7 @@ export const useDrawGameHub = ({ autoConnect = false, onStateChange, onError }: 
       .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/hubs/draw-game`, {
         accessTokenFactory: () => accessToken,
       })
+      .withHubProtocol(new MessagePackHubProtocol())
       .withAutomaticReconnect()
       .build();
 
@@ -118,6 +120,7 @@ export const useDrawGameHub = ({ autoConnect = false, onStateChange, onError }: 
     KickPlayer: server.KickPlayer,
     SetRoomState: server.SetRoomState,
     SendDrawAction: server.SendDrawAction,
+    SendLiveDrawAction: server.SendLiveDrawAction,
     // Event handlers
     registerEvents,
     unregisterEvents,

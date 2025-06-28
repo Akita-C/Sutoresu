@@ -12,6 +12,7 @@ interface DrawingCanvasProps {
   height?: number;
   className?: string;
   onActionEmit?: (action: DrawAction) => void;
+  onLiveActionEmit?: (action: DrawAction) => void;
   ref?: Ref<DrawingCanvasRef>;
 }
 
@@ -19,7 +20,14 @@ export interface DrawingCanvasRef {
   applyExternalAction: (action: DrawAction) => void;
 }
 
-export function DrawingCanvas({ width = 800, height = 600, className = "", onActionEmit, ref }: DrawingCanvasProps) {
+export function DrawingCanvas({
+  width = 800,
+  height = 600,
+  className = "",
+  onActionEmit,
+  onLiveActionEmit,
+  ref,
+}: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<Canvas | null>(null);
 
@@ -32,6 +40,13 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
     createStrokeAction,
     createShapeAction,
     applyAction,
+    applyLiveAction,
+    createLiveStrokeStartAction,
+    createLiveStrokeMoveAction,
+    createLiveStrokeEndAction,
+    createLiveShapeStartAction,
+    createLiveShapeMoveAction,
+    createLiveShapeEndAction,
   } = useDrawingStore(
     useShallow((state) => ({
       canvas: state.canvas,
@@ -42,6 +57,13 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
       createStrokeAction: state.createStrokeAction,
       createShapeAction: state.createShapeAction,
       applyAction: state.applyAction,
+      applyLiveAction: state.applyLiveAction,
+      createLiveStrokeStartAction: state.createLiveStrokeStartAction,
+      createLiveStrokeMoveAction: state.createLiveStrokeMoveAction,
+      createLiveStrokeEndAction: state.createLiveStrokeEndAction,
+      createLiveShapeStartAction: state.createLiveShapeStartAction,
+      createLiveShapeMoveAction: state.createLiveShapeMoveAction,
+      createLiveShapeEndAction: state.createLiveShapeEndAction,
     })),
   );
 
@@ -49,11 +71,25 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
     ref,
     () => ({
       applyExternalAction: (action: DrawAction) => {
-        addAction(action);
-        applyAction(action);
+        if (action.type.startsWith("Live")) {
+          applyLiveAction(action);
+        } else {
+          addAction(action);
+          applyAction(action);
+        }
       },
     }),
     [addAction, applyAction],
+  );
+
+  const throttledLiveActionEmit = useThrottledCallback(
+    (action: DrawAction) => {
+      if (onLiveActionEmit) {
+        onLiveActionEmit(action);
+      }
+    },
+    100,
+    { leading: true, trailing: true },
   );
 
   const throttledActionEmit = useThrottledCallback(
@@ -88,11 +124,24 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
         const action = createStrokeAction(pathData);
         addAction(action);
         throttledActionEmit(action);
+
+        const endAction = createLiveStrokeEndAction();
+        throttledLiveActionEmit(endAction);
       }
     });
 
-    fabricCanvas.on("mouse:down", () => setIsDrawing(true));
-    fabricCanvas.on("mouse:up", () => setIsDrawing(false));
+    fabricCanvas.on("mouse:down", (e) => {
+      setIsDrawing(true);
+      if (currentTool.type === "brush" || currentTool.type === "eraser") {
+        const pointer = fabricCanvas.getScenePoint(e.e);
+        const startAction = createLiveStrokeStartAction(pointer.x, pointer.y);
+        throttledLiveActionEmit(startAction);
+      }
+    });
+
+    fabricCanvas.on("mouse:up", () => {
+      setIsDrawing(false);
+    });
 
     return () => {
       fabricCanvas.dispose();
@@ -137,7 +186,26 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
     canvas.renderAll();
   }, [canvas, currentTool.type, currentTool.color, currentTool.width]);
 
-  // Handle shape drawing
+  // Handle real-time brush/eraser updates
+  useEffect(() => {
+    if (!canvas || (currentTool.type !== "brush" && currentTool.type !== "eraser")) return;
+
+    const handleMouseMove = (options: TPointerEventInfo<TPointerEvent>) => {
+      if (!canvas.isDrawingMode) return;
+
+      const pointer = canvas.getScenePoint(options.e);
+      const moveAction = createLiveStrokeMoveAction(pointer.x, pointer.y);
+      throttledLiveActionEmit(moveAction);
+    };
+
+    canvas.on("mouse:move", handleMouseMove);
+
+    return () => {
+      canvas.off("mouse:move", handleMouseMove);
+    };
+  }, [canvas, currentTool.type, createLiveStrokeMoveAction, throttledLiveActionEmit]);
+
+  // Handle real-time shape drawing
   useEffect(() => {
     if (!canvas || currentTool.type === "brush" || currentTool.type === "eraser") return;
 
@@ -152,6 +220,10 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
       origX = pointer.x;
       origY = pointer.y;
 
+      const startAction = createLiveShapeStartAction(currentTool.type as ShapeActionData["shapeType"], origX, origY);
+      throttledLiveActionEmit(startAction);
+
+      // Create local shape for immediate feedback
       switch (currentTool.type) {
         case "rectangle":
           shape = new Rect({
@@ -164,11 +236,8 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
             strokeWidth: currentTool.width,
             selectable: false,
             evented: false,
-            hoverCursor: "default",
-            moveCursor: "default",
           });
           break;
-
         case "circle":
           shape = new Circle({
             left: origX,
@@ -179,19 +248,14 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
             strokeWidth: currentTool.width,
             selectable: false,
             evented: false,
-            hoverCursor: "default",
-            moveCursor: "default",
           });
           break;
-
         case "line":
           shape = new Line([origX, origY, origX, origY], {
             stroke: currentTool.color,
             strokeWidth: currentTool.width,
             selectable: false,
             evented: false,
-            hoverCursor: "default",
-            moveCursor: "default",
           });
           break;
       }
@@ -206,23 +270,25 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
 
       const pointer = canvas.getScenePoint(options.e);
 
+      const moveAction = createLiveShapeMoveAction(pointer.x, pointer.y);
+      throttledLiveActionEmit(moveAction);
+
+      // Update local shape for immediate feedback
       switch (currentTool.type) {
         case "rectangle":
           const rect = shape as Rect;
           rect.set({
+            left: Math.min(origX, pointer.x),
+            top: Math.min(origY, pointer.y),
             width: Math.abs(pointer.x - origX),
             height: Math.abs(pointer.y - origY),
           });
-          if (pointer.x < origX) rect.set({ left: pointer.x });
-          if (pointer.y < origY) rect.set({ top: pointer.y });
           break;
-
         case "circle":
           const circle = shape as Circle;
           const radius = Math.sqrt(Math.pow(pointer.x - origX, 2) + Math.pow(pointer.y - origY, 2)) / 2;
           circle.set({ radius });
           break;
-
         case "line":
           const line = shape as Line;
           line.set({ x2: pointer.x, y2: pointer.y });
@@ -233,39 +299,42 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
     };
 
     const handleMouseUp = () => {
-      if (isDown && shape) {
-        const properties: ShapeActionData["properties"] = {
-          left: origX,
-          top: origY,
-          color: currentTool.color,
-          strokeWidth: currentTool.width,
-        };
+      if (!isDown || !shape) return;
 
-        switch (currentTool.type) {
-          case "rectangle":
-            const rect = shape as Rect;
-            properties.width = rect.width;
-            properties.height = rect.height;
-            if (rect.left !== origX) properties.left = rect.left;
-            if (rect.top !== origY) properties.top = rect.top;
-            break;
-          case "circle":
-            const circle = shape as Circle;
-            properties.radius = circle.radius;
-            break;
-          case "line":
-            const line = shape as Line;
-            properties.x1 = origX;
-            properties.y1 = origY;
-            properties.x2 = line.x2;
-            properties.y2 = line.y2;
-            break;
-        }
+      const endAction = createLiveShapeEndAction();
+      throttledLiveActionEmit(endAction);
 
-        const action = createShapeAction(currentTool.type as ShapeActionData["shapeType"], properties);
-        addAction(action);
-        throttledActionEmit(action);
+      // Create final shape action for history
+      const properties: ShapeActionData["properties"] = {
+        left: origX,
+        top: origY,
+        color: currentTool.color,
+        strokeWidth: currentTool.width,
+      };
+
+      switch (currentTool.type) {
+        case "rectangle":
+          const rect = shape as Rect;
+          properties.width = rect.width;
+          properties.height = rect.height;
+          if (rect.left !== origX) properties.left = rect.left;
+          if (rect.top !== origY) properties.top = rect.top;
+          break;
+        case "circle":
+          const circle = shape as Circle;
+          properties.radius = circle.radius;
+          break;
+        case "line":
+          const line = shape as Line;
+          properties.x1 = origX;
+          properties.y1 = origY;
+          properties.x2 = line.x2;
+          properties.y2 = line.y2;
+          break;
       }
+      const action = createShapeAction(currentTool.type as ShapeActionData["shapeType"], properties);
+      addAction(action);
+      throttledActionEmit(action);
 
       isDown = false;
       shape = null;
@@ -280,7 +349,17 @@ export function DrawingCanvas({ width = 800, height = 600, className = "", onAct
       canvas.off("mouse:move", handleMouseMove);
       canvas.off("mouse:up", handleMouseUp);
     };
-  }, [canvas, currentTool, addAction, createShapeAction]);
+  }, [
+    canvas,
+    currentTool,
+    addAction,
+    createShapeAction,
+    createLiveShapeStartAction,
+    createLiveShapeMoveAction,
+    createLiveShapeEndAction,
+    throttledLiveActionEmit,
+    throttledActionEmit,
+  ]);
 
   return (
     <div className={`border border-border rounded-lg overflow-hidden ${className}`}>
