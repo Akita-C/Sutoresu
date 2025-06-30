@@ -35,6 +35,7 @@ export function DrawingCanvas({
     canvas,
     currentTool,
     setCanvas,
+    isDrawing,
     setIsDrawing,
     addAction,
     createStrokeAction,
@@ -52,6 +53,7 @@ export function DrawingCanvas({
       canvas: state.canvas,
       currentTool: state.currentTool,
       setCanvas: state.setCanvas,
+      isDrawing: state.isDrawing,
       setIsDrawing: state.setIsDrawing,
       addAction: state.addAction,
       createStrokeAction: state.createStrokeAction,
@@ -79,7 +81,7 @@ export function DrawingCanvas({
         }
       },
     }),
-    [addAction, applyAction],
+    [addAction, applyAction, applyLiveAction],
   );
 
   const throttledLiveActionEmit = useThrottledCallback(
@@ -88,7 +90,7 @@ export function DrawingCanvas({
         onLiveActionEmit(action);
       }
     },
-    100,
+    33,
     { leading: true, trailing: true },
   );
 
@@ -191,7 +193,7 @@ export function DrawingCanvas({
     if (!canvas || (currentTool.type !== "brush" && currentTool.type !== "eraser")) return;
 
     const handleMouseMove = (options: TPointerEventInfo<TPointerEvent>) => {
-      if (!canvas.isDrawingMode) return;
+      if (!canvas.isDrawingMode || !isDrawing) return;
 
       const pointer = canvas.getScenePoint(options.e);
       const moveAction = createLiveStrokeMoveAction(pointer.x, pointer.y);
@@ -203,7 +205,7 @@ export function DrawingCanvas({
     return () => {
       canvas.off("mouse:move", handleMouseMove);
     };
-  }, [canvas, currentTool.type, createLiveStrokeMoveAction, throttledLiveActionEmit]);
+  }, [canvas, currentTool.type, createLiveStrokeMoveAction, throttledLiveActionEmit, isDrawing]);
 
   // Handle real-time shape drawing
   useEffect(() => {

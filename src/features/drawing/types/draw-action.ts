@@ -49,6 +49,7 @@ export interface LiveShapeStartData {
 }
 
 export interface LiveShapeMoveData {
+  shapeType: "rectangle" | "circle" | "line";
   currentX: number;
   currentY: number;
 }

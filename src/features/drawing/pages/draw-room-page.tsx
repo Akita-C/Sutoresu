@@ -109,9 +109,6 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
 
   if (isLoading) return <DrawRoomPageSkeleton />;
 
-  console.log("room", room);
-  console.log("players", players);
-
   return (
     <>
       {phase === "waiting" && (

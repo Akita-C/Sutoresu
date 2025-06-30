@@ -10,21 +10,6 @@
     "version": "v1"
   },
   "paths": {
-    "/api/admin/seed/all": {
-      "post": {
-        "tags": [
-          "Admin - Database Seeding"
-        ],
-        "summary": "Seed database with sample data",
-        "description": "Run all database seeders to populate with sample data. Requires X-Admin-Key header.",
-        "operationId": "SeedDatabase",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/v1/Auth/login": {
       "post": {
         "tags": [

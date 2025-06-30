@@ -12,6 +12,7 @@ import {
   StrokeActionData,
   UndoRedoActionData,
 } from "../types";
+import { hexToRgba } from "@/lib/utils";
 
 export interface DrawingTool {
   type: "brush" | "eraser" | "line" | "rectangle" | "circle";
@@ -28,6 +29,7 @@ export interface DrawingState {
 
   // Simple current drawing state
   currentStroke: Path | null;
+  currentStrokePoints: Array<{ x: number; y: number }>;
   currentShape: FabricObject | null;
   currentShapeStartX: number;
   currentShapeStartY: number;
@@ -79,6 +81,7 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
   currentShape: null,
   currentShapeStartX: 0,
   currentShapeStartY: 0,
+  currentStrokePoints: [],
 
   setCanvas: (canvas) => set({ canvas }),
   setTool: (tool) =>
@@ -199,6 +202,9 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
     switch (action.type) {
       case "LiveStrokeStart": {
         const data = action.data as LiveStrokeStartData;
+        const startPoints = [{ x: data.x, y: data.y }];
+        set({ currentStrokePoints: startPoints });
+
         const path = new Path(`M ${data.x} ${data.y}`, {
           stroke: data.color,
           strokeWidth: data.width,
@@ -206,22 +212,42 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
           selectable: false,
           evented: false,
         });
+
         canvas.add(path);
         set({ currentStroke: path });
         break;
       }
       case "LiveStrokeMove": {
-        const { currentStroke } = get();
-        if (!currentStroke) return;
+        const { currentStroke, currentStrokePoints } = get();
+        if (!currentStroke || !currentStrokePoints) return;
 
         const data = action.data as LiveStrokeMoveData;
-        const currentPath = currentStroke.path || [];
-        currentPath.push(["L", data.x, data.y]);
-        currentStroke.set({ path: currentPath });
+        const newPoints = [...currentStrokePoints, { x: data.x, y: data.y }];
+        set({ currentStrokePoints: newPoints });
+        const pathString = newPoints
+          .map((point, index) => (index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`))
+          .join(" ");
+
+        const newPath = new Path(pathString, {
+          stroke: currentStroke.stroke,
+          strokeWidth: currentStroke.strokeWidth,
+          fill: "",
+          selectable: false,
+          evented: false,
+        });
+
+        canvas.remove(currentStroke);
+        canvas.add(newPath);
+        set({ currentStroke: newPath });
         break;
       }
       case "LiveStrokeEnd": {
-        set({ currentStroke: null });
+        const { currentStroke } = get();
+        if (currentStroke) {
+          canvas.remove(currentStroke);
+        }
+        set({ currentStroke: null, currentStrokePoints: [] });
+        canvas.renderAll();
         break;
       }
       case "LiveShapeStart": {
@@ -275,11 +301,11 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
         break;
       }
       case "LiveShapeMove": {
-        const { currentShape, currentShapeStartX, currentShapeStartY, currentTool } = get();
+        const { currentShape, currentShapeStartX, currentShapeStartY } = get();
         if (!currentShape) return;
 
         const data = action.data as LiveShapeMoveData;
-        switch (currentTool.type) {
+        switch (data.shapeType) {
           case "rectangle":
             const rect = currentShape as Rect;
             rect.set({
@@ -333,12 +359,12 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
 
   createLiveStrokeStartAction: (x, y) => ({
     id: generateActionId(),
-    type: "LiveShapeStart" as DrawActionType,
+    type: "LiveStrokeStart" as DrawActionType,
     timestamp: Date.now(),
     data: {
       x: x,
       y: y,
-      color: get().currentTool.type === "eraser" ? "#ffffff" : get().currentTool.color,
+      color: get().currentTool.type === "eraser" ? "#ffffff" : hexToRgba(get().currentTool.color, 0.4),
       width: get().currentTool.width,
       tool: get().currentTool.type === "eraser" ? "eraser" : "brush",
     } as LiveStrokeStartData,
@@ -375,7 +401,11 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
     id: generateActionId(),
     type: "LiveShapeMove" as DrawActionType,
     timestamp: Date.now(),
-    data: { currentX: x, currentY: y } as LiveShapeMoveData,
+    data: {
+      shapeType: get().currentTool.type as ShapeActionData["shapeType"],
+      currentX: x,
+      currentY: y,
+    } as LiveShapeMoveData,
   }),
 
   createLiveShapeEndAction: () => ({

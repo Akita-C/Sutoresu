@@ -38,10 +38,7 @@ export function getInitials(name: string): string {
  * formatDate(undefined) // "Never"
  * formatDate("", "Not available") // "Not available"
  */
-export function formatDate(
-  dateString?: string,
-  fallback: string = "Never",
-): string {
+export function formatDate(dateString?: string, fallback: string = "Never"): string {
   if (!dateString) return fallback;
 
   try {
@@ -67,10 +64,7 @@ export function formatDate(
  * formatRelativeDate("2024-01-15T10:30:00Z") // "2 hours ago"
  * formatRelativeDate(undefined) // "Never"
  */
-export function formatRelativeDate(
-  dateString?: string,
-  fallback: string = "Never",
-): string {
+export function formatRelativeDate(dateString?: string, fallback: string = "Never"): string {
   if (!dateString) return fallback;
 
   try {
@@ -106,10 +100,7 @@ export function formatRelativeDate(
  * @example
  * formatDateOnly("2024-01-15T10:30:00Z") // "Jan 15, 2024"
  */
-export function formatDateOnly(
-  dateString?: string,
-  fallback: string = "Never",
-): string {
+export function formatDateOnly(dateString?: string, fallback: string = "Never"): string {
   if (!dateString) return fallback;
 
   try {
@@ -132,10 +123,7 @@ export function formatDateOnly(
  * @example
  * formatTimeOnly("2024-01-15T10:30:00Z") // "10:30 AM"
  */
-export function formatTimeOnly(
-  dateString?: string,
-  fallback: string = "Never",
-): string {
+export function formatTimeOnly(dateString?: string, fallback: string = "Never"): string {
   if (!dateString) return fallback;
 
   try {
@@ -147,4 +135,18 @@ export function formatTimeOnly(
     console.warn("Invalid date string:", dateString);
     return fallback;
   }
+}
+
+/**
+ * Convert a hex color to rgba
+ * @param hex - The hex color string
+ * @param opacity - The opacity value (0-1)
+ * @returns The rgba color string
+ * @example
+ */
+export function hexToRgba(hex: string, opacity: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
