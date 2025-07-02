@@ -4,15 +4,10 @@ import {
   ActionData,
   DrawAction,
   DrawActionType,
-  LiveShapeMoveData,
-  LiveShapeStartData,
-  LiveStrokeMoveData,
-  LiveStrokeStartData,
   ShapeActionData,
   StrokeActionData,
   UndoRedoActionData,
 } from "../types";
-import { hexToRgba } from "@/lib/utils";
 
 export interface DrawingTool {
   type: "brush" | "eraser" | "line" | "rectangle" | "circle";
@@ -49,13 +44,13 @@ export interface DrawingState {
   rebuildCanvas: () => void;
 
   // New real-time methods
-  applyLiveAction: (action: DrawAction) => void;
-  createLiveStrokeStartAction: (x: number, y: number) => DrawAction;
-  createLiveStrokeMoveAction: (x: number, y: number) => DrawAction;
-  createLiveStrokeEndAction: () => DrawAction;
-  createLiveShapeStartAction: (shapeType: ShapeActionData["shapeType"], x: number, y: number) => DrawAction;
-  createLiveShapeMoveAction: (x: number, y: number) => DrawAction;
-  createLiveShapeEndAction: () => DrawAction;
+  // applyLiveAction: (action: DrawAction) => void;
+  // createLiveStrokeStartAction: (x: number, y: number) => DrawAction;
+  // createLiveStrokeMoveAction: (x: number, y: number) => DrawAction;
+  // createLiveStrokeEndAction: () => DrawAction;
+  // createLiveShapeStartAction: (shapeType: ShapeActionData["shapeType"], x: number, y: number) => DrawAction;
+  // createLiveShapeMoveAction: (x: number, y: number) => DrawAction;
+  // createLiveShapeEndAction: () => DrawAction;
 
   // Legacy methods for UI
   undo: () => DrawAction | null;
@@ -195,152 +190,152 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
     canvas.renderAll();
   },
 
-  applyLiveAction: (action) => {
-    const { canvas } = get();
-    if (!canvas) return;
+  // applyLiveAction: (action) => {
+  //   const { canvas } = get();
+  //   if (!canvas) return;
 
-    switch (action.type) {
-      case "LiveStrokeStart": {
-        const data = action.data as LiveStrokeStartData;
-        const startPoints = [{ x: data.x, y: data.y }];
-        set({ currentStrokePoints: startPoints });
+  //   switch (action.type) {
+  //     case "LiveStrokeStart": {
+  //       const data = action.data as LiveStrokeStartData;
+  //       const startPoints = [{ x: data.x, y: data.y }];
+  //       set({ currentStrokePoints: startPoints });
 
-        const path = new Path(`M ${data.x} ${data.y}`, {
-          stroke: data.color,
-          strokeWidth: data.width,
-          fill: "",
-          selectable: false,
-          evented: false,
-        });
+  //       const path = new Path(`M ${data.x} ${data.y}`, {
+  //         stroke: data.color,
+  //         strokeWidth: data.width,
+  //         fill: "",
+  //         selectable: false,
+  //         evented: false,
+  //       });
 
-        canvas.add(path);
-        set({ currentStroke: path });
-        break;
-      }
-      case "LiveStrokeMove": {
-        const { currentStroke, currentStrokePoints } = get();
-        if (!currentStroke || !currentStrokePoints) return;
+  //       canvas.add(path);
+  //       set({ currentStroke: path });
+  //       break;
+  //     }
+  //     case "LiveStrokeMove": {
+  //       const { currentStroke, currentStrokePoints } = get();
+  //       if (!currentStroke || !currentStrokePoints) return;
 
-        const data = action.data as LiveStrokeMoveData;
-        const newPoints = [...currentStrokePoints, { x: data.x, y: data.y }];
-        set({ currentStrokePoints: newPoints });
-        const pathString = newPoints
-          .map((point, index) => (index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`))
-          .join(" ");
+  //       const data = action.data as LiveStrokeMoveData;
+  //       const newPoints = [...currentStrokePoints, { x: data.x, y: data.y }];
+  //       set({ currentStrokePoints: newPoints });
+  //       const pathString = newPoints
+  //         .map((point, index) => (index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`))
+  //         .join(" ");
 
-        const newPath = new Path(pathString, {
-          stroke: currentStroke.stroke,
-          strokeWidth: currentStroke.strokeWidth,
-          fill: "",
-          selectable: false,
-          evented: false,
-        });
+  //       const newPath = new Path(pathString, {
+  //         stroke: currentStroke.stroke,
+  //         strokeWidth: currentStroke.strokeWidth,
+  //         fill: "",
+  //         selectable: false,
+  //         evented: false,
+  //       });
 
-        canvas.remove(currentStroke);
-        canvas.add(newPath);
-        set({ currentStroke: newPath });
-        break;
-      }
-      case "LiveStrokeEnd": {
-        const { currentStroke } = get();
-        if (currentStroke) {
-          canvas.remove(currentStroke);
-        }
-        set({ currentStroke: null, currentStrokePoints: [] });
-        canvas.renderAll();
-        break;
-      }
-      case "LiveShapeStart": {
-        const data = action.data as LiveShapeStartData;
-        set({
-          currentShapeStartX: data.startX,
-          currentShapeStartY: data.startY,
-        });
+  //       canvas.remove(currentStroke);
+  //       canvas.add(newPath);
+  //       set({ currentStroke: newPath });
+  //       break;
+  //     }
+  //     case "LiveStrokeEnd": {
+  //       const { currentStroke } = get();
+  //       if (currentStroke) {
+  //         canvas.remove(currentStroke);
+  //       }
+  //       set({ currentStroke: null, currentStrokePoints: [] });
+  //       canvas.renderAll();
+  //       break;
+  //     }
+  //     case "LiveShapeStart": {
+  //       const data = action.data as LiveShapeStartData;
+  //       set({
+  //         currentShapeStartX: data.startX,
+  //         currentShapeStartY: data.startY,
+  //       });
 
-        let shape;
-        switch (data.shapeType) {
-          case "rectangle":
-            shape = new Rect({
-              left: data.startX,
-              top: data.startY,
-              width: 0,
-              height: 0,
-              fill: "transparent",
-              stroke: data.color,
-              strokeWidth: data.strokeWidth,
-              selectable: false,
-              evented: false,
-            });
-            break;
-          case "circle":
-            shape = new Circle({
-              left: data.startX,
-              top: data.startY,
-              radius: 0,
-              fill: "transparent",
-              stroke: data.color,
-              strokeWidth: data.strokeWidth,
-              selectable: false,
-              evented: false,
-            });
-            break;
-          case "line":
-            shape = new Line([data.startX, data.startY, data.startX, data.startY], {
-              stroke: data.color,
-              strokeWidth: data.strokeWidth,
-              selectable: false,
-              evented: false,
-            });
-            break;
-        }
+  //       let shape;
+  //       switch (data.shapeType) {
+  //         case "rectangle":
+  //           shape = new Rect({
+  //             left: data.startX,
+  //             top: data.startY,
+  //             width: 0,
+  //             height: 0,
+  //             fill: "transparent",
+  //             stroke: data.color,
+  //             strokeWidth: data.strokeWidth,
+  //             selectable: false,
+  //             evented: false,
+  //           });
+  //           break;
+  //         case "circle":
+  //           shape = new Circle({
+  //             left: data.startX,
+  //             top: data.startY,
+  //             radius: 0,
+  //             fill: "transparent",
+  //             stroke: data.color,
+  //             strokeWidth: data.strokeWidth,
+  //             selectable: false,
+  //             evented: false,
+  //           });
+  //           break;
+  //         case "line":
+  //           shape = new Line([data.startX, data.startY, data.startX, data.startY], {
+  //             stroke: data.color,
+  //             strokeWidth: data.strokeWidth,
+  //             selectable: false,
+  //             evented: false,
+  //           });
+  //           break;
+  //       }
 
-        if (shape) {
-          canvas.add(shape);
-          set({ currentShape: shape });
-        }
-        break;
-      }
-      case "LiveShapeMove": {
-        const { currentShape, currentShapeStartX, currentShapeStartY } = get();
-        if (!currentShape) return;
+  //       if (shape) {
+  //         canvas.add(shape);
+  //         set({ currentShape: shape });
+  //       }
+  //       break;
+  //     }
+  //     case "LiveShapeMove": {
+  //       const { currentShape, currentShapeStartX, currentShapeStartY } = get();
+  //       if (!currentShape) return;
 
-        const data = action.data as LiveShapeMoveData;
-        switch (data.shapeType) {
-          case "rectangle":
-            const rect = currentShape as Rect;
-            rect.set({
-              left: Math.min(currentShapeStartX, data.currentX),
-              top: Math.min(currentShapeStartY, data.currentY),
-              width: Math.abs(data.currentX - currentShapeStartX),
-              height: Math.abs(data.currentY - currentShapeStartY),
-            });
-            break;
-          case "circle":
-            const circle = currentShape as Circle;
-            const radius =
-              Math.sqrt(
-                Math.pow(data.currentX - currentShapeStartX, 2) + Math.pow(data.currentY - currentShapeStartY, 2),
-              ) / 2;
-            circle.set({ radius });
-            break;
-          case "line":
-            const line = currentShape as Line;
-            line.set({
-              x2: data.currentX,
-              y2: data.currentY,
-            });
-            break;
-        }
-        break;
-      }
-      case "LiveShapeEnd": {
-        set({ currentShape: null });
-        break;
-      }
-    }
+  //       const data = action.data as LiveShapeMoveData;
+  //       switch (data.shapeType) {
+  //         case "rectangle":
+  //           const rect = currentShape as Rect;
+  //           rect.set({
+  //             left: Math.min(currentShapeStartX, data.currentX),
+  //             top: Math.min(currentShapeStartY, data.currentY),
+  //             width: Math.abs(data.currentX - currentShapeStartX),
+  //             height: Math.abs(data.currentY - currentShapeStartY),
+  //           });
+  //           break;
+  //         case "circle":
+  //           const circle = currentShape as Circle;
+  //           const radius =
+  //             Math.sqrt(
+  //               Math.pow(data.currentX - currentShapeStartX, 2) + Math.pow(data.currentY - currentShapeStartY, 2),
+  //             ) / 2;
+  //           circle.set({ radius });
+  //           break;
+  //         case "line":
+  //           const line = currentShape as Line;
+  //           line.set({
+  //             x2: data.currentX,
+  //             y2: data.currentY,
+  //           });
+  //           break;
+  //       }
+  //       break;
+  //     }
+  //     case "LiveShapeEnd": {
+  //       set({ currentShape: null });
+  //       break;
+  //     }
+  //   }
 
-    canvas.renderAll();
-  },
+  //   canvas.renderAll();
+  // },
 
   rebuildCanvas: () => {
     const { canvas, actions, undoneActions } = get();
@@ -357,63 +352,63 @@ export const useDrawingStore = create<DrawingState>((set, get) => ({
     });
   },
 
-  createLiveStrokeStartAction: (x, y) => ({
-    id: generateActionId(),
-    type: "LiveStrokeStart" as DrawActionType,
-    timestamp: Date.now(),
-    data: {
-      x: x,
-      y: y,
-      color: get().currentTool.type === "eraser" ? "#ffffff" : hexToRgba(get().currentTool.color, 0.4),
-      width: get().currentTool.width,
-      tool: get().currentTool.type === "eraser" ? "eraser" : "brush",
-    } as LiveStrokeStartData,
-  }),
+  // createLiveStrokeStartAction: (x, y) => ({
+  //   id: generateActionId(),
+  //   type: "LiveStrokeStart" as DrawActionType,
+  //   timestamp: Date.now(),
+  //   data: {
+  //     x: x,
+  //     y: y,
+  //     color: get().currentTool.type === "eraser" ? "#ffffff" : hexToRgba(get().currentTool.color, 0.4),
+  //     width: get().currentTool.width,
+  //     tool: get().currentTool.type === "eraser" ? "eraser" : "brush",
+  //   } as LiveStrokeStartData,
+  // }),
 
-  createLiveStrokeMoveAction: (x, y) => ({
-    id: generateActionId(),
-    type: "LiveStrokeMove" as DrawActionType,
-    timestamp: Date.now(),
-    data: { x: x, y: y } as LiveStrokeMoveData,
-  }),
+  // createLiveStrokeMoveAction: (x, y) => ({
+  //   id: generateActionId(),
+  //   type: "LiveStrokeMove" as DrawActionType,
+  //   timestamp: Date.now(),
+  //   data: { x: x, y: y } as LiveStrokeMoveData,
+  // }),
 
-  createLiveStrokeEndAction: () => ({
-    id: generateActionId(),
-    type: "LiveStrokeEnd" as DrawActionType,
-    timestamp: Date.now(),
-    data: {} as ActionData,
-  }),
+  // createLiveStrokeEndAction: () => ({
+  //   id: generateActionId(),
+  //   type: "LiveStrokeEnd" as DrawActionType,
+  //   timestamp: Date.now(),
+  //   data: {} as ActionData,
+  // }),
 
-  createLiveShapeStartAction: (shapeType, x, y) => ({
-    id: generateActionId(),
-    type: "LiveShapeStart" as DrawActionType,
-    timestamp: Date.now(),
-    data: {
-      shapeType: shapeType,
-      startX: x,
-      startY: y,
-      color: get().currentTool.color,
-      strokeWidth: get().currentTool.width,
-    } as LiveShapeStartData,
-  }),
+  // createLiveShapeStartAction: (shapeType, x, y) => ({
+  //   id: generateActionId(),
+  //   type: "LiveShapeStart" as DrawActionType,
+  //   timestamp: Date.now(),
+  //   data: {
+  //     shapeType: shapeType,
+  //     startX: x,
+  //     startY: y,
+  //     color: get().currentTool.color,
+  //     strokeWidth: get().currentTool.width,
+  //   } as LiveShapeStartData,
+  // }),
 
-  createLiveShapeMoveAction: (x, y) => ({
-    id: generateActionId(),
-    type: "LiveShapeMove" as DrawActionType,
-    timestamp: Date.now(),
-    data: {
-      shapeType: get().currentTool.type as ShapeActionData["shapeType"],
-      currentX: x,
-      currentY: y,
-    } as LiveShapeMoveData,
-  }),
+  // createLiveShapeMoveAction: (x, y) => ({
+  //   id: generateActionId(),
+  //   type: "LiveShapeMove" as DrawActionType,
+  //   timestamp: Date.now(),
+  //   data: {
+  //     shapeType: get().currentTool.type as ShapeActionData["shapeType"],
+  //     currentX: x,
+  //     currentY: y,
+  //   } as LiveShapeMoveData,
+  // }),
 
-  createLiveShapeEndAction: () => ({
-    id: generateActionId(),
-    type: "LiveShapeEnd" as DrawActionType,
-    timestamp: Date.now(),
-    data: {} as ActionData,
-  }),
+  // createLiveShapeEndAction: () => ({
+  //   id: generateActionId(),
+  //   type: "LiveShapeEnd" as DrawActionType,
+  //   timestamp: Date.now(),
+  //   data: {} as ActionData,
+  // }),
 
   createStrokeAction: (pathData) => ({
     id: generateActionId(),

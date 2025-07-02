@@ -6,6 +6,7 @@ export type CreateDrawRoomRequest = {
   config: {
     maxPlayers: number;
     maxRoundPerPlayers: number;
+    roundDurationSeconds: number;
   };
 };
 
@@ -23,13 +24,31 @@ export interface DrawRoom {
   roomId: string;
   roomName: string;
   host: { hostId: string; hostName: string };
-  config: { maxPlayers: number; maxRoundPerPlayers: number };
+  config: {
+    maxPlayers: number;
+    maxRoundPerPlayers: number;
+    roundDurationSeconds: number;
+  };
 }
 
 export interface DrawWaitingRoomMessage {
   senderId: string;
   senderName: string;
   message: string;
+}
+
+export interface RoundStartedEvent {
+  roomId: string;
+  roundNumber: number;
+  totalRounds: number;
+  durationSeconds: number;
+  startTime: string;
+}
+
+export interface RoundEndedEvent {
+  roomId: string;
+  roundNumber: number;
+  isGameFinished: boolean;
 }
 
 export interface DrawGameHubContract {
@@ -39,6 +58,8 @@ export interface DrawGameHubContract {
     SendRoomMessage(roomId: string, message: string): Promise<void>;
     KickPlayer(roomId: string, player: DrawPlayer): Promise<void>;
     SetRoomState(roomId: string, state: DrawGameState["phase"]): Promise<void>;
+    StartRound(roomId: string, roundNumber: number): Promise<void>;
+    EndRound(roomId: string): Promise<void>;
     SendDrawAction(roomId: string, action: DrawAction): Promise<void>;
     SendLiveDrawAction(roomId: string, action: DrawAction): Promise<void>;
   };
@@ -52,6 +73,8 @@ export interface DrawGameHubContract {
     RoomStateUpdated(state: DrawGameState["phase"]): void;
     DrawActionReceived(action: DrawAction): void;
     LiveDrawActionReceived(action: DrawAction): void;
+    RoundStarted(round: RoundStartedEvent): void;
+    RoundEnded(round: RoundEndedEvent): void;
   };
 }
 

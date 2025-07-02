@@ -3,16 +3,16 @@
 import { Ref, useEffect, useImperativeHandle, useRef } from "react";
 import { useDrawingStore } from "../../stores/drawing-store";
 import { useShallow } from "zustand/react/shallow";
-import { Canvas, Circle, Line, Rect, PencilBrush, TPointerEvent, TPointerEventInfo, FabricObject } from "fabric";
+import { Canvas, PencilBrush } from "fabric";
 import { useThrottledCallback } from "use-debounce";
-import { DrawAction, ShapeActionData } from "../../types";
+import { DrawAction } from "../../types";
 
 interface DrawingCanvasProps {
   width?: number;
   height?: number;
   className?: string;
   onActionEmit?: (action: DrawAction) => void;
-  onLiveActionEmit?: (action: DrawAction) => void;
+  // onLiveActionEmit?: (action: DrawAction) => void;
   ref?: Ref<DrawingCanvasRef>;
 }
 
@@ -25,7 +25,7 @@ export function DrawingCanvas({
   height = 600,
   className = "",
   onActionEmit,
-  onLiveActionEmit,
+  // onLiveActionEmit,
   ref,
 }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,19 +35,19 @@ export function DrawingCanvas({
     canvas,
     currentTool,
     setCanvas,
-    isDrawing,
+    // isDrawing,
     setIsDrawing,
     addAction,
     createStrokeAction,
-    createShapeAction,
+    // createShapeAction,
     applyAction,
-    applyLiveAction,
-    createLiveStrokeStartAction,
-    createLiveStrokeMoveAction,
-    createLiveStrokeEndAction,
-    createLiveShapeStartAction,
-    createLiveShapeMoveAction,
-    createLiveShapeEndAction,
+    // applyLiveAction,
+    // createLiveStrokeStartAction,
+    // createLiveStrokeMoveAction,
+    // createLiveStrokeEndAction,
+    // createLiveShapeStartAction,
+    // createLiveShapeMoveAction,
+    // createLiveShapeEndAction,
   } = useDrawingStore(
     useShallow((state) => ({
       canvas: state.canvas,
@@ -59,13 +59,13 @@ export function DrawingCanvas({
       createStrokeAction: state.createStrokeAction,
       createShapeAction: state.createShapeAction,
       applyAction: state.applyAction,
-      applyLiveAction: state.applyLiveAction,
-      createLiveStrokeStartAction: state.createLiveStrokeStartAction,
-      createLiveStrokeMoveAction: state.createLiveStrokeMoveAction,
-      createLiveStrokeEndAction: state.createLiveStrokeEndAction,
-      createLiveShapeStartAction: state.createLiveShapeStartAction,
-      createLiveShapeMoveAction: state.createLiveShapeMoveAction,
-      createLiveShapeEndAction: state.createLiveShapeEndAction,
+      // applyLiveAction: state.applyLiveAction,
+      // createLiveStrokeStartAction: state.createLiveStrokeStartAction,
+      // createLiveStrokeMoveAction: state.createLiveStrokeMoveAction,
+      // createLiveStrokeEndAction: state.createLiveStrokeEndAction,
+      // createLiveShapeStartAction: state.createLiveShapeStartAction,
+      // createLiveShapeMoveAction: state.createLiveShapeMoveAction,
+      // createLiveShapeEndAction: state.createLiveShapeEndAction,
     })),
   );
 
@@ -74,25 +74,25 @@ export function DrawingCanvas({
     () => ({
       applyExternalAction: (action: DrawAction) => {
         if (action.type.startsWith("Live")) {
-          applyLiveAction(action);
+          // applyLiveAction(action);
         } else {
           addAction(action);
           applyAction(action);
         }
       },
     }),
-    [addAction, applyAction, applyLiveAction],
+    [addAction, applyAction],
   );
 
-  const throttledLiveActionEmit = useThrottledCallback(
-    (action: DrawAction) => {
-      if (onLiveActionEmit) {
-        onLiveActionEmit(action);
-      }
-    },
-    33,
-    { leading: true, trailing: true },
-  );
+  // const throttledLiveActionEmit = useThrottledCallback(
+  //   (action: DrawAction) => {
+  //     if (onLiveActionEmit) {
+  //       onLiveActionEmit(action);
+  //     }
+  //   },
+  //   33,
+  //   { leading: true, trailing: true },
+  // );
 
   const throttledActionEmit = useThrottledCallback(
     (action: DrawAction) => {
@@ -127,18 +127,18 @@ export function DrawingCanvas({
         addAction(action);
         throttledActionEmit(action);
 
-        const endAction = createLiveStrokeEndAction();
-        throttledLiveActionEmit(endAction);
+        // const endAction = createLiveStrokeEndAction();
+        // throttledLiveActionEmit(endAction);
       }
     });
 
-    fabricCanvas.on("mouse:down", (e) => {
+    fabricCanvas.on("mouse:down", () => {
       setIsDrawing(true);
-      if (currentTool.type === "brush" || currentTool.type === "eraser") {
-        const pointer = fabricCanvas.getScenePoint(e.e);
-        const startAction = createLiveStrokeStartAction(pointer.x, pointer.y);
-        throttledLiveActionEmit(startAction);
-      }
+      // if (currentTool.type === "brush" || currentTool.type === "eraser") {
+      //   const pointer = fabricCanvas.getScenePoint(e.e);
+      //   const startAction = createLiveStrokeStartAction(pointer.x, pointer.y);
+      //   throttledLiveActionEmit(startAction);
+      // }
     });
 
     fabricCanvas.on("mouse:up", () => {
@@ -189,179 +189,179 @@ export function DrawingCanvas({
   }, [canvas, currentTool.type, currentTool.color, currentTool.width]);
 
   // Handle real-time brush/eraser updates
-  useEffect(() => {
-    if (!canvas || (currentTool.type !== "brush" && currentTool.type !== "eraser")) return;
+  // useEffect(() => {
+  //   if (!canvas || (currentTool.type !== "brush" && currentTool.type !== "eraser")) return;
 
-    const handleMouseMove = (options: TPointerEventInfo<TPointerEvent>) => {
-      if (!canvas.isDrawingMode || !isDrawing) return;
+  //   const handleMouseMove = (options: TPointerEventInfo<TPointerEvent>) => {
+  //     if (!canvas.isDrawingMode || !isDrawing) return;
 
-      const pointer = canvas.getScenePoint(options.e);
-      const moveAction = createLiveStrokeMoveAction(pointer.x, pointer.y);
-      throttledLiveActionEmit(moveAction);
-    };
+  //     const pointer = canvas.getScenePoint(options.e);
+  //     const moveAction = createLiveStrokeMoveAction(pointer.x, pointer.y);
+  //     throttledLiveActionEmit(moveAction);
+  //   };
 
-    canvas.on("mouse:move", handleMouseMove);
+  //   canvas.on("mouse:move", handleMouseMove);
 
-    return () => {
-      canvas.off("mouse:move", handleMouseMove);
-    };
-  }, [canvas, currentTool.type, createLiveStrokeMoveAction, throttledLiveActionEmit, isDrawing]);
+  //   return () => {
+  //     canvas.off("mouse:move", handleMouseMove);
+  //   };
+  // }, [canvas, currentTool.type, createLiveStrokeMoveAction, throttledLiveActionEmit, isDrawing]);
 
   // Handle real-time shape drawing
-  useEffect(() => {
-    if (!canvas || currentTool.type === "brush" || currentTool.type === "eraser") return;
+  // useEffect(() => {
+  //   if (!canvas || currentTool.type === "brush" || currentTool.type === "eraser") return;
 
-    let isDown = false;
-    let origX = 0;
-    let origY = 0;
-    let shape: FabricObject | null = null;
+  //   let isDown = false;
+  //   let origX = 0;
+  //   let origY = 0;
+  //   let shape: FabricObject | null = null;
 
-    const handleMouseDown = (options: TPointerEventInfo<TPointerEvent>) => {
-      isDown = true;
-      const pointer = canvas.getScenePoint(options.e);
-      origX = pointer.x;
-      origY = pointer.y;
+  //   const handleMouseDown = (options: TPointerEventInfo<TPointerEvent>) => {
+  //     isDown = true;
+  //     const pointer = canvas.getScenePoint(options.e);
+  //     origX = pointer.x;
+  //     origY = pointer.y;
 
-      const startAction = createLiveShapeStartAction(currentTool.type as ShapeActionData["shapeType"], origX, origY);
-      throttledLiveActionEmit(startAction);
+  //     const startAction = createLiveShapeStartAction(currentTool.type as ShapeActionData["shapeType"], origX, origY);
+  //     throttledLiveActionEmit(startAction);
 
-      // Create local shape for immediate feedback
-      switch (currentTool.type) {
-        case "rectangle":
-          shape = new Rect({
-            left: origX,
-            top: origY,
-            width: 0,
-            height: 0,
-            fill: "transparent",
-            stroke: currentTool.color,
-            strokeWidth: currentTool.width,
-            selectable: false,
-            evented: false,
-          });
-          break;
-        case "circle":
-          shape = new Circle({
-            left: origX,
-            top: origY,
-            radius: 0,
-            fill: "transparent",
-            stroke: currentTool.color,
-            strokeWidth: currentTool.width,
-            selectable: false,
-            evented: false,
-          });
-          break;
-        case "line":
-          shape = new Line([origX, origY, origX, origY], {
-            stroke: currentTool.color,
-            strokeWidth: currentTool.width,
-            selectable: false,
-            evented: false,
-          });
-          break;
-      }
+  //     // Create local shape for immediate feedback
+  //     switch (currentTool.type) {
+  //       case "rectangle":
+  //         shape = new Rect({
+  //           left: origX,
+  //           top: origY,
+  //           width: 0,
+  //           height: 0,
+  //           fill: "transparent",
+  //           stroke: currentTool.color,
+  //           strokeWidth: currentTool.width,
+  //           selectable: false,
+  //           evented: false,
+  //         });
+  //         break;
+  //       case "circle":
+  //         shape = new Circle({
+  //           left: origX,
+  //           top: origY,
+  //           radius: 0,
+  //           fill: "transparent",
+  //           stroke: currentTool.color,
+  //           strokeWidth: currentTool.width,
+  //           selectable: false,
+  //           evented: false,
+  //         });
+  //         break;
+  //       case "line":
+  //         shape = new Line([origX, origY, origX, origY], {
+  //           stroke: currentTool.color,
+  //           strokeWidth: currentTool.width,
+  //           selectable: false,
+  //           evented: false,
+  //         });
+  //         break;
+  //     }
 
-      if (shape) {
-        canvas.add(shape);
-      }
-    };
+  //     if (shape) {
+  //       canvas.add(shape);
+  //     }
+  //   };
 
-    const handleMouseMove = (options: TPointerEventInfo<TPointerEvent>) => {
-      if (!isDown || !shape) return;
+  //   const handleMouseMove = (options: TPointerEventInfo<TPointerEvent>) => {
+  //     if (!isDown || !shape) return;
 
-      const pointer = canvas.getScenePoint(options.e);
+  //     const pointer = canvas.getScenePoint(options.e);
 
-      const moveAction = createLiveShapeMoveAction(pointer.x, pointer.y);
-      throttledLiveActionEmit(moveAction);
+  //     const moveAction = createLiveShapeMoveAction(pointer.x, pointer.y);
+  //     throttledLiveActionEmit(moveAction);
 
-      // Update local shape for immediate feedback
-      switch (currentTool.type) {
-        case "rectangle":
-          const rect = shape as Rect;
-          rect.set({
-            left: Math.min(origX, pointer.x),
-            top: Math.min(origY, pointer.y),
-            width: Math.abs(pointer.x - origX),
-            height: Math.abs(pointer.y - origY),
-          });
-          break;
-        case "circle":
-          const circle = shape as Circle;
-          const radius = Math.sqrt(Math.pow(pointer.x - origX, 2) + Math.pow(pointer.y - origY, 2)) / 2;
-          circle.set({ radius });
-          break;
-        case "line":
-          const line = shape as Line;
-          line.set({ x2: pointer.x, y2: pointer.y });
-          break;
-      }
+  //     // Update local shape for immediate feedback
+  //     switch (currentTool.type) {
+  //       case "rectangle":
+  //         const rect = shape as Rect;
+  //         rect.set({
+  //           left: Math.min(origX, pointer.x),
+  //           top: Math.min(origY, pointer.y),
+  //           width: Math.abs(pointer.x - origX),
+  //           height: Math.abs(pointer.y - origY),
+  //         });
+  //         break;
+  //       case "circle":
+  //         const circle = shape as Circle;
+  //         const radius = Math.sqrt(Math.pow(pointer.x - origX, 2) + Math.pow(pointer.y - origY, 2)) / 2;
+  //         circle.set({ radius });
+  //         break;
+  //       case "line":
+  //         const line = shape as Line;
+  //         line.set({ x2: pointer.x, y2: pointer.y });
+  //         break;
+  //     }
 
-      canvas.renderAll();
-    };
+  //     canvas.renderAll();
+  //   };
 
-    const handleMouseUp = () => {
-      if (!isDown || !shape) return;
+  //   const handleMouseUp = () => {
+  //     if (!isDown || !shape) return;
 
-      const endAction = createLiveShapeEndAction();
-      throttledLiveActionEmit(endAction);
+  //     // const endAction = createLiveShapeEndAction();
+  //     // throttledLiveActionEmit(endAction);
 
-      // Create final shape action for history
-      const properties: ShapeActionData["properties"] = {
-        left: origX,
-        top: origY,
-        color: currentTool.color,
-        strokeWidth: currentTool.width,
-      };
+  //     // Create final shape action for history
+  //     const properties: ShapeActionData["properties"] = {
+  //       left: origX,
+  //       top: origY,
+  //       color: currentTool.color,
+  //       strokeWidth: currentTool.width,
+  //     };
 
-      switch (currentTool.type) {
-        case "rectangle":
-          const rect = shape as Rect;
-          properties.width = rect.width;
-          properties.height = rect.height;
-          if (rect.left !== origX) properties.left = rect.left;
-          if (rect.top !== origY) properties.top = rect.top;
-          break;
-        case "circle":
-          const circle = shape as Circle;
-          properties.radius = circle.radius;
-          break;
-        case "line":
-          const line = shape as Line;
-          properties.x1 = origX;
-          properties.y1 = origY;
-          properties.x2 = line.x2;
-          properties.y2 = line.y2;
-          break;
-      }
-      const action = createShapeAction(currentTool.type as ShapeActionData["shapeType"], properties);
-      addAction(action);
-      throttledActionEmit(action);
+  //     switch (currentTool.type) {
+  //       case "rectangle":
+  //         const rect = shape as Rect;
+  //         properties.width = rect.width;
+  //         properties.height = rect.height;
+  //         if (rect.left !== origX) properties.left = rect.left;
+  //         if (rect.top !== origY) properties.top = rect.top;
+  //         break;
+  //       case "circle":
+  //         const circle = shape as Circle;
+  //         properties.radius = circle.radius;
+  //         break;
+  //       case "line":
+  //         const line = shape as Line;
+  //         properties.x1 = origX;
+  //         properties.y1 = origY;
+  //         properties.x2 = line.x2;
+  //         properties.y2 = line.y2;
+  //         break;
+  //     }
+  //     const action = createShapeAction(currentTool.type as ShapeActionData["shapeType"], properties);
+  //     addAction(action);
+  //     throttledActionEmit(action);
 
-      isDown = false;
-      shape = null;
-    };
+  //     isDown = false;
+  //     shape = null;
+  //   };
 
-    canvas.on("mouse:down", handleMouseDown);
-    canvas.on("mouse:move", handleMouseMove);
-    canvas.on("mouse:up", handleMouseUp);
+  //   canvas.on("mouse:down", handleMouseDown);
+  //   canvas.on("mouse:move", handleMouseMove);
+  //   canvas.on("mouse:up", handleMouseUp);
 
-    return () => {
-      canvas.off("mouse:down", handleMouseDown);
-      canvas.off("mouse:move", handleMouseMove);
-      canvas.off("mouse:up", handleMouseUp);
-    };
-  }, [
-    canvas,
-    currentTool,
-    addAction,
-    createShapeAction,
-    createLiveShapeStartAction,
-    createLiveShapeMoveAction,
-    createLiveShapeEndAction,
-    throttledLiveActionEmit,
-    throttledActionEmit,
-  ]);
+  //   return () => {
+  //     canvas.off("mouse:down", handleMouseDown);
+  //     canvas.off("mouse:move", handleMouseMove);
+  //     canvas.off("mouse:up", handleMouseUp);
+  //   };
+  // }, [
+  //   canvas,
+  //   currentTool,
+  //   addAction,
+  //   createShapeAction,
+  //   createLiveShapeStartAction,
+  //   createLiveShapeMoveAction,
+  //   createLiveShapeEndAction,
+  //   throttledLiveActionEmit,
+  //   throttledActionEmit,
+  // ]);
 
   return (
     <div className={`border border-border rounded-lg overflow-hidden ${className}`}>

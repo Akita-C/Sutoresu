@@ -121,6 +121,8 @@ export const useDrawGameHub = ({ autoConnect = false, onStateChange, onError }: 
     SetRoomState: server.SetRoomState,
     SendDrawAction: server.SendDrawAction,
     SendLiveDrawAction: server.SendLiveDrawAction,
+    StartRound: server.StartRound,
+    EndRound: server.EndRound,
     // Event handlers
     registerEvents,
     unregisterEvents,

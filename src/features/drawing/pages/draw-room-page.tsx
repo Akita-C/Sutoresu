@@ -17,6 +17,7 @@ import { DrawingToolbar } from "../components/canvas/drawing-toolbar";
 import DrawDrawingRoomChatbox from "../components/draw-drawing-room-chatbox";
 import GuessWord from "../components/guess-word";
 import DrawingPlayerList from "../components/drawing-player-list";
+import GameInfoBar from "../components/timer/game-info-bar";
 
 interface DrawRoomPageProps {
   roomId: string;
@@ -33,8 +34,10 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     LeaveRoom,
     SendRoomMessage,
     SetRoomState,
+    StartRound,
+    // EndRound, (Cần check lại vì hiện tại nó không dùng)
     SendDrawAction,
-    SendLiveDrawAction,
+    // SendLiveDrawAction,
     registerEvents,
     unregisterEvents,
     isConnected,
@@ -45,7 +48,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     },
   });
   const { addPlayer, removePlayer } = useDrawCacheUpdater(roomId, user?.id);
-  const { phase, setPhase, waitingRoomMessages, setWaitingRoomMessages } = useDrawGameStore();
+  const { phase, setPhase, waitingRoomMessages, setWaitingRoomMessages, startRound, endRound } = useDrawGameStore();
 
   useEffect(() => {
     if (!isConnected) return;
@@ -78,8 +81,19 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       onDrawActionReceived(action) {
         canvasRef.current?.applyExternalAction(action);
       },
-      onLiveDrawActionReceived(action) {
-        canvasRef.current?.applyExternalAction(action);
+      // onLiveDrawActionReceived(action) {
+      // canvasRef.current?.applyExternalAction(action);
+      // },
+      onRoundStarted(roundEvent) {
+        startRound(roundEvent);
+      },
+      onRoundEnded(roundEvent) {
+        endRound(roundEvent);
+        if (roundEvent.isGameFinished) {
+          toast.success("Game finished!");
+        } else {
+          toast.info(`Round ${roundEvent.roundNumber} ended`);
+        }
       },
     });
   }, [isConnected]);
@@ -143,7 +157,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
               <SpringButton
                 onClick={async () => {
                   await SetRoomState(roomId, "drawing");
-                  setPhase("drawing");
+                  await StartRound(roomId, 1);
                 }}
               >
                 Start Game
@@ -160,6 +174,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
               <DrawingPlayerList />
             </aside>
             <main className="w-[800px] space-y-2">
+              <GameInfoBar />
               <DrawingToolbar
                 onActionEmit={(action) => {
                   if (!isConnected || !roomId || !myConnectionId) return;
@@ -172,10 +187,10 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
                   if (!isConnected || !roomId || !myConnectionId) return;
                   SendDrawAction(roomId, action);
                 }}
-                onLiveActionEmit={(action) => {
-                  if (!isConnected || !roomId || !myConnectionId) return;
-                  SendLiveDrawAction(roomId, action);
-                }}
+                // onLiveActionEmit={(action) => {
+                //   if (!isConnected || !roomId || !myConnectionId) return;
+                //   SendLiveDrawAction(roomId, action);
+                // }}
               />
               <GuessWord />
             </main>

@@ -10,7 +10,7 @@ export default function DrawDrawingRoomChatbox() {
     <>
       <Label className="text-2xl font-bold p-4 mb-2">Chat</Label>
       <div className="p-3 space-y-4">
-        <ScrollArea className="h-[525px] no-scrollbar overflow-y-auto border-gray-700 border-2 rounded-lg py-4">
+        <ScrollArea className="h-[625px] no-scrollbar overflow-y-auto border-gray-700 border-2 rounded-lg py-4">
           <ul className="flex flex-col gap-4">
             {Array.from({ length: 10 }).map((_, index) => (
               <li key={index} className="flex items-center gap-2 px-4 py-2rounded-lg">
