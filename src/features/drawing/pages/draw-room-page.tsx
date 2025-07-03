@@ -35,7 +35,6 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     SendRoomMessage,
     SetRoomState,
     StartRound,
-    // EndRound, (Cần check lại vì hiện tại nó không dùng)
     SendDrawAction,
     // SendLiveDrawAction,
     registerEvents,
@@ -48,7 +47,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     },
   });
   const { addPlayer, removePlayer } = useDrawCacheUpdater(roomId, user?.id);
-  const { phase, setPhase, waitingRoomMessages, setWaitingRoomMessages, startRound, endRound, changePhase } =
+  const { phase, setPhase, waitingRoomMessages, setWaitingRoomMessages, startRound, changePhase, endGame } =
     useDrawGameStore();
 
   useEffect(() => {
@@ -88,13 +87,8 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       onRoundStarted(roundEvent) {
         startRound(roundEvent);
       },
-      onRoundEnded(roundEvent) {
-        endRound(roundEvent);
-        if (roundEvent.isGameFinished) {
-          toast.success("Game finished!");
-        } else {
-          toast.info(`Round ${roundEvent.roundNumber} ended`);
-        }
+      onEndedGame() {
+        endGame();
       },
       onPhaseChanged(phaseEvent) {
         changePhase(phaseEvent);
@@ -171,7 +165,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
         </>
       )}
 
-      {phase === "drawing" && (
+      {(phase === "drawing" || phase === "guessing" || phase === "reveal") && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <div className="flex gap-4">
             <aside className="bg-card/40 rounded-lg">

@@ -4,7 +4,7 @@ import { useDrawGameStore } from "../../stores/draw-game-store";
 import RoundTimer from "./round-timer";
 
 export default function GameInfoBar() {
-  const { currentRound, totalRounds } = useDrawGameStore();
+  const { currentRound, totalRounds, phase } = useDrawGameStore();
 
   if (!currentRound || !totalRounds) {
     return null;
@@ -15,7 +15,14 @@ export default function GameInfoBar() {
       <div className="text-sm text-muted-foreground">
         Round {currentRound} of {totalRounds}
       </div>
-      <RoundTimer />
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground font-bold text-lg">
+          {phase === "drawing" && "Drawing"}
+          {phase === "guessing" && "Guessing"}
+          {phase === "reveal" && "Revealing"}
+        </span>
+        <RoundTimer />
+      </div>
     </div>
   );
 }

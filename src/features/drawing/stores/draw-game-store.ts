@@ -1,13 +1,11 @@
 import { create } from "zustand";
-import { DrawGamePhase, DrawWaitingRoomMessage, PhaseChangedEvent, RoundEndedEvent, RoundStartedEvent } from "../types";
+import { DrawGamePhase, DrawWaitingRoomMessage, PhaseChangedEvent, RoundStartedEvent } from "../types";
 
 export interface DrawGameState {
   phase: DrawGamePhase;
   waitingRoomMessages: DrawWaitingRoomMessage[];
   currentRound: number | null;
   totalRounds: number | null;
-  roundStartTime: Date | null;
-  roundDurationSeconds: number | null;
   isRoundActive: boolean;
   phaseStartTime: Date | null;
   phaseDurationSeconds: number | null;
@@ -17,7 +15,7 @@ interface DrawGameActions {
   setPhase: (phase: DrawGameState["phase"]) => void;
   setWaitingRoomMessages: (messages: DrawWaitingRoomMessage[]) => void;
   startRound: (roundEvent: RoundStartedEvent) => void;
-  endRound: (roundEvent: RoundEndedEvent) => void;
+  endGame: () => void;
   changePhase: (phaseEvent: PhaseChangedEvent) => void;
   getRemainingSeconds: () => number | null;
   getPhaseRemainingSeconds: () => number | null;
@@ -29,8 +27,6 @@ const initialState: DrawGameState = {
   waitingRoomMessages: [],
   currentRound: null,
   totalRounds: null,
-  roundStartTime: null,
-  roundDurationSeconds: null,
   isRoundActive: false,
   phaseStartTime: null,
   phaseDurationSeconds: null,
@@ -48,16 +44,15 @@ export const useDrawGameStore = create<DrawGameState & DrawGameActions>((set, ge
       phase: "drawing",
       currentRound: roundEvent.roundNumber,
       totalRounds: roundEvent.totalRounds,
-      roundStartTime: new Date(roundEvent.startTime),
-      roundDurationSeconds: roundEvent.durationSeconds,
+      phaseStartTime: new Date(roundEvent.startTime),
+      phaseDurationSeconds: roundEvent.durationSeconds,
       isRoundActive: true,
     }),
 
-  endRound: (roundEvent) =>
+  endGame: () =>
     set({
-      phase: roundEvent.isGameFinished ? "finished" : "waiting",
+      phase: "finished",
       isRoundActive: false,
-      roundStartTime: null,
       phaseStartTime: null,
       phaseDurationSeconds: null,
     }),
@@ -65,16 +60,17 @@ export const useDrawGameStore = create<DrawGameState & DrawGameActions>((set, ge
   changePhase: (phaseEvent) =>
     set({
       phase: phaseEvent.phase,
+      currentRound: phaseEvent.roundNumber,
       phaseStartTime: new Date(phaseEvent.startTime),
       phaseDurationSeconds: phaseEvent.durationSeconds,
     }),
 
   getRemainingSeconds: () => {
     const state = get();
-    if (!state.isRoundActive || !state.roundStartTime || !state.roundDurationSeconds) return null;
+    if (!state.isRoundActive || !state.phaseStartTime || !state.phaseDurationSeconds) return null;
 
-    const elapsed = Math.floor((Date.now() - state.roundStartTime.getTime()) / 1000);
-    const remaining = state.roundDurationSeconds - elapsed;
+    const elapsed = Math.floor((Date.now() - state.phaseStartTime.getTime()) / 1000);
+    const remaining = state.phaseDurationSeconds - elapsed;
     return Math.max(0, remaining);
   },
 

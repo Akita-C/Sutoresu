@@ -49,10 +49,8 @@ export interface RoundStartedEvent {
   startTime: string;
 }
 
-export interface RoundEndedEvent {
+export interface EndedGameEvent {
   roomId: string;
-  roundNumber: number;
-  isGameFinished: boolean;
 }
 
 export type DrawGamePhase = "waiting" | "drawing" | "guessing" | "reveal" | "finished";
@@ -73,7 +71,6 @@ export interface DrawGameHubContract {
     KickPlayer(roomId: string, player: DrawPlayer): Promise<void>;
     SetRoomState(roomId: string, state: DrawGameState["phase"]): Promise<void>;
     StartRound(roomId: string, roundNumber: number): Promise<void>;
-    EndRound(roomId: string): Promise<void>;
     SendDrawAction(roomId: string, action: DrawAction): Promise<void>;
     SendLiveDrawAction(roomId: string, action: DrawAction): Promise<void>;
   };
@@ -88,7 +85,7 @@ export interface DrawGameHubContract {
     DrawActionReceived(action: DrawAction): void;
     LiveDrawActionReceived(action: DrawAction): void;
     RoundStarted(round: RoundStartedEvent): void;
-    RoundEnded(round: RoundEndedEvent): void;
+    EndedGame(round: EndedGameEvent): void;
     PhaseChanged(phase: PhaseChangedEvent): void;
   };
 }
