@@ -48,7 +48,8 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     },
   });
   const { addPlayer, removePlayer } = useDrawCacheUpdater(roomId, user?.id);
-  const { phase, setPhase, waitingRoomMessages, setWaitingRoomMessages, startRound, endRound } = useDrawGameStore();
+  const { phase, setPhase, waitingRoomMessages, setWaitingRoomMessages, startRound, endRound, changePhase } =
+    useDrawGameStore();
 
   useEffect(() => {
     if (!isConnected) return;
@@ -94,6 +95,9 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
         } else {
           toast.info(`Round ${roundEvent.roundNumber} ended`);
         }
+      },
+      onPhaseChanged(phaseEvent) {
+        changePhase(phaseEvent);
       },
     });
   }, [isConnected]);

@@ -390,6 +390,18 @@
                   "Config.MaxRoundPerPlayers": {
                     "type": "integer",
                     "format": "int32"
+                  },
+                  "Config.DrawingDurationSeconds": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Config.GuessingDurationSeconds": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Config.RevealDurationSeconds": {
+                    "type": "integer",
+                    "format": "int32"
                   }
                 }
               },
@@ -401,6 +413,15 @@
                   "style": "form"
                 },
                 "Config.MaxRoundPerPlayers": {
+                  "style": "form"
+                },
+                "Config.DrawingDurationSeconds": {
+                  "style": "form"
+                },
+                "Config.GuessingDurationSeconds": {
+                  "style": "form"
+                },
+                "Config.RevealDurationSeconds": {
                   "style": "form"
                 }
               }
@@ -3017,6 +3038,18 @@
             "format": "int32"
           },
           "maxRoundPerPlayers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "drawingDurationSeconds": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "guessingDurationSeconds": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "revealDurationSeconds": {
             "type": "integer",
             "format": "int32"
           }

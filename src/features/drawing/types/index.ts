@@ -6,7 +6,9 @@ export type CreateDrawRoomRequest = {
   config: {
     maxPlayers: number;
     maxRoundPerPlayers: number;
-    roundDurationSeconds: number;
+    drawingDurationSeconds: number;
+    guessingDurationSeconds: number;
+    revealDurationSeconds: number;
   };
 };
 
@@ -27,7 +29,9 @@ export interface DrawRoom {
   config: {
     maxPlayers: number;
     maxRoundPerPlayers: number;
-    roundDurationSeconds: number;
+    drawingDurationSeconds: number;
+    guessingDurationSeconds: number;
+    revealDurationSeconds: number;
   };
 }
 
@@ -49,6 +53,16 @@ export interface RoundEndedEvent {
   roomId: string;
   roundNumber: number;
   isGameFinished: boolean;
+}
+
+export type DrawGamePhase = "waiting" | "drawing" | "guessing" | "reveal" | "finished";
+
+export interface PhaseChangedEvent {
+  roomId: string;
+  roundNumber: number;
+  phase: DrawGamePhase;
+  durationSeconds: number;
+  startTime: string;
 }
 
 export interface DrawGameHubContract {
@@ -75,6 +89,7 @@ export interface DrawGameHubContract {
     LiveDrawActionReceived(action: DrawAction): void;
     RoundStarted(round: RoundStartedEvent): void;
     RoundEnded(round: RoundEndedEvent): void;
+    PhaseChanged(phase: PhaseChangedEvent): void;
   };
 }
 
