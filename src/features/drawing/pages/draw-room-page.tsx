@@ -33,7 +33,6 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     JoinRoom,
     LeaveRoom,
     SendRoomMessage,
-    SetRoomState,
     StartRound,
     SendDrawAction,
     // SendLiveDrawAction,
@@ -47,7 +46,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     },
   });
   const { addPlayer, removePlayer } = useDrawCacheUpdater(roomId, user?.id);
-  const { phase, setPhase, waitingRoomMessages, setWaitingRoomMessages, startRound, changePhase, endGame } =
+  const { phase, waitingRoomMessages, setWaitingRoomMessages, startRound, changePhase, endGame, setPlayerScores } =
     useDrawGameStore();
 
   useEffect(() => {
@@ -74,9 +73,6 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
           ...waitingRoomMessages,
           { senderId: senderId, senderName: senderName, message: message },
         ]);
-      },
-      onRoomStateUpdated(state) {
-        setPhase(state);
       },
       onDrawActionReceived(action) {
         canvasRef.current?.applyExternalAction(action);
@@ -154,8 +150,15 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
             <div className="flex justify-center items-center py-8">
               <SpringButton
                 onClick={async () => {
-                  await SetRoomState(roomId, "drawing");
-                  await StartRound(roomId, 1);
+                  await StartRound(roomId);
+                  // This is intended to initialize local state to keep track of player scores
+                  setPlayerScores(
+                    players?.map((player) => ({
+                      playerId: player.playerId,
+                      playerName: player.playerName,
+                      score: 0,
+                    })) ?? [],
+                  );
                 }}
               >
                 Start Game

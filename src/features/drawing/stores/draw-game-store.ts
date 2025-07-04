@@ -1,19 +1,22 @@
 import { create } from "zustand";
-import { DrawGamePhase, DrawWaitingRoomMessage, PhaseChangedEvent, RoundStartedEvent } from "../types";
+import { DrawGamePhase, DrawWaitingRoomMessage, PhaseChangedEvent, PlayerScore, RoundStartedEvent } from "../types";
 
 export interface DrawGameState {
   phase: DrawGamePhase;
   waitingRoomMessages: DrawWaitingRoomMessage[];
+  playerScores: PlayerScore[];
   currentRound: number | null;
   totalRounds: number | null;
-  isRoundActive: boolean;
+  isRoundActive: boolean; // Todo: examine if this is needed, or remove it
   phaseStartTime: Date | null;
   phaseDurationSeconds: number | null;
+  currentDrawerId: string | null;
+  currentWord: string | null;
 }
 
 interface DrawGameActions {
-  setPhase: (phase: DrawGameState["phase"]) => void;
   setWaitingRoomMessages: (messages: DrawWaitingRoomMessage[]) => void;
+  setPlayerScores: (scores: PlayerScore[]) => void;
   startRound: (roundEvent: RoundStartedEvent) => void;
   endGame: () => void;
   changePhase: (phaseEvent: PhaseChangedEvent) => void;
@@ -25,19 +28,21 @@ interface DrawGameActions {
 const initialState: DrawGameState = {
   phase: "waiting",
   waitingRoomMessages: [],
+  playerScores: [],
   currentRound: null,
   totalRounds: null,
   isRoundActive: false,
   phaseStartTime: null,
   phaseDurationSeconds: null,
+  currentDrawerId: null,
+  currentWord: null,
 };
 
 export const useDrawGameStore = create<DrawGameState & DrawGameActions>((set, get) => ({
   ...initialState,
 
-  setPhase: (phase) => set({ phase }),
-
   setWaitingRoomMessages: (messages) => set({ waitingRoomMessages: messages }),
+  setPlayerScores: (scores) => set({ playerScores: scores }),
 
   startRound: (roundEvent) =>
     set({
@@ -47,6 +52,8 @@ export const useDrawGameStore = create<DrawGameState & DrawGameActions>((set, ge
       phaseStartTime: new Date(roundEvent.startTime),
       phaseDurationSeconds: roundEvent.durationSeconds,
       isRoundActive: true,
+      currentDrawerId: roundEvent.currentDrawerId,
+      currentWord: roundEvent.currentWord,
     }),
 
   endGame: () =>

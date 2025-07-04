@@ -1,4 +1,3 @@
-import { DrawGameState } from "../stores/draw-game-store";
 import { DrawAction } from "./draw-action";
 
 export type CreateDrawRoomRequest = {
@@ -47,6 +46,8 @@ export interface RoundStartedEvent {
   totalRounds: number;
   durationSeconds: number;
   startTime: string;
+  currentDrawerId: string;
+  currentWord: string;
 }
 
 export interface EndedGameEvent {
@@ -63,14 +64,15 @@ export interface PhaseChangedEvent {
   startTime: string;
 }
 
+export type PlayerScore = Pick<DrawPlayer, "playerId" | "playerName"> & { score: number };
+
 export interface DrawGameHubContract {
   server: {
     JoinRoom(roomId: string, request: DrawPlayerJoinRequest): Promise<void>;
     LeaveRoom(roomId: string, player: DrawPlayer): Promise<void>;
     SendRoomMessage(roomId: string, message: string): Promise<void>;
     KickPlayer(roomId: string, player: DrawPlayer): Promise<void>;
-    SetRoomState(roomId: string, state: DrawGameState["phase"]): Promise<void>;
-    StartRound(roomId: string, roundNumber: number): Promise<void>;
+    StartRound(roomId: string): Promise<void>;
     SendDrawAction(roomId: string, action: DrawAction): Promise<void>;
     SendLiveDrawAction(roomId: string, action: DrawAction): Promise<void>;
   };
@@ -81,7 +83,6 @@ export interface DrawGameHubContract {
     UserLeft(player: DrawPlayer): void;
     RoomMessageReceived(senderId: string, senderName: string, message: string): void;
     RoomDeleted(): void;
-    RoomStateUpdated(state: DrawGameState["phase"]): void;
     DrawActionReceived(action: DrawAction): void;
     LiveDrawActionReceived(action: DrawAction): void;
     RoundStarted(round: RoundStartedEvent): void;
