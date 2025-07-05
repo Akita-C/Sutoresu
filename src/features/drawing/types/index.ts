@@ -54,17 +54,29 @@ export interface EndedGameEvent {
   roomId: string;
 }
 
-export type DrawGamePhase = "waiting" | "drawing" | "guessing" | "reveal" | "finished";
+export type DrawGamePhase =
+  | "waiting"
+  | "drawing"
+  | "guessing"
+  | "reveal"
+  | "finished";
 
-export interface PhaseChangedEvent {
+type BasePhaseChangedEvent = {
   roomId: string;
   roundNumber: number;
-  phase: DrawGamePhase;
   durationSeconds: number;
   startTime: string;
-}
+};
 
-export type PlayerScore = Pick<DrawPlayer, "playerId" | "playerName"> & { score: number };
+export type PhaseChangedEvent = BasePhaseChangedEvent &
+  (
+    | { phase: "drawing"; currentDrawerId: string; currentWord: string }
+    | { phase: Exclude<DrawGamePhase, "drawing"> }
+  );
+
+export type PlayerScore = Pick<DrawPlayer, "playerId" | "playerName"> & {
+  score: number;
+};
 
 export interface DrawGameHubContract {
   server: {
@@ -81,7 +93,11 @@ export interface DrawGameHubContract {
     LeaveRoom(): void;
     UserJoined(player: DrawPlayer): void;
     UserLeft(player: DrawPlayer): void;
-    RoomMessageReceived(senderId: string, senderName: string, message: string): void;
+    RoomMessageReceived(
+      senderId: string,
+      senderName: string,
+      message: string,
+    ): void;
     RoomDeleted(): void;
     DrawActionReceived(action: DrawAction): void;
     LiveDrawActionReceived(action: DrawAction): void;
