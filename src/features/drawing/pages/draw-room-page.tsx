@@ -12,10 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDrawCacheUpdater } from "../hooks/use-draw-cache-updater";
 import DrawWaitingRoomChatbox from "../components/draw-waiting-room-chatbox";
 import { useDrawGameStore } from "../stores/draw-game-store";
-import {
-  DrawingCanvas,
-  DrawingCanvasRef,
-} from "../components/canvas/drawing-canvas";
+import { DrawingCanvas, DrawingCanvasRef } from "../components/canvas/drawing-canvas";
 import { DrawingToolbar } from "../components/canvas/drawing-toolbar";
 import DrawDrawingRoomChatbox from "../components/draw-drawing-room-chatbox";
 import GuessWord from "../components/guess-word";
@@ -31,11 +28,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
   const [myConnectionId, setMyConnectionId] = useState<string | null>(null);
   const canvasRef = useRef<DrawingCanvasRef>(null);
 
-  const { players, room, isLoading } = useDrawRoomData(
-    user?.id,
-    roomId,
-    myConnectionId,
-  );
+  const { players, room, isLoading } = useDrawRoomData(user?.id, roomId, myConnectionId);
   const {
     JoinRoom,
     LeaveRoom,
@@ -43,6 +36,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     StartRound,
     SendDrawAction,
     // SendLiveDrawAction,
+    SendGuessMessage,
     registerEvents,
     unregisterEvents,
     isConnected,
@@ -55,11 +49,13 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
   const { addPlayer, removePlayer } = useDrawCacheUpdater(roomId, user?.id);
   const {
     phase,
+    playerHearts,
     waitingRoomMessages,
     setWaitingRoomMessages,
     startRound,
     changePhase,
     endGame,
+    handleGuessMessage,
     setPlayerScores,
   } = useDrawGameStore();
 
@@ -83,10 +79,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
         toast.success(`${drawPlayer.playerName} left the room`);
       },
       onRoomMessageReceived(senderId, senderName, message) {
-        setWaitingRoomMessages([
-          ...waitingRoomMessages,
-          { senderId: senderId, senderName: senderName, message: message },
-        ]);
+        setWaitingRoomMessages({ senderId, senderName, message });
       },
       onDrawActionReceived(action) {
         canvasRef.current?.applyExternalAction(action);
@@ -102,6 +95,12 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       },
       onPhaseChanged(phaseEvent) {
         changePhase(phaseEvent);
+      },
+      onGuessMessageWrongReceived(playerId, message) {
+        handleGuessMessage({ playerId, type: "wrong", message });
+      },
+      onGuessMessageCorrectReceived(playerId, newScore) {
+        handleGuessMessage({ playerId, type: "correct", newScore });
       },
     });
   }, [isConnected]);
@@ -129,6 +128,17 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     };
   }, []);
 
+  useEffect(() => {
+    setPlayerScores(
+      players?.map((player) => ({
+        playerId: player.playerId,
+        playerName: player.playerName,
+        playerAvatar: player.playerAvatar,
+        score: 0,
+      })) ?? [],
+    );
+  }, [players]);
+
   if (isLoading) return <DrawRoomPageSkeleton />;
 
   return (
@@ -141,14 +151,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
             className="absolute top-1/2 -translate-y-1/2 right-8"
             onSendMessage={(message) => {
               if (!user?.id || !user?.name) return;
-              setWaitingRoomMessages([
-                ...waitingRoomMessages,
-                {
-                  senderId: user.id!,
-                  senderName: user.name!,
-                  message: message,
-                },
-              ]);
+              setWaitingRoomMessages({ senderId: user.id!, senderName: user.name!, message });
               SendRoomMessage(roomId, message);
             }}
           />
@@ -179,14 +182,6 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
               <SpringButton
                 onClick={async () => {
                   await StartRound(roomId);
-                  // This is intended to initialize local state to keep track of player scores
-                  setPlayerScores(
-                    players?.map((player) => ({
-                      playerId: player.playerId,
-                      playerName: player.playerName,
-                      score: 0,
-                    })) ?? [],
-                  );
                 }}
               >
                 Start Game
@@ -199,8 +194,8 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       {(phase === "drawing" || phase === "guessing" || phase === "reveal") && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <div className="flex gap-4">
-            <aside className="bg-card/40 rounded-lg">
-              <DrawingPlayerList />
+            <aside className="bg-card/40 rounded-lg w-min-[100px]">
+              <DrawingPlayerList hostId={room?.host.hostId} />
             </aside>
             <main className="w-[800px] space-y-2">
               <GameInfoBar />
@@ -224,7 +219,12 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
               <GuessWord />
             </main>
             <aside className="bg-card/40 rounded-lg w-[300px]">
-              <DrawDrawingRoomChatbox />
+              <DrawDrawingRoomChatbox
+                onSendMessage={async (message) => {
+                  if (playerHearts <= 0) return Promise.resolve();
+                  return await SendGuessMessage(roomId, message);
+                }}
+              />
             </aside>
           </div>
         </div>

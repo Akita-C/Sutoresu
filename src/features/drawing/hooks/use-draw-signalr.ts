@@ -10,7 +10,11 @@ interface UseDrawGameHubConfig {
   onError?: (error: Error) => void;
 }
 
-export const useDrawGameHub = ({ autoConnect = false, onStateChange, onError }: UseDrawGameHubConfig = {}) => {
+export const useDrawGameHub = ({
+  autoConnect = false,
+  onStateChange,
+  onError,
+}: UseDrawGameHubConfig = {}) => {
   const { accessToken } = useAuthStore();
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -121,6 +125,7 @@ export const useDrawGameHub = ({ autoConnect = false, onStateChange, onError }: 
     SendDrawAction: server.SendDrawAction,
     SendLiveDrawAction: server.SendLiveDrawAction,
     StartRound: server.StartRound,
+    SendGuessMessage: server.SendGuessMessage,
     // Event handlers
     registerEvents,
     unregisterEvents,

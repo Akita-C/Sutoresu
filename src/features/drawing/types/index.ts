@@ -54,12 +54,7 @@ export interface EndedGameEvent {
   roomId: string;
 }
 
-export type DrawGamePhase =
-  | "waiting"
-  | "drawing"
-  | "guessing"
-  | "reveal"
-  | "finished";
+export type DrawGamePhase = "waiting" | "drawing" | "guessing" | "reveal" | "finished";
 
 type BasePhaseChangedEvent = {
   roomId: string;
@@ -74,9 +69,22 @@ export type PhaseChangedEvent = BasePhaseChangedEvent &
     | { phase: Exclude<DrawGamePhase, "drawing"> }
   );
 
-export type PlayerScore = Pick<DrawPlayer, "playerId" | "playerName"> & {
+export type PlayerScore = Pick<DrawPlayer, "playerId" | "playerName" | "playerAvatar"> & {
   score: number;
 };
+
+export type PlayerGuessMessage = Partial<
+  Pick<DrawPlayer, "playerId" | "playerName" | "playerAvatar">
+> &
+  (
+    | {
+        type: "wrong";
+        message: string;
+      }
+    | {
+        type: "correct";
+      }
+  );
 
 export interface DrawGameHubContract {
   server: {
@@ -87,23 +95,22 @@ export interface DrawGameHubContract {
     StartRound(roomId: string): Promise<void>;
     SendDrawAction(roomId: string, action: DrawAction): Promise<void>;
     SendLiveDrawAction(roomId: string, action: DrawAction): Promise<void>;
+    SendGuessMessage(roomId: string, message: string): Promise<void>;
   };
   client: {
     JoinRoom(player: DrawPlayer): void;
     LeaveRoom(): void;
     UserJoined(player: DrawPlayer): void;
     UserLeft(player: DrawPlayer): void;
-    RoomMessageReceived(
-      senderId: string,
-      senderName: string,
-      message: string,
-    ): void;
+    RoomMessageReceived(senderId: string, senderName: string, message: string): void;
     RoomDeleted(): void;
     DrawActionReceived(action: DrawAction): void;
     LiveDrawActionReceived(action: DrawAction): void;
     RoundStarted(round: RoundStartedEvent): void;
     EndedGame(round: EndedGameEvent): void;
     PhaseChanged(phase: PhaseChangedEvent): void;
+    GuessMessageWrongReceived(playerId: string, message: string): void;
+    GuessMessageCorrectReceived(playerId: string, newScore: number): void;
   };
 }
 
