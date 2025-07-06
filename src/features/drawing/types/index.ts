@@ -8,6 +8,9 @@ export type CreateDrawRoomRequest = {
     drawingDurationSeconds: number;
     guessingDurationSeconds: number;
     revealDurationSeconds: number;
+    wordRevealIntervalSeconds: number;
+    maxWordRevealPercentage: number;
+    enableWordReveal: boolean;
   };
 };
 
@@ -31,6 +34,9 @@ export interface DrawRoom {
     drawingDurationSeconds: number;
     guessingDurationSeconds: number;
     revealDurationSeconds: number;
+    wordRevealIntervalSeconds: number;
+    maxWordRevealPercentage: number;
+    enableWordReveal: boolean;
   };
 }
 
@@ -65,8 +71,9 @@ type BasePhaseChangedEvent = {
 
 export type PhaseChangedEvent = BasePhaseChangedEvent &
   (
-    | { phase: "drawing"; currentDrawerId: string; currentWord: string }
-    | { phase: Exclude<DrawGamePhase, "drawing"> }
+    | { phase: "drawing"; currentDrawerId: string }
+    | { phase: "reveal"; currentWord: string }
+    | { phase: Exclude<DrawGamePhase, "drawing" | "reveal"> }
   );
 
 export type PlayerScore = Pick<DrawPlayer, "playerId" | "playerName" | "playerAvatar"> & {
@@ -85,6 +92,11 @@ export type PlayerGuessMessage = Partial<
         type: "correct";
       }
   );
+
+export type WordRevealedEvent = {
+  roomId: string;
+  revealedWord: string;
+};
 
 export interface DrawGameHubContract {
   server: {
@@ -109,6 +121,7 @@ export interface DrawGameHubContract {
     RoundStarted(round: RoundStartedEvent): void;
     EndedGame(round: EndedGameEvent): void;
     PhaseChanged(phase: PhaseChangedEvent): void;
+    WordRevealed(word: WordRevealedEvent): void;
     GuessMessageWrongReceived(playerId: string, message: string): void;
     GuessMessageCorrectReceived(playerId: string, newScore: number): void;
   };

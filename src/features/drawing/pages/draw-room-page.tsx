@@ -57,6 +57,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     endGame,
     handleGuessMessage,
     setPlayerScores,
+    setCurrentWord,
   } = useDrawGameStore();
 
   useEffect(() => {
@@ -95,6 +96,9 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       },
       onPhaseChanged(phaseEvent) {
         changePhase(phaseEvent);
+      },
+      onWordRevealed(wordRevealedEvent) {
+        setCurrentWord(wordRevealedEvent.revealedWord);
       },
       onGuessMessageWrongReceived(playerId, message) {
         handleGuessMessage({ playerId, type: "wrong", message });

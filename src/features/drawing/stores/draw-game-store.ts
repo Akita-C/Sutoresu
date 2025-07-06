@@ -29,6 +29,7 @@ interface DrawGameActions {
   endGame: () => void;
   changePhase: (phaseEvent: PhaseChangedEvent) => void;
   setPlayerScores: (scores: PlayerScore[]) => void;
+  setCurrentWord: (word: string) => void;
   handleGuessMessage: (
     guessMessage: Pick<PlayerGuessMessage, "playerId" | "type"> &
       ({ type: "wrong"; message: string } | { type: "correct"; newScore: number }),
@@ -62,6 +63,8 @@ export const useDrawGameStore = create<DrawGameState & DrawGameActions>((set, ge
       waitingRoomMessages: [...state.waitingRoomMessages, messages],
     })),
 
+  setCurrentWord: (word) => set({ currentWord: word }),
+
   startRound: (roundEvent) =>
     set({
       phase: "drawing",
@@ -70,7 +73,6 @@ export const useDrawGameStore = create<DrawGameState & DrawGameActions>((set, ge
       phaseStartTime: new Date(roundEvent.startTime),
       phaseDurationSeconds: roundEvent.durationSeconds,
       currentDrawerId: roundEvent.currentDrawerId,
-      currentWord: roundEvent.currentWord,
     }),
 
   endGame: () =>
@@ -89,9 +91,17 @@ export const useDrawGameStore = create<DrawGameState & DrawGameActions>((set, ge
           phaseStartTime: new Date(phaseEvent.startTime),
           phaseDurationSeconds: phaseEvent.durationSeconds,
           currentDrawerId: phaseEvent.currentDrawerId,
-          currentWord: phaseEvent.currentWord,
           playerHearts: MAX_HEARTS,
           playerGuesses: [],
+        });
+        break;
+      case "reveal":
+        set({
+          phase: "reveal",
+          currentRound: phaseEvent.roundNumber,
+          phaseStartTime: new Date(phaseEvent.startTime),
+          phaseDurationSeconds: phaseEvent.durationSeconds,
+          currentWord: phaseEvent.currentWord,
         });
         break;
       default:

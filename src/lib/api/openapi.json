@@ -402,6 +402,17 @@
                   "Config.RevealDurationSeconds": {
                     "type": "integer",
                     "format": "int32"
+                  },
+                  "Config.WordRevealIntervalSeconds": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Config.MaxWordRevealPercentage": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "Config.EnableWordReveal": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -422,6 +433,15 @@
                   "style": "form"
                 },
                 "Config.RevealDurationSeconds": {
+                  "style": "form"
+                },
+                "Config.WordRevealIntervalSeconds": {
+                  "style": "form"
+                },
+                "Config.MaxWordRevealPercentage": {
+                  "style": "form"
+                },
+                "Config.EnableWordReveal": {
                   "style": "form"
                 }
               }
@@ -3052,6 +3072,17 @@
           "revealDurationSeconds": {
             "type": "integer",
             "format": "int32"
+          },
+          "wordRevealIntervalSeconds": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxWordRevealPercentage": {
+            "type": "number",
+            "format": "float"
+          },
+          "enableWordReveal": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
