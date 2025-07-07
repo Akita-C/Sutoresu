@@ -97,6 +97,9 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       onPhaseChanged(phaseEvent) {
         changePhase(phaseEvent);
       },
+      onWordToDraw(wordToDraw) {
+        setCurrentWord(wordToDraw);
+      },
       onWordRevealed(wordRevealedEvent) {
         setCurrentWord(wordRevealedEvent.revealedWord);
       },

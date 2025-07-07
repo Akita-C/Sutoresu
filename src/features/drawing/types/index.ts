@@ -121,6 +121,7 @@ export interface DrawGameHubContract {
     RoundStarted(round: RoundStartedEvent): void;
     EndedGame(round: EndedGameEvent): void;
     PhaseChanged(phase: PhaseChangedEvent): void;
+    WordToDraw(word: string): void;
     WordRevealed(word: WordRevealedEvent): void;
     GuessMessageWrongReceived(playerId: string, message: string): void;
     GuessMessageCorrectReceived(playerId: string, newScore: number): void;
