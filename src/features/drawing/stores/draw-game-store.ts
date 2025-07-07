@@ -8,6 +8,7 @@ import {
   RoundStartedEvent,
 } from "../types";
 import { useAuthStore } from "@/features/auth";
+import { useDrawingStore } from "./drawing-store";
 
 export interface DrawGameState {
   phase: DrawGamePhase;
@@ -94,6 +95,7 @@ export const useDrawGameStore = create<DrawGameState & DrawGameActions>((set, ge
           playerHearts: MAX_HEARTS,
           playerGuesses: [],
         });
+        useDrawingStore.getState().clearCanvas();
         break;
       case "reveal":
         set({

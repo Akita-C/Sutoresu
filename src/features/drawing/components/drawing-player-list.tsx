@@ -7,7 +7,7 @@ interface PlayerCardProps {
 }
 
 export default function DrawingPlayerList({ hostId }: PlayerCardProps) {
-  const { playerScores } = useDrawGameStore();
+  const { playerScores, currentDrawerId } = useDrawGameStore();
 
   return (
     <>
@@ -20,6 +20,7 @@ export default function DrawingPlayerList({ hostId }: PlayerCardProps) {
             score={player.score}
             avatar={player.playerAvatar}
             isHost={player.playerId === hostId}
+            isCurrentDrawer={player.playerId === currentDrawerId}
           />
         ))}
       </ul>

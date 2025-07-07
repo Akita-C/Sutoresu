@@ -6,13 +6,14 @@ import { useShallow } from "zustand/react/shallow";
 import { Canvas, PencilBrush } from "fabric";
 import { useThrottledCallback } from "use-debounce";
 import { DrawAction } from "../../types";
+import { useDrawGameStore } from "../../stores/draw-game-store";
+import { useAuthStore } from "@/features/auth";
 
 interface DrawingCanvasProps {
   width?: number;
   height?: number;
   className?: string;
   onActionEmit?: (action: DrawAction) => void;
-  // onLiveActionEmit?: (action: DrawAction) => void;
   ref?: Ref<DrawingCanvasRef>;
 }
 
@@ -30,6 +31,9 @@ export function DrawingCanvas({
 }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<Canvas | null>(null);
+  const canDraw =
+    useAuthStore.getState().user?.id === useDrawGameStore.getState().currentDrawerId &&
+    useDrawGameStore.getState().phase === "drawing";
 
   const {
     canvas,
@@ -41,13 +45,6 @@ export function DrawingCanvas({
     createStrokeAction,
     // createShapeAction,
     applyAction,
-    // applyLiveAction,
-    // createLiveStrokeStartAction,
-    // createLiveStrokeMoveAction,
-    // createLiveStrokeEndAction,
-    // createLiveShapeStartAction,
-    // createLiveShapeMoveAction,
-    // createLiveShapeEndAction,
   } = useDrawingStore(
     useShallow((state) => ({
       canvas: state.canvas,
@@ -59,13 +56,6 @@ export function DrawingCanvas({
       createStrokeAction: state.createStrokeAction,
       createShapeAction: state.createShapeAction,
       applyAction: state.applyAction,
-      // applyLiveAction: state.applyLiveAction,
-      // createLiveStrokeStartAction: state.createLiveStrokeStartAction,
-      // createLiveStrokeMoveAction: state.createLiveStrokeMoveAction,
-      // createLiveStrokeEndAction: state.createLiveStrokeEndAction,
-      // createLiveShapeStartAction: state.createLiveShapeStartAction,
-      // createLiveShapeMoveAction: state.createLiveShapeMoveAction,
-      // createLiveShapeEndAction: state.createLiveShapeEndAction,
     })),
   );
 
@@ -83,16 +73,6 @@ export function DrawingCanvas({
     }),
     [addAction, applyAction],
   );
-
-  // const throttledLiveActionEmit = useThrottledCallback(
-  //   (action: DrawAction) => {
-  //     if (onLiveActionEmit) {
-  //       onLiveActionEmit(action);
-  //     }
-  //   },
-  //   33,
-  //   { leading: true, trailing: true },
-  // );
 
   const throttledActionEmit = useThrottledCallback(
     (action: DrawAction) => {
@@ -121,7 +101,12 @@ export function DrawingCanvas({
 
     // Handle stroke completion
     fabricCanvas.on("path:created", (e) => {
-      if (e.path) {
+      // Do this way because can get the latest state of the store and does not trigger useEffect
+      if (
+        e.path &&
+        useAuthStore.getState().user?.id === useDrawGameStore.getState().currentDrawerId &&
+        useDrawGameStore.getState().phase === "drawing"
+      ) {
         const pathData = JSON.stringify(e.path.toDatalessObject());
         const action = createStrokeAction(pathData);
         addAction(action);
@@ -133,15 +118,24 @@ export function DrawingCanvas({
     });
 
     fabricCanvas.on("mouse:down", () => {
+      // Do this way because can get the latest state of the store and does not trigger useEffect
+      if (
+        useAuthStore.getState().user?.id !== useDrawGameStore.getState().currentDrawerId ||
+        useDrawGameStore.getState().phase !== "drawing"
+      )
+        return;
+
       setIsDrawing(true);
-      // if (currentTool.type === "brush" || currentTool.type === "eraser") {
-      //   const pointer = fabricCanvas.getScenePoint(e.e);
-      //   const startAction = createLiveStrokeStartAction(pointer.x, pointer.y);
-      //   throttledLiveActionEmit(startAction);
-      // }
     });
 
     fabricCanvas.on("mouse:up", () => {
+      // Do this way because still can get the latest state of the store and does not trigger useEffect
+      if (
+        useAuthStore.getState().user?.id !== useDrawGameStore.getState().currentDrawerId ||
+        useDrawGameStore.getState().phase !== "drawing"
+      )
+        return;
+
       setIsDrawing(false);
     });
 
@@ -160,33 +154,38 @@ export function DrawingCanvas({
       obj.evented = false;
     });
 
-    switch (currentTool.type) {
-      case "brush":
-        canvas.isDrawingMode = true;
-        if (!canvas.freeDrawingBrush) {
+    if (canDraw) {
+      switch (currentTool.type) {
+        case "brush":
+          canvas.isDrawingMode = true;
+          if (!canvas.freeDrawingBrush) {
+            canvas.freeDrawingBrush = new PencilBrush(canvas);
+          }
+          canvas.freeDrawingBrush.color = currentTool.color;
+          canvas.freeDrawingBrush.width = currentTool.width;
+          canvas.selection = false;
+          break;
+
+        case "eraser":
+          canvas.isDrawingMode = true;
           canvas.freeDrawingBrush = new PencilBrush(canvas);
-        }
-        canvas.freeDrawingBrush.color = currentTool.color;
-        canvas.freeDrawingBrush.width = currentTool.width;
-        canvas.selection = false;
-        break;
+          canvas.freeDrawingBrush.width = currentTool.width;
+          canvas.freeDrawingBrush.color = "#ffffff";
+          canvas.selection = false;
+          break;
 
-      case "eraser":
-        canvas.isDrawingMode = true;
-        canvas.freeDrawingBrush = new PencilBrush(canvas);
-        canvas.freeDrawingBrush.width = currentTool.width;
-        canvas.freeDrawingBrush.color = "#ffffff";
-        canvas.selection = false;
-        break;
-
-      default:
-        canvas.isDrawingMode = false;
-        canvas.selection = false;
-        break;
+        default:
+          canvas.isDrawingMode = false;
+          canvas.selection = false;
+          break;
+      }
+    } else {
+      canvas.isDrawingMode = false;
+      canvas.selection = false;
     }
 
     canvas.renderAll();
-  }, [canvas, currentTool.type, currentTool.color, currentTool.width]);
+  }, [canvas, currentTool.type, currentTool.color, currentTool.width, canDraw]);
 
   // Handle real-time brush/eraser updates
   // useEffect(() => {

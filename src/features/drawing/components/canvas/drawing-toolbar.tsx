@@ -8,6 +8,8 @@ import { useDrawingStore } from "../../stores/drawing-store";
 import { useShallow } from "zustand/react/shallow";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DrawAction } from "../../types";
+import { useDrawGameStore } from "../../stores/draw-game-store";
+import { useAuth } from "@/features/auth";
 
 const COLORS = [
   "#000000",
@@ -46,13 +48,18 @@ export function DrawingToolbar({ onActionEmit }: DrawingToolbarProps) {
       setTool: state.setTool,
       undo: state.undo,
       redo: state.redo,
-      clearCanvas: state.clearCanvas,
+      clearCanvas: state.setBackground,
       canUndo: state.canUndo(),
       canRedo: state.canRedo(),
     })),
   );
+  const { user } = useAuth();
+  const { phase, currentDrawerId } = useDrawGameStore();
+  const canUseToolbar = phase === "drawing" && currentDrawerId === user?.id;
 
   const handleUndo = () => {
+    if (!canUseToolbar) return;
+
     const action = undo();
     if (action && onActionEmit) {
       onActionEmit(action);
@@ -60,6 +67,8 @@ export function DrawingToolbar({ onActionEmit }: DrawingToolbarProps) {
   };
 
   const handleRedo = () => {
+    if (!canUseToolbar) return;
+
     const action = redo();
     if (action && onActionEmit) {
       onActionEmit(action);
@@ -67,6 +76,8 @@ export function DrawingToolbar({ onActionEmit }: DrawingToolbarProps) {
   };
 
   const handleClear = () => {
+    if (!canUseToolbar) return;
+
     const action = clearCanvas();
     if (onActionEmit) {
       onActionEmit(action);
@@ -84,8 +95,13 @@ export function DrawingToolbar({ onActionEmit }: DrawingToolbarProps) {
               key={tool.type}
               variant={currentTool.type === tool.type ? "default" : "ghost"}
               size="sm"
-              onClick={() => setTool({ type: tool.type })}
+              onClick={() => {
+                if (!canUseToolbar) return;
+
+                setTool({ type: tool.type });
+              }}
               title={tool.label}
+              disabled={!canUseToolbar}
             >
               <Icon className="h-4 w-4" />
             </Button>
@@ -98,8 +114,11 @@ export function DrawingToolbar({ onActionEmit }: DrawingToolbarProps) {
       {/* Color Picker */}
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="gap-2">
-            <div className="w-4 h-4 rounded border border-border" style={{ backgroundColor: currentTool.color }} />
+          <Button variant="ghost" size="sm" className="gap-2" disabled={!canUseToolbar}>
+            <div
+              className="w-4 h-4 rounded border border-border"
+              style={{ backgroundColor: currentTool.color }}
+            />
             <Palette className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
@@ -110,8 +129,13 @@ export function DrawingToolbar({ onActionEmit }: DrawingToolbarProps) {
                 key={color}
                 className="w-8 h-8 rounded border border-border hover:scale-110 transition-transform"
                 style={{ backgroundColor: color }}
-                onClick={() => setTool({ color })}
+                onClick={() => {
+                  if (!canUseToolbar) return;
+
+                  setTool({ color });
+                }}
                 title={color}
+                disabled={!canUseToolbar}
               />
             ))}
           </div>
@@ -125,11 +149,16 @@ export function DrawingToolbar({ onActionEmit }: DrawingToolbarProps) {
         <span className="text-sm text-muted-foreground">Size:</span>
         <Slider
           value={[currentTool.width]}
-          onValueChange={([width]) => setTool({ width })}
+          onValueChange={([width]) => {
+            if (!canUseToolbar) return;
+
+            setTool({ width });
+          }}
           min={1}
           max={50}
           step={1}
           className="flex-1"
+          disabled={!canUseToolbar}
         />
         <span className="text-sm text-muted-foreground w-6 text-right">{currentTool.width}</span>
       </div>
@@ -138,13 +167,31 @@ export function DrawingToolbar({ onActionEmit }: DrawingToolbarProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="sm" onClick={handleUndo} disabled={!canUndo} title="Undo">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleUndo}
+          disabled={!canUndo || !canUseToolbar}
+          title="Undo"
+        >
           <Undo2 className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" onClick={handleRedo} disabled={!canRedo} title="Redo">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleRedo}
+          disabled={!canRedo || !canUseToolbar}
+          title="Redo"
+        >
           <Redo2 className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" onClick={handleClear} title="Clear Canvas">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleClear}
+          disabled={!canUseToolbar}
+          title="Clear Canvas"
+        >
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
