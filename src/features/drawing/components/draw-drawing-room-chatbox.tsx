@@ -8,6 +8,7 @@ import { MAX_HEARTS, useDrawGameStore } from "../stores/draw-game-store";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useAuthStore } from "@/features/auth";
 
 const MAX_MESSAGE_LENGTH = 20;
 const chatSchema = z.object({
@@ -20,7 +21,8 @@ interface DrawDrawingRoomChatboxProps {
 }
 
 export default function DrawDrawingRoomChatbox({ onSendMessage }: DrawDrawingRoomChatboxProps) {
-  const { playerHearts, playerGuesses, phase } = useDrawGameStore();
+  const { playerHearts, playerGuesses, phase, currentDrawerId } = useDrawGameStore();
+  const { user } = useAuthStore();
   const {
     register,
     handleSubmit,
@@ -36,7 +38,10 @@ export default function DrawDrawingRoomChatbox({ onSendMessage }: DrawDrawingRoo
   };
 
   const isDisabled =
-    isSubmitting || playerHearts <= 0 || (phase !== "drawing" && phase !== "guessing");
+    isSubmitting ||
+    playerHearts <= 0 ||
+    (phase !== "drawing" && phase !== "guessing") ||
+    currentDrawerId === user?.id;
 
   return (
     <>

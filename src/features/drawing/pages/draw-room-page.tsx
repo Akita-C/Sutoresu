@@ -51,6 +51,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     phase,
     playerHearts,
     waitingRoomMessages,
+    currentDrawerId,
     setWaitingRoomMessages,
     startRound,
     changePhase,
@@ -228,7 +229,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
             <aside className="bg-card/40 rounded-lg w-[300px]">
               <DrawDrawingRoomChatbox
                 onSendMessage={async (message) => {
-                  if (playerHearts <= 0) return Promise.resolve();
+                  if (playerHearts <= 0 || currentDrawerId === user?.id) return Promise.resolve();
                   return await SendGuessMessage(roomId, message);
                 }}
               />
