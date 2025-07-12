@@ -36,7 +36,6 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     SendRoomMessage,
     StartRound,
     SendDrawAction,
-    // SendLiveDrawAction,
     SendGuessMessage,
     registerEvents,
     unregisterEvents,
@@ -87,9 +86,6 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       onDrawActionReceived(action) {
         canvasRef.current?.applyExternalAction(action);
       },
-      // onLiveDrawActionReceived(action) {
-      // canvasRef.current?.applyExternalAction(action);
-      // },
       onRoundStarted(roundEvent) {
         startRound(roundEvent);
       },
@@ -220,10 +216,6 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
                   if (!isConnected || !roomId || !myConnectionId) return;
                   SendDrawAction(roomId, action);
                 }}
-                // onLiveActionEmit={(action) => {
-                //   if (!isConnected || !roomId || !myConnectionId) return;
-                //   SendLiveDrawAction(roomId, action);
-                // }}
               />
               <GuessWord />
             </main>

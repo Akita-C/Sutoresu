@@ -9,76 +9,69 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Cell } from "recharts";
 import { useEffect } from "react";
 import confetti from "canvas-confetti";
+import { useDrawGameStore } from "../../stores/draw-game-store";
+
+const chartConfig = {
+  score: {
+    label: "Score",
+    color: "hsl(var(--chart-1))",
+  },
+};
+
+const getBarColor = (rank: number) => {
+  switch (rank) {
+    case 1:
+      return "#fbbf24"; // Gold
+    case 2:
+      return "#9ca3af"; // Silver
+    case 3:
+      return "#d97706"; // Bronze
+    default:
+      return "hsl(var(--chart-1))";
+  }
+};
+
+const getRankBadgeProps = (rank: number) => {
+  switch (rank) {
+    case 1:
+      return {
+        className: "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-0 shadow-lg",
+        icon: <Crown className="w-3 h-3" />,
+        label: "1st",
+      };
+    case 2:
+      return {
+        className: "bg-gradient-to-r from-gray-300 to-gray-500 text-white border-0 shadow-lg",
+        icon: <Medal className="w-3 h-3" />,
+        label: "2nd",
+      };
+    case 3:
+      return {
+        className: "bg-gradient-to-r from-amber-500 to-amber-700 text-white border-0 shadow-lg",
+        icon: <Star className="w-3 h-3" />,
+        label: "3rd",
+      };
+    default:
+      return {
+        className: "bg-gradient-to-r from-slate-500 to-slate-700 text-white border-0",
+        icon: null,
+        label: `${rank}th`,
+      };
+  }
+};
 
 export default function FinishedChart() {
-  const mockPlayers = [
-    { id: "1", name: "Alice sssssssssssssss", avatar: "/avatars/alice.jpg", score: 850 },
-    { id: "2", name: "Bob", avatar: "/avatars/bob.jpg", score: 720 },
-    { id: "3", name: "Charlie", avatar: "/avatars/charlie.jpg", score: 680 },
-    { id: "4", name: "David", avatar: "/avatars/david.jpg", score: 450 },
-    { id: "5", name: "Eve", avatar: "/avatars/eve.jpg", score: 320 },
-    { id: "6", name: "Frank", avatar: "/avatars/frank.jpg", score: 280 },
-    { id: "7", name: "Grace", avatar: "/avatars/grace.jpg", score: 200 },
-    { id: "8", name: "Henry", avatar: "/avatars/henry.jpg", score: 150 },
-  ];
+  const { playerScores } = useDrawGameStore();
 
-  const sortedPlayers = [...mockPlayers].sort((a, b) => b.score - a.score);
-  const top3Players = sortedPlayers.slice(0, 3);
+  const sortedPlayerScores = [...playerScores].sort((a, b) => b.score - a.score);
+  const top3Players = sortedPlayerScores.slice(0, 3);
 
   const chartData = top3Players.map((player, index) => ({
-    name: player.name.length > 10 ? player.name.slice(0, 10) + "..." : player.name,
+    name:
+      player.playerName.length > 10 ? player.playerName.slice(0, 10) + "..." : player.playerName,
     score: player.score,
     rank: index + 1,
   }));
-
-  const chartConfig = {
-    score: {
-      label: "Score",
-      color: "hsl(var(--chart-1))",
-    },
-  };
-
-  const getBarColor = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return "#fbbf24"; // Gold
-      case 2:
-        return "#9ca3af"; // Silver
-      case 3:
-        return "#d97706"; // Bronze
-      default:
-        return "hsl(var(--chart-1))";
-    }
-  };
-
-  const getRankBadgeProps = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return {
-          className: "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-0 shadow-lg",
-          icon: <Crown className="w-3 h-3" />,
-          label: "1st",
-        };
-      case 2:
-        return {
-          className: "bg-gradient-to-r from-gray-300 to-gray-500 text-white border-0 shadow-lg",
-          icon: <Medal className="w-3 h-3" />,
-          label: "2nd",
-        };
-      case 3:
-        return {
-          className: "bg-gradient-to-r from-amber-500 to-amber-700 text-white border-0 shadow-lg",
-          icon: <Star className="w-3 h-3" />,
-          label: "3rd",
-        };
-      default:
-        return {
-          className: "bg-gradient-to-r from-slate-500 to-slate-700 text-white border-0",
-          icon: null,
-          label: `${rank}th`,
-        };
-    }
-  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -105,6 +98,7 @@ export default function FinishedChart() {
   return (
     <div className="w-full max-w-5xl mx-auto p-4">
       <div className="space-y-6">
+        {/* Header */}
         <div className="text-center space-y-3">
           <div className="flex justify-center items-center gap-3">
             <Trophy className="w-8 h-8 text-yellow-500 animate-pulse" />
@@ -120,6 +114,7 @@ export default function FinishedChart() {
           </p>
         </div>
 
+        {/* Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-md border-2 border-border/50 shadow-xl">
             <CardHeader className="pb-3">
@@ -129,6 +124,7 @@ export default function FinishedChart() {
               </CardTitle>
             </CardHeader>
             <CardContent>
+              {/* Top 3 Players Chart */}
               <ChartContainer config={chartConfig} className="h-[280px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ left: -25 }} maxBarSize={80}>
@@ -155,6 +151,7 @@ export default function FinishedChart() {
             </CardContent>
           </Card>
 
+          {/* List of players */}
           <Card className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-md border-2 border-border/50 shadow-xl">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -164,13 +161,13 @@ export default function FinishedChart() {
             </CardHeader>
             <CardContent className="pt-0">
               <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
-                {sortedPlayers.map((player, index) => {
+                {sortedPlayerScores.map((player, index) => {
                   const rank = index + 1;
                   const { className, icon, label } = getRankBadgeProps(rank);
 
                   return (
                     <div
-                      key={player.id}
+                      key={player.playerId}
                       className={`flex items-center justify-between p-2.5 rounded-lg transition-all duration-200 hover:scale-[1.01] ${
                         rank <= 3
                           ? "bg-gradient-to-r from-muted/80 to-muted/40 border-2 border-border/50 shadow-md"
@@ -183,12 +180,12 @@ export default function FinishedChart() {
                           {label}
                         </Badge>
                         <PlayerAvatar
-                          src={player.avatar}
-                          fallback={player.name}
+                          src={player.playerAvatar}
+                          fallback={player.playerName}
                           className="w-9 h-9 border-2 border-border/30 shadow-sm"
                         />
                         <div>
-                          <p className="font-semibold text-sm">{player.name}</p>
+                          <p className="font-semibold text-sm">{player.playerName}</p>
                           {rank <= 3 && (
                             <p className="text-xs text-muted-foreground font-medium">
                               {rank === 1
@@ -212,6 +209,7 @@ export default function FinishedChart() {
           </Card>
         </div>
 
+        {/* Buttons */}
         <div className="flex justify-center gap-4 pt-4">
           <Button
             variant="outline"

@@ -62,7 +62,7 @@ export default function DrawDrawingRoomChatbox({ onSendMessage }: DrawDrawingRoo
             {playerGuesses.map((guess, index) => {
               if (guess.type === "wrong") {
                 return (
-                  <li key={index} className="flex items-center gap-2 px-4 py-2rounded-lg">
+                  <li key={index} className="flex items-center gap-2 px-4 py-2 rounded-lg">
                     <PlayerAvatar
                       src={guess.playerAvatar}
                       fallback={guess.playerName!}
@@ -73,7 +73,10 @@ export default function DrawDrawingRoomChatbox({ onSendMessage }: DrawDrawingRoo
                 );
               } else {
                 return (
-                  <li key={index} className="flex items-center justify-center bg-emerald-500 py-2">
+                  <li
+                    key={index}
+                    className="flex items-center justify-center bg-emerald-500 py-2 rounded-lg"
+                  >
                     <span>{guess.playerName} guessed correctly</span>
                   </li>
                 );

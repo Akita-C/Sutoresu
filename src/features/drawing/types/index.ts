@@ -106,7 +106,6 @@ export interface DrawGameHubContract {
     KickPlayer(roomId: string, player: DrawPlayer): Promise<void>;
     StartRound(roomId: string): Promise<void>;
     SendDrawAction(roomId: string, action: DrawAction): Promise<void>;
-    SendLiveDrawAction(roomId: string, action: DrawAction): Promise<void>;
     SendGuessMessage(roomId: string, message: string): Promise<void>;
   };
   client: {
@@ -117,7 +116,6 @@ export interface DrawGameHubContract {
     RoomMessageReceived(senderId: string, senderName: string, message: string): void;
     RoomDeleted(): void;
     DrawActionReceived(action: DrawAction): void;
-    LiveDrawActionReceived(action: DrawAction): void;
     RoundStarted(round: RoundStartedEvent): void;
     EndedGame(round: EndedGameEvent): void;
     PhaseChanged(phase: PhaseChangedEvent): void;
