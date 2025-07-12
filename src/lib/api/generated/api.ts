@@ -461,6 +461,42 @@ export interface DrawRoomConfig {
    * @memberof DrawRoomConfig
    */
   maxRoundPerPlayers?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DrawRoomConfig
+   */
+  drawingDurationSeconds?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DrawRoomConfig
+   */
+  guessingDurationSeconds?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DrawRoomConfig
+   */
+  revealDurationSeconds?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DrawRoomConfig
+   */
+  wordRevealIntervalSeconds?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DrawRoomConfig
+   */
+  maxWordRevealPercentage?: number;
+  /**
+   *
+   * @type {boolean}
+   * @memberof DrawRoomConfig
+   */
+  enableWordReveal?: boolean;
 }
 /**
  *
@@ -1507,121 +1543,6 @@ export interface UserProfileDtoApiResponse {
 }
 
 /**
- * AdminDatabaseSeedingApi - axios parameter creator
- * @export
- */
-export const AdminDatabaseSeedingApiAxiosParamCreator = function (configuration?: Configuration) {
-  return {
-    /**
-     * Run all database seeders to populate with sample data. Requires X-Admin-Key header.
-     * @summary Seed database with sample data
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    seedDatabase: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/admin/seed/all`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: "POST", ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      // authentication Bearer required
-      await setApiKeyToObject(localVarHeaderParameter, "Authorization", configuration);
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
-
-/**
- * AdminDatabaseSeedingApi - functional programming interface
- * @export
- */
-export const AdminDatabaseSeedingApiFp = function (configuration?: Configuration) {
-  const localVarAxiosParamCreator = AdminDatabaseSeedingApiAxiosParamCreator(configuration);
-  return {
-    /**
-     * Run all database seeders to populate with sample data. Requires X-Admin-Key header.
-     * @summary Seed database with sample data
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async seedDatabase(
-      options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.seedDatabase(options);
-      const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-      const localVarOperationServerBasePath =
-        operationServerMap["AdminDatabaseSeedingApi.seedDatabase"]?.[localVarOperationServerIndex]?.url;
-      return (axios, basePath) =>
-        createRequestFunction(
-          localVarAxiosArgs,
-          globalAxios,
-          BASE_PATH,
-          configuration,
-        )(axios, localVarOperationServerBasePath || basePath);
-    },
-  };
-};
-
-/**
- * AdminDatabaseSeedingApi - factory interface
- * @export
- */
-export const AdminDatabaseSeedingApiFactory = function (
-  configuration?: Configuration,
-  basePath?: string,
-  axios?: AxiosInstance,
-) {
-  const localVarFp = AdminDatabaseSeedingApiFp(configuration);
-  return {
-    /**
-     * Run all database seeders to populate with sample data. Requires X-Admin-Key header.
-     * @summary Seed database with sample data
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    seedDatabase(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-      return localVarFp.seedDatabase(options).then((request) => request(axios, basePath));
-    },
-  };
-};
-
-/**
- * AdminDatabaseSeedingApi - object-oriented interface
- * @export
- * @class AdminDatabaseSeedingApi
- * @extends {BaseAPI}
- */
-export class AdminDatabaseSeedingApi extends BaseAPI {
-  /**
-   * Run all database seeders to populate with sample data. Requires X-Admin-Key header.
-   * @summary Seed database with sample data
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof AdminDatabaseSeedingApi
-   */
-  public seedDatabase(options?: RawAxiosRequestConfig) {
-    return AdminDatabaseSeedingApiFp(this.configuration)
-      .seedDatabase(options)
-      .then((request) => request(this.axios, this.basePath));
-  }
-}
-
-/**
  * AuthApi - axios parameter creator
  * @export
  */
@@ -1656,8 +1577,16 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(loginRequest, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        loginRequest,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1693,8 +1622,16 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(logoutRequest, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        logoutRequest,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1730,8 +1667,16 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(refreshTokenRequest, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        refreshTokenRequest,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1767,8 +1712,16 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(registerRequest, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        registerRequest,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1798,7 +1751,11 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1834,8 +1791,16 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(refreshTokenRequest, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        refreshTokenRequest,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -1861,8 +1826,13 @@ export const AuthApiFp = function (configuration?: Configuration) {
     async apiV1AuthLoginPost(
       loginRequest?: LoginRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthResponseApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthLoginPost(loginRequest, options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthResponseApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthLoginPost(
+        loginRequest,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["AuthApi.apiV1AuthLoginPost"]?.[localVarOperationServerIndex]?.url;
@@ -1884,7 +1854,10 @@ export const AuthApiFp = function (configuration?: Configuration) {
       logoutRequest?: LogoutRequest,
       options?: RawAxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthLogoutPost(logoutRequest, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthLogoutPost(
+        logoutRequest,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["AuthApi.apiV1AuthLogoutPost"]?.[localVarOperationServerIndex]?.url;
@@ -1905,8 +1878,13 @@ export const AuthApiFp = function (configuration?: Configuration) {
     async apiV1AuthRefreshPost(
       refreshTokenRequest?: RefreshTokenRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthResponseApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRefreshPost(refreshTokenRequest, options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthResponseApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRefreshPost(
+        refreshTokenRequest,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["AuthApi.apiV1AuthRefreshPost"]?.[localVarOperationServerIndex]?.url;
@@ -1927,8 +1905,13 @@ export const AuthApiFp = function (configuration?: Configuration) {
     async apiV1AuthRegisterPost(
       registerRequest?: RegisterRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthResponseApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRegisterPost(registerRequest, options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuthResponseApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRegisterPost(
+        registerRequest,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["AuthApi.apiV1AuthRegisterPost"]?.[localVarOperationServerIndex]?.url;
@@ -1970,7 +1953,10 @@ export const AuthApiFp = function (configuration?: Configuration) {
       refreshTokenRequest?: RefreshTokenRequest,
       options?: RawAxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRevokePost(refreshTokenRequest, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1AuthRevokePost(
+        refreshTokenRequest,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["AuthApi.apiV1AuthRevokePost"]?.[localVarOperationServerIndex]?.url;
@@ -1989,7 +1975,11 @@ export const AuthApiFp = function (configuration?: Configuration) {
  * AuthApi - factory interface
  * @export
  */
-export const AuthApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+export const AuthApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
   const localVarFp = AuthApiFp(configuration);
   return {
     /**
@@ -2002,7 +1992,9 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
       loginRequest?: LoginRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<AuthResponseApiResponse> {
-      return localVarFp.apiV1AuthLoginPost(loginRequest, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1AuthLoginPost(loginRequest, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -2014,7 +2006,9 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
       logoutRequest?: LogoutRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp.apiV1AuthLogoutPost(logoutRequest, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1AuthLogoutPost(logoutRequest, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -2026,7 +2020,9 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
       refreshTokenRequest?: RefreshTokenRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<AuthResponseApiResponse> {
-      return localVarFp.apiV1AuthRefreshPost(refreshTokenRequest, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1AuthRefreshPost(refreshTokenRequest, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -2038,7 +2034,9 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
       registerRequest?: RegisterRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<AuthResponseApiResponse> {
-      return localVarFp.apiV1AuthRegisterPost(registerRequest, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1AuthRegisterPost(registerRequest, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -2058,7 +2056,9 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
       refreshTokenRequest?: RefreshTokenRequest,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp.apiV1AuthRevokePost(refreshTokenRequest, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1AuthRevokePost(refreshTokenRequest, options)
+        .then((request) => request(axios, basePath));
     },
   };
 };
@@ -2103,7 +2103,10 @@ export class AuthApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof AuthApi
    */
-  public apiV1AuthRefreshPost(refreshTokenRequest?: RefreshTokenRequest, options?: RawAxiosRequestConfig) {
+  public apiV1AuthRefreshPost(
+    refreshTokenRequest?: RefreshTokenRequest,
+    options?: RawAxiosRequestConfig,
+  ) {
     return AuthApiFp(this.configuration)
       .apiV1AuthRefreshPost(refreshTokenRequest, options)
       .then((request) => request(this.axios, this.basePath));
@@ -2141,7 +2144,10 @@ export class AuthApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof AuthApi
    */
-  public apiV1AuthRevokePost(refreshTokenRequest?: RefreshTokenRequest, options?: RawAxiosRequestConfig) {
+  public apiV1AuthRevokePost(
+    refreshTokenRequest?: RefreshTokenRequest,
+    options?: RawAxiosRequestConfig,
+  ) {
     return AuthApiFp(this.configuration)
       .apiV1AuthRevokePost(refreshTokenRequest, options)
       .then((request) => request(this.axios, this.basePath));
@@ -2159,6 +2165,12 @@ export const DrawGameApiAxiosParamCreator = function (configuration?: Configurat
      * @param {string} [roomName]
      * @param {number} [configMaxPlayers]
      * @param {number} [configMaxRoundPerPlayers]
+     * @param {number} [configDrawingDurationSeconds]
+     * @param {number} [configGuessingDurationSeconds]
+     * @param {number} [configRevealDurationSeconds]
+     * @param {number} [configWordRevealIntervalSeconds]
+     * @param {number} [configMaxWordRevealPercentage]
+     * @param {boolean} [configEnableWordReveal]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -2166,6 +2178,12 @@ export const DrawGameApiAxiosParamCreator = function (configuration?: Configurat
       roomName?: string,
       configMaxPlayers?: number,
       configMaxRoundPerPlayers?: number,
+      configDrawingDurationSeconds?: number,
+      configGuessingDurationSeconds?: number,
+      configRevealDurationSeconds?: number,
+      configWordRevealIntervalSeconds?: number,
+      configMaxWordRevealPercentage?: number,
+      configEnableWordReveal?: boolean,
       options: RawAxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/DrawGame/create`;
@@ -2196,11 +2214,54 @@ export const DrawGameApiAxiosParamCreator = function (configuration?: Configurat
         localVarFormParams.append("Config.MaxRoundPerPlayers", configMaxRoundPerPlayers as any);
       }
 
+      if (configDrawingDurationSeconds !== undefined) {
+        localVarFormParams.append(
+          "Config.DrawingDurationSeconds",
+          configDrawingDurationSeconds as any,
+        );
+      }
+
+      if (configGuessingDurationSeconds !== undefined) {
+        localVarFormParams.append(
+          "Config.GuessingDurationSeconds",
+          configGuessingDurationSeconds as any,
+        );
+      }
+
+      if (configRevealDurationSeconds !== undefined) {
+        localVarFormParams.append(
+          "Config.RevealDurationSeconds",
+          configRevealDurationSeconds as any,
+        );
+      }
+
+      if (configWordRevealIntervalSeconds !== undefined) {
+        localVarFormParams.append(
+          "Config.WordRevealIntervalSeconds",
+          configWordRevealIntervalSeconds as any,
+        );
+      }
+
+      if (configMaxWordRevealPercentage !== undefined) {
+        localVarFormParams.append(
+          "Config.MaxWordRevealPercentage",
+          configMaxWordRevealPercentage as any,
+        );
+      }
+
+      if (configEnableWordReveal !== undefined) {
+        localVarFormParams.append("Config.EnableWordReveal", String(configEnableWordReveal) as any);
+      }
+
       localVarHeaderParameter["Content-Type"] = "multipart/form-data";
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -2214,7 +2275,10 @@ export const DrawGameApiAxiosParamCreator = function (configuration?: Configurat
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1DrawGameRoomRoomIdGet: async (roomId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+    apiV1DrawGameRoomRoomIdGet: async (
+      roomId: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
       // verify required parameter 'roomId' is not null or undefined
       assertParamExists("apiV1DrawGameRoomRoomIdGet", "roomId", roomId);
       const localVarPath = `/api/v1/DrawGame/room/{roomId}`.replace(
@@ -2237,7 +2301,11 @@ export const DrawGameApiAxiosParamCreator = function (configuration?: Configurat
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2282,7 +2350,11 @@ export const DrawGameApiAxiosParamCreator = function (configuration?: Configurat
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2304,6 +2376,12 @@ export const DrawGameApiFp = function (configuration?: Configuration) {
      * @param {string} [roomName]
      * @param {number} [configMaxPlayers]
      * @param {number} [configMaxRoundPerPlayers]
+     * @param {number} [configDrawingDurationSeconds]
+     * @param {number} [configGuessingDurationSeconds]
+     * @param {number} [configRevealDurationSeconds]
+     * @param {number} [configWordRevealIntervalSeconds]
+     * @param {number} [configMaxWordRevealPercentage]
+     * @param {boolean} [configEnableWordReveal]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -2311,17 +2389,30 @@ export const DrawGameApiFp = function (configuration?: Configuration) {
       roomName?: string,
       configMaxPlayers?: number,
       configMaxRoundPerPlayers?: number,
+      configDrawingDurationSeconds?: number,
+      configGuessingDurationSeconds?: number,
+      configRevealDurationSeconds?: number,
+      configWordRevealIntervalSeconds?: number,
+      configMaxWordRevealPercentage?: number,
+      configEnableWordReveal?: boolean,
       options?: RawAxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GuidApiResponse>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1DrawGameCreatePost(
         roomName,
         configMaxPlayers,
         configMaxRoundPerPlayers,
+        configDrawingDurationSeconds,
+        configGuessingDurationSeconds,
+        configRevealDurationSeconds,
+        configWordRevealIntervalSeconds,
+        configMaxWordRevealPercentage,
+        configEnableWordReveal,
         options,
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["DrawGameApi.apiV1DrawGameCreatePost"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["DrawGameApi.apiV1DrawGameCreatePost"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2340,10 +2431,14 @@ export const DrawGameApiFp = function (configuration?: Configuration) {
       roomId: string,
       options?: RawAxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DrawRoomApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1DrawGameRoomRoomIdGet(roomId, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1DrawGameRoomRoomIdGet(
+        roomId,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["DrawGameApi.apiV1DrawGameRoomRoomIdGet"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["DrawGameApi.apiV1DrawGameRoomRoomIdGet"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2363,7 +2458,9 @@ export const DrawGameApiFp = function (configuration?: Configuration) {
       roomId: string,
       playerId?: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DrawPlayerListApiResponse>> {
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<DrawPlayerListApiResponse>
+    > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1DrawGameRoomRoomIdPlayersGet(
         roomId,
         playerId,
@@ -2371,7 +2468,9 @@ export const DrawGameApiFp = function (configuration?: Configuration) {
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["DrawGameApi.apiV1DrawGameRoomRoomIdPlayersGet"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["DrawGameApi.apiV1DrawGameRoomRoomIdPlayersGet"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -2387,7 +2486,11 @@ export const DrawGameApiFp = function (configuration?: Configuration) {
  * DrawGameApi - factory interface
  * @export
  */
-export const DrawGameApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+export const DrawGameApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
   const localVarFp = DrawGameApiFp(configuration);
   return {
     /**
@@ -2395,6 +2498,12 @@ export const DrawGameApiFactory = function (configuration?: Configuration, baseP
      * @param {string} [roomName]
      * @param {number} [configMaxPlayers]
      * @param {number} [configMaxRoundPerPlayers]
+     * @param {number} [configDrawingDurationSeconds]
+     * @param {number} [configGuessingDurationSeconds]
+     * @param {number} [configRevealDurationSeconds]
+     * @param {number} [configWordRevealIntervalSeconds]
+     * @param {number} [configMaxWordRevealPercentage]
+     * @param {boolean} [configEnableWordReveal]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -2402,10 +2511,27 @@ export const DrawGameApiFactory = function (configuration?: Configuration, baseP
       roomName?: string,
       configMaxPlayers?: number,
       configMaxRoundPerPlayers?: number,
+      configDrawingDurationSeconds?: number,
+      configGuessingDurationSeconds?: number,
+      configRevealDurationSeconds?: number,
+      configWordRevealIntervalSeconds?: number,
+      configMaxWordRevealPercentage?: number,
+      configEnableWordReveal?: boolean,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<GuidApiResponse> {
       return localVarFp
-        .apiV1DrawGameCreatePost(roomName, configMaxPlayers, configMaxRoundPerPlayers, options)
+        .apiV1DrawGameCreatePost(
+          roomName,
+          configMaxPlayers,
+          configMaxRoundPerPlayers,
+          configDrawingDurationSeconds,
+          configGuessingDurationSeconds,
+          configRevealDurationSeconds,
+          configWordRevealIntervalSeconds,
+          configMaxWordRevealPercentage,
+          configEnableWordReveal,
+          options,
+        )
         .then((request) => request(axios, basePath));
     },
     /**
@@ -2414,8 +2540,13 @@ export const DrawGameApiFactory = function (configuration?: Configuration, baseP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1DrawGameRoomRoomIdGet(roomId: string, options?: RawAxiosRequestConfig): AxiosPromise<DrawRoomApiResponse> {
-      return localVarFp.apiV1DrawGameRoomRoomIdGet(roomId, options).then((request) => request(axios, basePath));
+    apiV1DrawGameRoomRoomIdGet(
+      roomId: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<DrawRoomApiResponse> {
+      return localVarFp
+        .apiV1DrawGameRoomRoomIdGet(roomId, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -2448,6 +2579,12 @@ export class DrawGameApi extends BaseAPI {
    * @param {string} [roomName]
    * @param {number} [configMaxPlayers]
    * @param {number} [configMaxRoundPerPlayers]
+   * @param {number} [configDrawingDurationSeconds]
+   * @param {number} [configGuessingDurationSeconds]
+   * @param {number} [configRevealDurationSeconds]
+   * @param {number} [configWordRevealIntervalSeconds]
+   * @param {number} [configMaxWordRevealPercentage]
+   * @param {boolean} [configEnableWordReveal]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof DrawGameApi
@@ -2456,10 +2593,27 @@ export class DrawGameApi extends BaseAPI {
     roomName?: string,
     configMaxPlayers?: number,
     configMaxRoundPerPlayers?: number,
+    configDrawingDurationSeconds?: number,
+    configGuessingDurationSeconds?: number,
+    configRevealDurationSeconds?: number,
+    configWordRevealIntervalSeconds?: number,
+    configMaxWordRevealPercentage?: number,
+    configEnableWordReveal?: boolean,
     options?: RawAxiosRequestConfig,
   ) {
     return DrawGameApiFp(this.configuration)
-      .apiV1DrawGameCreatePost(roomName, configMaxPlayers, configMaxRoundPerPlayers, options)
+      .apiV1DrawGameCreatePost(
+        roomName,
+        configMaxPlayers,
+        configMaxRoundPerPlayers,
+        configDrawingDurationSeconds,
+        configGuessingDurationSeconds,
+        configRevealDurationSeconds,
+        configWordRevealIntervalSeconds,
+        configMaxWordRevealPercentage,
+        configEnableWordReveal,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -2484,7 +2638,11 @@ export class DrawGameApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof DrawGameApi
    */
-  public apiV1DrawGameRoomRoomIdPlayersGet(roomId: string, playerId?: string, options?: RawAxiosRequestConfig) {
+  public apiV1DrawGameRoomRoomIdPlayersGet(
+    roomId: string,
+    playerId?: string,
+    options?: RawAxiosRequestConfig,
+  ) {
     return DrawGameApiFp(this.configuration)
       .apiV1DrawGameRoomRoomIdPlayersGet(roomId, playerId, options)
       .then((request) => request(this.axios, this.basePath));
@@ -2528,8 +2686,16 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        requestBody,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2567,8 +2733,16 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        requestBody,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2606,8 +2780,16 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        requestBody,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2645,7 +2827,11 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
       localVarRequestOptions.data = serializeDataIfNeeded(
         updateQuestionBulkItem,
         localVarRequestOptions,
@@ -2686,7 +2872,11 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
       localVarRequestOptions.data = serializeDataIfNeeded(
         bulkCreateQuestionsRequest,
         localVarRequestOptions,
@@ -2765,7 +2955,11 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2778,10 +2972,16 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsIdDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+    apiV1QuestionsIdDelete: async (
+      id: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuestionsIdDelete", "id", id);
-      const localVarPath = `/api/v1/Questions/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
+      const localVarPath = `/api/v1/Questions/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -2798,7 +2998,11 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2811,10 +3015,16 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsIdGet: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+    apiV1QuestionsIdGet: async (
+      id: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuestionsIdGet", "id", id);
-      const localVarPath = `/api/v1/Questions/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
+      const localVarPath = `/api/v1/Questions/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -2831,7 +3041,11 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -2864,7 +3078,10 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuestionsIdPut", "id", id);
-      const localVarPath = `/api/v1/Questions/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
+      const localVarPath = `/api/v1/Questions/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -2912,7 +3129,11 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -2996,7 +3217,11 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -3010,7 +3235,10 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsQuizQuizIdGet: async (quizId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+    apiV1QuestionsQuizQuizIdGet: async (
+      quizId: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
       // verify required parameter 'quizId' is not null or undefined
       assertParamExists("apiV1QuestionsQuizQuizIdGet", "quizId", quizId);
       const localVarPath = `/api/v1/Questions/quiz/{quizId}`.replace(
@@ -3033,7 +3261,11 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -3059,11 +3291,18 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsBatchByQuizzesPost(
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoIEnumerableApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchByQuizzesPost(requestBody, options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoIEnumerableApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchByQuizzesPost(
+        requestBody,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBatchByQuizzesPost"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBatchByQuizzesPost"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3081,11 +3320,18 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsBatchCountsPost(
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GuidInt32DictionaryApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchCountsPost(requestBody, options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<GuidInt32DictionaryApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchCountsPost(
+        requestBody,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBatchCountsPost"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBatchCountsPost"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3104,10 +3350,14 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchDelete(requestBody, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchDelete(
+        requestBody,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBatchDelete"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBatchDelete"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3125,11 +3375,17 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsBatchPut(
       updateQuestionBulkItem: Array<UpdateQuestionBulkItem>,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoIEnumerableApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchPut(updateQuestionBulkItem, options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoIEnumerableApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBatchPut(
+        updateQuestionBulkItem,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBatchPut"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBatchPut"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3147,14 +3403,20 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsBulkPost(
       bulkCreateQuestionsRequest?: BulkCreateQuestionsRequest,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BulkCreateQuestionsResponseApiResponse>> {
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<BulkCreateQuestionsResponseApiResponse>
+    > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsBulkPost(
         bulkCreateQuestionsRequest,
         options,
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsBulkPost"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsBulkPost"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3184,7 +3446,12 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
       pageSize?: number,
       cursor?: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoPagedResponseApiResponse>> {
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<QuestionDtoPagedResponseApiResponse>
+    > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsGet(
         quizId,
         search,
@@ -3219,7 +3486,8 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsIdDelete(id, options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsIdDelete"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsIdDelete"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3351,11 +3619,18 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
     async apiV1QuestionsQuizQuizIdGet(
       quizId: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoIEnumerableApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsQuizQuizIdGet(quizId, options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionDtoIEnumerableApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuestionsQuizQuizIdGet(
+        quizId,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuestionsApi.apiV1QuestionsQuizQuizIdGet"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuestionsApi.apiV1QuestionsQuizQuizIdGet"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -3371,7 +3646,11 @@ export const QuestionsApiFp = function (configuration?: Configuration) {
  * QuestionsApi - factory interface
  * @export
  */
-export const QuestionsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+export const QuestionsApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
   const localVarFp = QuestionsApiFp(configuration);
   return {
     /**
@@ -3398,7 +3677,9 @@ export const QuestionsApiFactory = function (configuration?: Configuration, base
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<GuidInt32DictionaryApiResponse> {
-      return localVarFp.apiV1QuestionsBatchCountsPost(requestBody, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1QuestionsBatchCountsPost(requestBody, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -3410,7 +3691,9 @@ export const QuestionsApiFactory = function (configuration?: Configuration, base
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp.apiV1QuestionsBatchDelete(requestBody, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1QuestionsBatchDelete(requestBody, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -3463,7 +3746,16 @@ export const QuestionsApiFactory = function (configuration?: Configuration, base
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuestionDtoPagedResponseApiResponse> {
       return localVarFp
-        .apiV1QuestionsGet(quizId, search, questionType, sortBy, isDescending, pageSize, cursor, options)
+        .apiV1QuestionsGet(
+          quizId,
+          search,
+          questionType,
+          sortBy,
+          isDescending,
+          pageSize,
+          cursor,
+          options,
+        )
         .then((request) => request(axios, basePath));
     },
     /**
@@ -3472,8 +3764,13 @@ export const QuestionsApiFactory = function (configuration?: Configuration, base
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsIdDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<BooleanApiResponse> {
-      return localVarFp.apiV1QuestionsIdDelete(id, options).then((request) => request(axios, basePath));
+    apiV1QuestionsIdDelete(
+      id: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<BooleanApiResponse> {
+      return localVarFp
+        .apiV1QuestionsIdDelete(id, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -3481,8 +3778,13 @@ export const QuestionsApiFactory = function (configuration?: Configuration, base
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuestionsIdGet(id: string, options?: RawAxiosRequestConfig): AxiosPromise<QuestionDtoApiResponse> {
-      return localVarFp.apiV1QuestionsIdGet(id, options).then((request) => request(axios, basePath));
+    apiV1QuestionsIdGet(
+      id: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<QuestionDtoApiResponse> {
+      return localVarFp
+        .apiV1QuestionsIdGet(id, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -3570,7 +3872,9 @@ export const QuestionsApiFactory = function (configuration?: Configuration, base
       quizId: string,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuestionDtoIEnumerableApiResponse> {
-      return localVarFp.apiV1QuestionsQuizQuizIdGet(quizId, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1QuestionsQuizQuizIdGet(quizId, options)
+        .then((request) => request(axios, basePath));
     },
   };
 };
@@ -3589,7 +3893,10 @@ export class QuestionsApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuestionsApi
    */
-  public apiV1QuestionsBatchByQuizzesPost(requestBody: Array<string>, options?: RawAxiosRequestConfig) {
+  public apiV1QuestionsBatchByQuizzesPost(
+    requestBody: Array<string>,
+    options?: RawAxiosRequestConfig,
+  ) {
     return QuestionsApiFp(this.configuration)
       .apiV1QuestionsBatchByQuizzesPost(requestBody, options)
       .then((request) => request(this.axios, this.basePath));
@@ -3602,7 +3909,10 @@ export class QuestionsApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuestionsApi
    */
-  public apiV1QuestionsBatchCountsPost(requestBody: Array<string>, options?: RawAxiosRequestConfig) {
+  public apiV1QuestionsBatchCountsPost(
+    requestBody: Array<string>,
+    options?: RawAxiosRequestConfig,
+  ) {
     return QuestionsApiFp(this.configuration)
       .apiV1QuestionsBatchCountsPost(requestBody, options)
       .then((request) => request(this.axios, this.basePath));
@@ -3677,7 +3987,16 @@ export class QuestionsApi extends BaseAPI {
     options?: RawAxiosRequestConfig,
   ) {
     return QuestionsApiFp(this.configuration)
-      .apiV1QuestionsGet(quizId, search, questionType, sortBy, isDescending, pageSize, cursor, options)
+      .apiV1QuestionsGet(
+        quizId,
+        search,
+        questionType,
+        sortBy,
+        isDescending,
+        pageSize,
+        cursor,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -3838,8 +4157,16 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        requestBody,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -3877,8 +4204,16 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        requestBody,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -3890,7 +4225,9 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesCategoriesCountsGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+    apiV1QuizzesCategoriesCountsGet: async (
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/Quizzes/categories/counts`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3908,7 +4245,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -3953,7 +4294,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4033,7 +4378,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4046,10 +4395,16 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesIdDelete: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+    apiV1QuizzesIdDelete: async (
+      id: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuizzesIdDelete", "id", id);
-      const localVarPath = `/api/v1/Quizzes/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
+      const localVarPath = `/api/v1/Quizzes/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -4066,7 +4421,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4079,10 +4438,16 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesIdGet: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+    apiV1QuizzesIdGet: async (
+      id: string,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuizzesIdGet", "id", id);
-      const localVarPath = `/api/v1/Quizzes/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
+      const localVarPath = `/api/v1/Quizzes/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -4099,7 +4464,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4132,7 +4501,10 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists("apiV1QuizzesIdPut", "id", id);
-      const localVarPath = `/api/v1/Quizzes/{id}`.replace(`{${"id"}}`, encodeURIComponent(String(id)));
+      const localVarPath = `/api/v1/Quizzes/{id}`.replace(
+        `{${"id"}}`,
+        encodeURIComponent(String(id)),
+      );
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -4180,7 +4552,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -4261,7 +4637,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4338,7 +4718,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -4352,7 +4736,10 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesPublicGet: async (limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+    apiV1QuizzesPublicGet: async (
+      limit?: number,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
       const localVarPath = `/api/v1/Quizzes/public`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4374,7 +4761,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4420,7 +4811,11 @@ export const QuizzesApiAxiosParamCreator = function (configuration?: Configurati
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4447,10 +4842,14 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesBatchDelete(requestBody, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesBatchDelete(
+        requestBody,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesBatchDelete"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesBatchDelete"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4468,8 +4867,13 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
     async apiV1QuizzesBatchPost(
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizDtoIEnumerableApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesBatchPost(requestBody, options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizDtoIEnumerableApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesBatchPost(
+        requestBody,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["QuizzesApi.apiV1QuizzesBatchPost"]?.[localVarOperationServerIndex]?.url;
@@ -4488,11 +4892,16 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
      */
     async apiV1QuizzesCategoriesCountsGet(
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringInt32DictionaryApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesCategoriesCountsGet(options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringInt32DictionaryApiResponse>
+    > {
+      const localVarAxiosArgs =
+        await localVarAxiosParamCreator.apiV1QuizzesCategoriesCountsGet(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesCategoriesCountsGet"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesCategoriesCountsGet"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4512,7 +4921,12 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       category: string,
       limit?: number,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>> {
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>
+    > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesCategoryCategoryGet(
         category,
         limit,
@@ -4520,7 +4934,9 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["QuizzesApi.apiV1QuizzesCategoryCategoryGet"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["QuizzesApi.apiV1QuizzesCategoryCategoryGet"]?.[
+          localVarOperationServerIndex
+        ]?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -4552,7 +4968,12 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       pageSize?: number,
       cursor?: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoPagedResponseApiResponse>> {
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<QuizSummaryDtoPagedResponseApiResponse>
+    > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesGet(
         search,
         category,
@@ -4688,7 +5109,12 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       pageSize?: number,
       cursor?: string,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoPagedResponseApiResponse>> {
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<QuizSummaryDtoPagedResponseApiResponse>
+    > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesMyGet(
         search,
         category,
@@ -4763,8 +5189,16 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
     async apiV1QuizzesPublicGet(
       limit?: number,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesPublicGet(limit, options);
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesPublicGet(
+        limit,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["QuizzesApi.apiV1QuizzesPublicGet"]?.[localVarOperationServerIndex]?.url;
@@ -4787,8 +5221,17 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
       q: string,
       limit?: number,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesSearchGet(q, limit, options);
+    ): Promise<
+      (
+        axios?: AxiosInstance,
+        basePath?: string,
+      ) => AxiosPromise<QuizSummaryDtoIEnumerableApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1QuizzesSearchGet(
+        q,
+        limit,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["QuizzesApi.apiV1QuizzesSearchGet"]?.[localVarOperationServerIndex]?.url;
@@ -4807,7 +5250,11 @@ export const QuizzesApiFp = function (configuration?: Configuration) {
  * QuizzesApi - factory interface
  * @export
  */
-export const QuizzesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+export const QuizzesApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
   const localVarFp = QuizzesApiFp(configuration);
   return {
     /**
@@ -4820,7 +5267,9 @@ export const QuizzesApiFactory = function (configuration?: Configuration, basePa
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<BooleanApiResponse> {
-      return localVarFp.apiV1QuizzesBatchDelete(requestBody, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1QuizzesBatchDelete(requestBody, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -4832,15 +5281,21 @@ export const QuizzesApiFactory = function (configuration?: Configuration, basePa
       requestBody: Array<string>,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizDtoIEnumerableApiResponse> {
-      return localVarFp.apiV1QuizzesBatchPost(requestBody, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1QuizzesBatchPost(requestBody, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesCategoriesCountsGet(options?: RawAxiosRequestConfig): AxiosPromise<StringInt32DictionaryApiResponse> {
-      return localVarFp.apiV1QuizzesCategoriesCountsGet(options).then((request) => request(axios, basePath));
+    apiV1QuizzesCategoriesCountsGet(
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<StringInt32DictionaryApiResponse> {
+      return localVarFp
+        .apiV1QuizzesCategoriesCountsGet(options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -4883,7 +5338,17 @@ export const QuizzesApiFactory = function (configuration?: Configuration, basePa
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizSummaryDtoPagedResponseApiResponse> {
       return localVarFp
-        .apiV1QuizzesGet(search, category, isPublic, creatorId, sortBy, isDescending, pageSize, cursor, options)
+        .apiV1QuizzesGet(
+          search,
+          category,
+          isPublic,
+          creatorId,
+          sortBy,
+          isDescending,
+          pageSize,
+          cursor,
+          options,
+        )
         .then((request) => request(axios, basePath));
     },
     /**
@@ -4892,8 +5357,13 @@ export const QuizzesApiFactory = function (configuration?: Configuration, basePa
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesIdDelete(id: string, options?: RawAxiosRequestConfig): AxiosPromise<BooleanApiResponse> {
-      return localVarFp.apiV1QuizzesIdDelete(id, options).then((request) => request(axios, basePath));
+    apiV1QuizzesIdDelete(
+      id: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<BooleanApiResponse> {
+      return localVarFp
+        .apiV1QuizzesIdDelete(id, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -4901,7 +5371,10 @@ export const QuizzesApiFactory = function (configuration?: Configuration, basePa
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1QuizzesIdGet(id: string, options?: RawAxiosRequestConfig): AxiosPromise<QuizDtoApiResponse> {
+    apiV1QuizzesIdGet(
+      id: string,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<QuizDtoApiResponse> {
       return localVarFp.apiV1QuizzesIdGet(id, options).then((request) => request(axios, basePath));
     },
     /**
@@ -4967,7 +5440,17 @@ export const QuizzesApiFactory = function (configuration?: Configuration, basePa
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizSummaryDtoPagedResponseApiResponse> {
       return localVarFp
-        .apiV1QuizzesMyGet(search, category, isPublic, creatorId, sortBy, isDescending, pageSize, cursor, options)
+        .apiV1QuizzesMyGet(
+          search,
+          category,
+          isPublic,
+          creatorId,
+          sortBy,
+          isDescending,
+          pageSize,
+          cursor,
+          options,
+        )
         .then((request) => request(axios, basePath));
     },
     /**
@@ -4993,7 +5476,16 @@ export const QuizzesApiFactory = function (configuration?: Configuration, basePa
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizDtoApiResponse> {
       return localVarFp
-        .apiV1QuizzesPost(title, description, thumbnail, isPublic, category, tags, estimatedDurationMinutes, options)
+        .apiV1QuizzesPost(
+          title,
+          description,
+          thumbnail,
+          isPublic,
+          category,
+          tags,
+          estimatedDurationMinutes,
+          options,
+        )
         .then((request) => request(axios, basePath));
     },
     /**
@@ -5006,7 +5498,9 @@ export const QuizzesApiFactory = function (configuration?: Configuration, basePa
       limit?: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizSummaryDtoIEnumerableApiResponse> {
-      return localVarFp.apiV1QuizzesPublicGet(limit, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1QuizzesPublicGet(limit, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -5020,7 +5514,9 @@ export const QuizzesApiFactory = function (configuration?: Configuration, basePa
       limit?: number,
       options?: RawAxiosRequestConfig,
     ): AxiosPromise<QuizSummaryDtoIEnumerableApiResponse> {
-      return localVarFp.apiV1QuizzesSearchGet(q, limit, options).then((request) => request(axios, basePath));
+      return localVarFp
+        .apiV1QuizzesSearchGet(q, limit, options)
+        .then((request) => request(axios, basePath));
     },
   };
 };
@@ -5078,7 +5574,11 @@ export class QuizzesApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof QuizzesApi
    */
-  public apiV1QuizzesCategoryCategoryGet(category: string, limit?: number, options?: RawAxiosRequestConfig) {
+  public apiV1QuizzesCategoryCategoryGet(
+    category: string,
+    limit?: number,
+    options?: RawAxiosRequestConfig,
+  ) {
     return QuizzesApiFp(this.configuration)
       .apiV1QuizzesCategoryCategoryGet(category, limit, options)
       .then((request) => request(this.axios, this.basePath));
@@ -5110,7 +5610,17 @@ export class QuizzesApi extends BaseAPI {
     options?: RawAxiosRequestConfig,
   ) {
     return QuizzesApiFp(this.configuration)
-      .apiV1QuizzesGet(search, category, isPublic, creatorId, sortBy, isDescending, pageSize, cursor, options)
+      .apiV1QuizzesGet(
+        search,
+        category,
+        isPublic,
+        creatorId,
+        sortBy,
+        isDescending,
+        pageSize,
+        cursor,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -5166,7 +5676,17 @@ export class QuizzesApi extends BaseAPI {
     options?: RawAxiosRequestConfig,
   ) {
     return QuizzesApiFp(this.configuration)
-      .apiV1QuizzesIdPut(id, title, description, thumbnail, isPublic, category, tags, estimatedDurationMinutes, options)
+      .apiV1QuizzesIdPut(
+        id,
+        title,
+        description,
+        thumbnail,
+        isPublic,
+        category,
+        tags,
+        estimatedDurationMinutes,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -5196,7 +5716,17 @@ export class QuizzesApi extends BaseAPI {
     options?: RawAxiosRequestConfig,
   ) {
     return QuizzesApiFp(this.configuration)
-      .apiV1QuizzesMyGet(search, category, isPublic, creatorId, sortBy, isDescending, pageSize, cursor, options)
+      .apiV1QuizzesMyGet(
+        search,
+        category,
+        isPublic,
+        creatorId,
+        sortBy,
+        isDescending,
+        pageSize,
+        cursor,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -5224,7 +5754,16 @@ export class QuizzesApi extends BaseAPI {
     options?: RawAxiosRequestConfig,
   ) {
     return QuizzesApiFp(this.configuration)
-      .apiV1QuizzesPost(title, description, thumbnail, isPublic, category, tags, estimatedDurationMinutes, options)
+      .apiV1QuizzesPost(
+        title,
+        description,
+        thumbnail,
+        isPublic,
+        category,
+        tags,
+        estimatedDurationMinutes,
+        options,
+      )
       .then((request) => request(this.axios, this.basePath));
   }
 
@@ -5285,7 +5824,11 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -5298,7 +5841,10 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1UsersAvatarPost: async (avatar: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+    apiV1UsersAvatarPost: async (
+      avatar: File,
+      options: RawAxiosRequestConfig = {},
+    ): Promise<RequestArgs> => {
       // verify required parameter 'avatar' is not null or undefined
       assertParamExists("apiV1UsersAvatarPost", "avatar", avatar);
       const localVarPath = `/api/v1/Users/avatar`;
@@ -5325,7 +5871,11 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
       localVarRequestOptions.data = localVarFormParams;
 
       return {
@@ -5362,8 +5912,16 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(changePasswordRequest, localVarRequestOptions, configuration);
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
+      localVarRequestOptions.data = serializeDataIfNeeded(
+        changePasswordRequest,
+        localVarRequestOptions,
+        configuration,
+      );
 
       return {
         url: toPathString(localVarUrlObj),
@@ -5393,7 +5951,11 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
 
       return {
         url: toPathString(localVarUrlObj),
@@ -5429,7 +5991,11 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.headers = {
+        ...localVarHeaderParameter,
+        ...headersFromBaseOptions,
+        ...options.headers,
+      };
       localVarRequestOptions.data = serializeDataIfNeeded(
         updateUserProfileRequest,
         localVarRequestOptions,
@@ -5480,8 +6046,13 @@ export const UsersApiFp = function (configuration?: Configuration) {
     async apiV1UsersAvatarPost(
       avatar: File,
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImageResponseApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersAvatarPost(avatar, options);
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<ImageResponseApiResponse>
+    > {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersAvatarPost(
+        avatar,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["UsersApi.apiV1UsersAvatarPost"]?.[localVarOperationServerIndex]?.url;
@@ -5509,7 +6080,8 @@ export const UsersApiFp = function (configuration?: Configuration) {
       );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
-        operationServerMap["UsersApi.apiV1UsersChangePasswordPost"]?.[localVarOperationServerIndex]?.url;
+        operationServerMap["UsersApi.apiV1UsersChangePasswordPost"]?.[localVarOperationServerIndex]
+          ?.url;
       return (axios, basePath) =>
         createRequestFunction(
           localVarAxiosArgs,
@@ -5525,7 +6097,9 @@ export const UsersApiFp = function (configuration?: Configuration) {
      */
     async apiV1UsersProfileGet(
       options?: RawAxiosRequestConfig,
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserProfileDtoApiResponse>> {
+    ): Promise<
+      (axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserProfileDtoApiResponse>
+    > {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersProfileGet(options);
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
@@ -5548,7 +6122,10 @@ export const UsersApiFp = function (configuration?: Configuration) {
       updateUserProfileRequest?: UpdateUserProfileRequest,
       options?: RawAxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BooleanApiResponse>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersProfilePut(updateUserProfileRequest, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1UsersProfilePut(
+        updateUserProfileRequest,
+        options,
+      );
       const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
       const localVarOperationServerBasePath =
         operationServerMap["UsersApi.apiV1UsersProfilePut"]?.[localVarOperationServerIndex]?.url;
@@ -5567,7 +6144,11 @@ export const UsersApiFp = function (configuration?: Configuration) {
  * UsersApi - factory interface
  * @export
  */
-export const UsersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+export const UsersApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance,
+) {
   const localVarFp = UsersApiFp(configuration);
   return {
     /**
@@ -5584,8 +6165,13 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    apiV1UsersAvatarPost(avatar: File, options?: RawAxiosRequestConfig): AxiosPromise<ImageResponseApiResponse> {
-      return localVarFp.apiV1UsersAvatarPost(avatar, options).then((request) => request(axios, basePath));
+    apiV1UsersAvatarPost(
+      avatar: File,
+      options?: RawAxiosRequestConfig,
+    ): AxiosPromise<ImageResponseApiResponse> {
+      return localVarFp
+        .apiV1UsersAvatarPost(avatar, options)
+        .then((request) => request(axios, basePath));
     },
     /**
      *
@@ -5665,7 +6251,10 @@ export class UsersApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UsersApi
    */
-  public apiV1UsersChangePasswordPost(changePasswordRequest?: ChangePasswordRequest, options?: RawAxiosRequestConfig) {
+  public apiV1UsersChangePasswordPost(
+    changePasswordRequest?: ChangePasswordRequest,
+    options?: RawAxiosRequestConfig,
+  ) {
     return UsersApiFp(this.configuration)
       .apiV1UsersChangePasswordPost(changePasswordRequest, options)
       .then((request) => request(this.axios, this.basePath));
@@ -5690,7 +6279,10 @@ export class UsersApi extends BaseAPI {
    * @throws {RequiredError}
    * @memberof UsersApi
    */
-  public apiV1UsersProfilePut(updateUserProfileRequest?: UpdateUserProfileRequest, options?: RawAxiosRequestConfig) {
+  public apiV1UsersProfilePut(
+    updateUserProfileRequest?: UpdateUserProfileRequest,
+    options?: RawAxiosRequestConfig,
+  ) {
     return UsersApiFp(this.configuration)
       .apiV1UsersProfilePut(updateUserProfileRequest, options)
       .then((request) => request(this.axios, this.basePath));

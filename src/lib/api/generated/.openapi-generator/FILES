@@ -4,7 +4,6 @@ api.ts
 base.ts
 common.ts
 configuration.ts
-docs/AdminDatabaseSeedingApi.md
 docs/AuthApi.md
 docs/AuthResponse.md
 docs/AuthResponseApiResponse.md

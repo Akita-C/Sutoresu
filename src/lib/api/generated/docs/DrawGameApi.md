@@ -26,11 +26,23 @@ const apiInstance = new DrawGameApi(configuration);
 let roomName: string; // (optional) (default to undefined)
 let configMaxPlayers: number; // (optional) (default to undefined)
 let configMaxRoundPerPlayers: number; // (optional) (default to undefined)
+let configDrawingDurationSeconds: number; // (optional) (default to undefined)
+let configGuessingDurationSeconds: number; // (optional) (default to undefined)
+let configRevealDurationSeconds: number; // (optional) (default to undefined)
+let configWordRevealIntervalSeconds: number; // (optional) (default to undefined)
+let configMaxWordRevealPercentage: number; // (optional) (default to undefined)
+let configEnableWordReveal: boolean; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.apiV1DrawGameCreatePost(
     roomName,
     configMaxPlayers,
-    configMaxRoundPerPlayers
+    configMaxRoundPerPlayers,
+    configDrawingDurationSeconds,
+    configGuessingDurationSeconds,
+    configRevealDurationSeconds,
+    configWordRevealIntervalSeconds,
+    configMaxWordRevealPercentage,
+    configEnableWordReveal
 );
 ```
 
@@ -41,6 +53,12 @@ const { status, data } = await apiInstance.apiV1DrawGameCreatePost(
 | **roomName** | [**string**] |  | (optional) defaults to undefined|
 | **configMaxPlayers** | [**number**] |  | (optional) defaults to undefined|
 | **configMaxRoundPerPlayers** | [**number**] |  | (optional) defaults to undefined|
+| **configDrawingDurationSeconds** | [**number**] |  | (optional) defaults to undefined|
+| **configGuessingDurationSeconds** | [**number**] |  | (optional) defaults to undefined|
+| **configRevealDurationSeconds** | [**number**] |  | (optional) defaults to undefined|
+| **configWordRevealIntervalSeconds** | [**number**] |  | (optional) defaults to undefined|
+| **configMaxWordRevealPercentage** | [**number**] |  | (optional) defaults to undefined|
+| **configEnableWordReveal** | [**boolean**] |  | (optional) defaults to undefined|
 
 
 ### Return type

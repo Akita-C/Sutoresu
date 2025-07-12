@@ -8,7 +8,11 @@ export class DrawService extends BaseService {
 
   constructor() {
     super();
-    this.drawApi = new DrawGameApi(apiClient.getConfiguration(), undefined, apiClient.getAxiosInstance());
+    this.drawApi = new DrawGameApi(
+      apiClient.getConfiguration(),
+      undefined,
+      apiClient.getAxiosInstance(),
+    );
   }
 
   async createDrawRoom(request: CreateDrawRoomRequest): Promise<ServiceResponse<string>> {
@@ -17,6 +21,12 @@ export class DrawService extends BaseService {
         request.roomName,
         request.config.maxPlayers,
         request.config.maxRoundPerPlayers,
+        request.config.drawingDurationSeconds,
+        request.config.guessingDurationSeconds,
+        request.config.revealDurationSeconds,
+        request.config.wordRevealIntervalSeconds,
+        request.config.maxWordRevealPercentage,
+        request.config.enableWordReveal,
       );
 
       if (response.data.success && response.data.data) {
@@ -44,13 +54,19 @@ export class DrawService extends BaseService {
           response.data.message || "Draw room fetched successfully",
         );
       }
-      return this.createErrorResponse(response.data.message || "Failed to get draw room", response.data.errors || []);
+      return this.createErrorResponse(
+        response.data.message || "Failed to get draw room",
+        response.data.errors || [],
+      );
     } catch (error) {
       return this.handleError(error, "Failed to get draw room");
     }
   }
 
-  async getDrawRoomPlayers(playerId: string, roomId: string): Promise<ServiceResponse<DrawPlayer[]>> {
+  async getDrawRoomPlayers(
+    playerId: string,
+    roomId: string,
+  ): Promise<ServiceResponse<DrawPlayer[]>> {
     try {
       const response = await this.drawApi.apiV1DrawGameRoomRoomIdPlayersGet(roomId, playerId);
       if (response.data.success && response.data.data) {
