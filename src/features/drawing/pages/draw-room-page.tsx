@@ -18,6 +18,7 @@ import DrawDrawingRoomChatbox from "../components/draw-drawing-room-chatbox";
 import GuessWord from "../components/guess-word";
 import DrawingPlayerList from "../components/drawing-player-list";
 import GameInfoBar from "../components/timer/game-info-bar";
+import FinishedChart from "../components/charts/finished-chart";
 
 interface DrawRoomPageProps {
   roomId: string;
@@ -235,6 +236,12 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
               />
             </aside>
           </div>
+        </div>
+      )}
+
+      {phase === "finished" && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <FinishedChart />
         </div>
       )}
     </>
