@@ -1,12 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import z from "zod";
-import { useCreateDrawRoomMutation } from "../hooks/use-draw-mutations";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreateDrawRoomRequest } from "../types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import z from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -15,18 +18,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { Clock, Loader2, Users, GamepadIcon, Timer } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Separator } from "@/components/ui/separator";
+import { Clock, GamepadIcon, Loader2, Timer, Users } from "lucide-react";
+import { CreateDrawRoomRequest } from "../../types";
 
-const createRoomSchema = z.object({
-  roomName: z
-    .string()
-    .min(1, "Room name is required")
-    .min(3, "Room name must be less than 3 characters")
-    .max(50, "Room name must be less than 50 characters"),
+const rematchConfigSchema = z.object({
   maxPlayers: z.number().min(2, "Minimum 2 players").max(10, "Maximum 10 players"),
   maxRoundPerPlayers: z
     .number()
@@ -37,78 +35,60 @@ const createRoomSchema = z.object({
   revealDurationSeconds: z.number().min(10, "Minimum 10 seconds").max(60, "Maximum 60 seconds"),
   maxWordRevealPercentage: z.number().min(0, "Minimum 0%").max(1, "Maximum 100%"),
 });
-type CreateRoomSchema = z.infer<typeof createRoomSchema>;
 
-export default function DrawCreateForm() {
-  const router = useRouter();
-  const { mutate: createDrawRoom, isPending } = useCreateDrawRoomMutation();
+type RematchConfigSchema = z.infer<typeof rematchConfigSchema>;
 
-  const form = useForm<CreateRoomSchema>({
-    resolver: zodResolver(createRoomSchema),
+interface RematchConfigDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (config: CreateDrawRoomRequest["config"]) => void;
+  isLoading?: boolean;
+}
+
+export default function RematchConfigDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+  isLoading = false,
+}: RematchConfigDialogProps) {
+  const form = useForm<RematchConfigSchema>({
+    resolver: zodResolver(rematchConfigSchema),
     defaultValues: {
-      roomName: "",
-      maxPlayers: 2,
-      maxRoundPerPlayers: 1,
-      drawingDurationSeconds: 30,
-      guessingDurationSeconds: 20,
-      revealDurationSeconds: 10,
+      maxPlayers: 4,
+      maxRoundPerPlayers: 2,
+      drawingDurationSeconds: 60,
+      guessingDurationSeconds: 40,
+      revealDurationSeconds: 15,
       maxWordRevealPercentage: 0.6,
     },
   });
 
-  const onSubmit = (data: CreateRoomSchema) => {
-    const request: CreateDrawRoomRequest = {
-      roomName: data.roomName,
-      config: {
-        maxPlayers: data.maxPlayers,
-        maxRoundPerPlayers: data.maxRoundPerPlayers,
-        drawingDurationSeconds: data.drawingDurationSeconds,
-        guessingDurationSeconds: data.guessingDurationSeconds,
-        revealDurationSeconds: data.revealDurationSeconds,
-        maxWordRevealPercentage: data.maxWordRevealPercentage,
-        wordRevealIntervalSeconds: 5, // Temp: Default value
-        enableWordReveal: true, // Temp: Default value
-      },
+  const handleSubmit = (data: RematchConfigSchema) => {
+    const config: CreateDrawRoomRequest["config"] = {
+      maxPlayers: data.maxPlayers,
+      maxRoundPerPlayers: data.maxRoundPerPlayers,
+      drawingDurationSeconds: data.drawingDurationSeconds,
+      guessingDurationSeconds: data.guessingDurationSeconds,
+      revealDurationSeconds: data.revealDurationSeconds,
+      maxWordRevealPercentage: data.maxWordRevealPercentage,
+      wordRevealIntervalSeconds: 5,
+      enableWordReveal: true,
     };
 
-    createDrawRoom(request, {
-      onSuccess: (response) => {
-        if (response.success && response.data) {
-          router.push(`/draw/room/${response.data}`);
-        }
-      },
-    });
+    onSubmit(config);
   };
 
   return (
-    <Card className="min-w-[500px]">
-      <CardHeader>
-        <CardTitle>Room Settings</CardTitle>
-        <CardDescription>Set up your drawing room with custom settings</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-xl">🎮 Rematch Settings</DialogTitle>
+          <DialogDescription>Configure the settings for your rematch game</DialogDescription>
+        </DialogHeader>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Section 1: Room Name */}
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="roomName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Room Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter room name" {...field} disabled={isPending} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <Separator />
-
-            {/* Section 2: Round Settings */}
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {/* Section 1: Round Settings */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <GamepadIcon className="w-5 h-5" />
@@ -132,7 +112,7 @@ export default function DrawCreateForm() {
                           step={1}
                           value={[field.value]}
                           onValueChange={(value) => field.onChange(value[0])}
-                          disabled={isPending}
+                          disabled={isLoading}
                           className="w-full"
                         />
                       </FormControl>
@@ -161,7 +141,7 @@ export default function DrawCreateForm() {
                           step={1}
                           value={[field.value]}
                           onValueChange={(value) => field.onChange(value[0])}
-                          disabled={isPending}
+                          disabled={isLoading}
                           className="w-full"
                         />
                       </FormControl>
@@ -187,7 +167,7 @@ export default function DrawCreateForm() {
                           step={0.1}
                           value={[field.value]}
                           onValueChange={(value) => field.onChange(value[0])}
-                          disabled={isPending}
+                          disabled={isLoading}
                           className="w-full"
                         />
                       </FormControl>
@@ -204,7 +184,7 @@ export default function DrawCreateForm() {
 
             <Separator />
 
-            {/* Section 3: Time Settings */}
+            {/* Section 2: Time Settings */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <Timer className="w-5 h-5" />
@@ -225,7 +205,7 @@ export default function DrawCreateForm() {
                           step={10}
                           value={[field.value]}
                           onValueChange={(value) => field.onChange(value[0])}
-                          disabled={isPending}
+                          disabled={isLoading}
                           className="w-full"
                         />
                       </FormControl>
@@ -251,7 +231,7 @@ export default function DrawCreateForm() {
                           step={10}
                           value={[field.value]}
                           onValueChange={(value) => field.onChange(value[0])}
-                          disabled={isPending}
+                          disabled={isLoading}
                           className="w-full"
                         />
                       </FormControl>
@@ -277,7 +257,7 @@ export default function DrawCreateForm() {
                           step={5}
                           value={[field.value]}
                           onValueChange={(value) => field.onChange(value[0])}
-                          disabled={isPending}
+                          disabled={isLoading}
                           className="w-full"
                         />
                       </FormControl>
@@ -292,26 +272,30 @@ export default function DrawCreateForm() {
               </div>
             </div>
 
-            <div className="flex justify-center pt-4">
+            {/* Footer Buttons */}
+            <div className="flex justify-end gap-3 pt-4">
               <Button
+                type="button"
                 variant="outline"
-                type="submit"
-                disabled={isPending}
-                className="w-full h-10 gap-2 px-6 py-4 text-base hover:scale-105 transition-all duration-200 shadow-md cursor-pointer"
+                onClick={() => onOpenChange(false)}
+                disabled={isLoading}
               >
-                {isPending ? (
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading} className="gap-2">
+                {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating Room...
+                    Starting Rematch...
                   </>
                 ) : (
-                  "Create Room"
+                  "Start Rematch"
                 )}
               </Button>
             </div>
           </form>
         </Form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

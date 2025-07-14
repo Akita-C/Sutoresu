@@ -125,6 +125,7 @@ export const useDrawGameHub = ({
     SendDrawAction: server.SendDrawAction,
     StartRound: server.StartRound,
     SendGuessMessage: server.SendGuessMessage,
+    RequestRematch: server.RequestRematch,
     // Event handlers
     registerEvents,
     unregisterEvents,

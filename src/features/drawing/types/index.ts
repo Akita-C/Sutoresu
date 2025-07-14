@@ -107,6 +107,7 @@ export interface DrawGameHubContract {
     StartRound(roomId: string): Promise<void>;
     SendDrawAction(roomId: string, action: DrawAction): Promise<void>;
     SendGuessMessage(roomId: string, message: string): Promise<void>;
+    RequestRematch(roomId: string, newConfig?: CreateDrawRoomRequest["config"]): Promise<void>;
   };
   client: {
     JoinRoom(player: DrawPlayer): void;
@@ -123,6 +124,11 @@ export interface DrawGameHubContract {
     WordRevealed(word: WordRevealedEvent): void;
     GuessMessageWrongReceived(playerId: string, message: string): void;
     GuessMessageCorrectReceived(playerId: string, newScore: number): void;
+    RematchRoomCreated(
+      roomId: string,
+      hostName: string,
+      config: CreateDrawRoomRequest["config"],
+    ): void;
   };
 }
 

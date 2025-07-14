@@ -1,15 +1,18 @@
-import SpringButton from "@/components/common/spring-button/spring-button";
 import ShinyText from "@/components/react-bits/ShinyText/ShinyText";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Medal, RotateCcw, Star, Trophy, Users } from "lucide-react";
+import { Crown, DoorOpen, Loader2, Medal, RotateCcw, Star, Trophy, Users } from "lucide-react";
 import PlayerAvatar from "../player-avatar";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Cell } from "recharts";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import { useDrawGameStore } from "../../stores/draw-game-store";
+import { useRouter } from "next/navigation";
+import { CreateDrawRoomRequest } from "../../types";
+import { toast } from "sonner";
+import RematchConfigDialog from "../dialogs/rematch-config-dialog";
 
 const chartConfig = {
   score: {
@@ -60,8 +63,16 @@ const getRankBadgeProps = (rank: number) => {
   }
 };
 
-export default function FinishedChart() {
+interface FinishedChartProps {
+  roomId: string;
+  requestRematch: (roomId: string, newConfig?: CreateDrawRoomRequest["config"]) => Promise<void>;
+}
+
+export default function FinishedChart({ roomId, requestRematch }: FinishedChartProps) {
   const { playerScores } = useDrawGameStore();
+  const router = useRouter();
+  const [isRematchDialogOpen, setIsRematchDialogOpen] = useState(false);
+  const [isRequestingRematch, setIsRequestingRematch] = useState(false);
 
   const sortedPlayerScores = [...playerScores].sort((a, b) => b.score - a.score);
   const top3Players = sortedPlayerScores.slice(0, 3);
@@ -94,6 +105,43 @@ export default function FinishedChart() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  const handlePlayAgain = async () => {
+    if (!roomId) {
+      toast.error("Room ID not available");
+      return;
+    }
+
+    try {
+      setIsRequestingRematch(true);
+      await requestRematch(roomId, undefined);
+      toast.success("Rematch requested successfully!");
+    } catch (error) {
+      toast.error("Failed to request rematch");
+      console.error("Rematch error:", error);
+    } finally {
+      setIsRequestingRematch(false);
+    }
+  };
+
+  const handleRematchWithConfig = async (newConfig: CreateDrawRoomRequest["config"]) => {
+    if (!roomId) {
+      toast.error("Room ID not available");
+      return;
+    }
+
+    try {
+      setIsRequestingRematch(true);
+      await requestRematch(roomId, newConfig);
+      toast.success("Rematch with new config requested successfully!");
+      setIsRematchDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to request rematch with new config");
+      console.error("Rematch with config error:", error);
+    } finally {
+      setIsRequestingRematch(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-5xl mx-auto p-4">
@@ -214,17 +262,46 @@ export default function FinishedChart() {
           <Button
             variant="outline"
             size="lg"
-            className="gap-2 px-6 py-4 text-base font-semibold border-2 hover:scale-105 transition-all duration-200 shadow-md"
+            className="gap-2 px-6 py-4 text-base font-semibold border-2 hover:scale-105 transition-all duration-200 shadow-md cursor-pointer"
+            onClick={handlePlayAgain}
+            disabled={isRequestingRematch || !roomId}
           >
-            <RotateCcw className="w-4 h-4" />
+            {isRequestingRematch ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <RotateCcw className="size-4" />
+            )}
             Play Again
           </Button>
-          <SpringButton className="gap-2 px-6 py-4 text-base font-semibold shadow-md">
-            <Users className="w-4 h-4" />
-            Return to Lobby
-          </SpringButton>
+          <Button
+            variant="outline"
+            size="lg"
+            className="gap-2 px-6 py-4 text-base font-semibold border-2 hover:scale-105 transition-all duration-200 shadow-md cursor-pointer"
+            onClick={() => setIsRematchDialogOpen(true)}
+            disabled={isRequestingRematch || !roomId}
+          >
+            <RotateCcw className="size-4" />
+            Play Again With Different Config
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="gap-2 px-6 py-4 text-base font-semibold border-2 hover:scale-105 transition-all duration-200 shadow-md cursor-pointer"
+            onClick={() => {
+              router.push("/draw/create");
+            }}
+          >
+            <DoorOpen className="size-4" />
+            Return to create room
+          </Button>
         </div>
       </div>
+      <RematchConfigDialog
+        open={isRematchDialogOpen}
+        onOpenChange={setIsRematchDialogOpen}
+        onSubmit={handleRematchWithConfig}
+        isLoading={isRequestingRematch}
+      />
     </div>
   );
 }

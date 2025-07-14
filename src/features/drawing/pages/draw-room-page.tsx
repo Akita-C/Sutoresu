@@ -19,6 +19,7 @@ import GuessWord from "../components/guess-word";
 import DrawingPlayerList from "../components/drawing-player-list";
 import GameInfoBar from "../components/timer/game-info-bar";
 import FinishedChart from "../components/charts/finished-chart";
+import { useRouter } from "next/navigation";
 
 interface DrawRoomPageProps {
   roomId: string;
@@ -28,6 +29,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
   const { user } = useAuth();
   const [myConnectionId, setMyConnectionId] = useState<string | null>(null);
   const canvasRef = useRef<DrawingCanvasRef>(null);
+  const router = useRouter();
 
   const { players, room, isLoading } = useDrawRoomData(user?.id, roomId, myConnectionId);
   const {
@@ -37,6 +39,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     StartRound,
     SendDrawAction,
     SendGuessMessage,
+    RequestRematch,
     registerEvents,
     unregisterEvents,
     isConnected,
@@ -46,7 +49,8 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       toast.error(error.message);
     },
   });
-  const { addPlayer, removePlayer } = useDrawCacheUpdater(roomId, user?.id);
+  const { addPlayer, removePlayer, invalidateRoomCache, invalidatePlayersCache } =
+    useDrawCacheUpdater(roomId, user?.id);
   const {
     phase,
     playerHearts,
@@ -59,6 +63,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     handleGuessMessage,
     setPlayerScores,
     setCurrentWord,
+    reset,
   } = useDrawGameStore();
 
   useEffect(() => {
@@ -106,6 +111,12 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       },
       onGuessMessageCorrectReceived(playerId, newScore) {
         handleGuessMessage({ playerId, type: "correct", newScore });
+      },
+      onRematchRoomCreated(roomId) {
+        reset();
+        invalidateRoomCache();
+        invalidatePlayersCache();
+        router.push(`/draw/room/${roomId}`);
       },
     });
   }, [isConnected]);
@@ -233,7 +244,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
 
       {phase === "finished" && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <FinishedChart />
+          <FinishedChart roomId={roomId} requestRematch={RequestRematch} />
         </div>
       )}
     </>
