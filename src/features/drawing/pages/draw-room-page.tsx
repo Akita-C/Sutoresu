@@ -70,6 +70,9 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
     if (!isConnected) return;
 
     registerEvents({
+      onNotifyAccessDenied() {
+        toast.error("You are not allowed to join this room");
+      },
       onJoinRoom(drawPlayer) {
         setMyConnectionId(drawPlayer.connectionId);
         addPlayer(drawPlayer);

@@ -110,6 +110,7 @@ export interface DrawGameHubContract {
     RequestRematch(roomId: string, newConfig?: CreateDrawRoomRequest["config"]): Promise<void>;
   };
   client: {
+    NotifyAccessDenied(): void;
     JoinRoom(player: DrawPlayer): void;
     LeaveRoom(): void;
     UserJoined(player: DrawPlayer): void;
