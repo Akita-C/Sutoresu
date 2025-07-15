@@ -5,54 +5,9 @@ export type DrawAction = {
   data: ActionData;
 };
 
-export type DrawActionType =
-  | "Stroke"
-  | "Shape"
-  | "Clear"
-  | "Undo"
-  | "Redo"
-  | "LiveStrokeStart"
-  | "LiveStrokeMove"
-  | "LiveStrokeEnd"
-  | "LiveShapeStart"
-  | "LiveShapeMove"
-  | "LiveShapeEnd";
+export type DrawActionType = "Stroke" | "Shape" | "Clear" | "Undo" | "Redo";
 
-export type ActionData =
-  | StrokeActionData
-  | ShapeActionData
-  | UndoRedoActionData
-  | LiveStrokeStartData
-  | LiveStrokeMoveData
-  | LiveShapeStartData
-  | LiveShapeMoveData;
-
-export interface LiveStrokeStartData {
-  x: number;
-  y: number;
-  color: string;
-  width: number;
-  tool: "brush" | "eraser";
-}
-
-export interface LiveStrokeMoveData {
-  x: number;
-  y: number;
-}
-
-export interface LiveShapeStartData {
-  shapeType: "rectangle" | "circle" | "line";
-  startX: number;
-  startY: number;
-  color: string;
-  strokeWidth: number;
-}
-
-export interface LiveShapeMoveData {
-  shapeType: "rectangle" | "circle" | "line";
-  currentX: number;
-  currentY: number;
-}
+export type ActionData = StrokeActionData | ShapeActionData | UndoRedoActionData;
 
 export interface StrokeActionData {
   path: string;
