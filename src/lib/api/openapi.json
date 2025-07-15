@@ -383,6 +383,9 @@
                   "RoomName": {
                     "type": "string"
                   },
+                  "Theme": {
+                    "type": "string"
+                  },
                   "Config.MaxPlayers": {
                     "type": "integer",
                     "format": "int32"
@@ -418,6 +421,9 @@
               },
               "encoding": {
                 "RoomName": {
+                  "style": "form"
+                },
+                "Theme": {
                   "style": "form"
                 },
                 "Config.MaxPlayers": {
@@ -3015,6 +3021,10 @@
             "format": "uuid"
           },
           "roomName": {
+            "type": "string",
+            "nullable": true
+          },
+          "theme": {
             "type": "string",
             "nullable": true
           },

@@ -19,6 +19,7 @@ export class DrawService extends BaseService {
     try {
       const response = await this.drawApi.apiV1DrawGameCreatePost(
         request.roomName,
+        request.theme,
         request.config.maxPlayers,
         request.config.maxRoundPerPlayers,
         request.config.drawingDurationSeconds,

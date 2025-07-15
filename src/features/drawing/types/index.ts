@@ -2,6 +2,7 @@ import { DrawAction } from "./draw-action";
 
 export type CreateDrawRoomRequest = {
   roomName: string;
+  theme: string;
   config: {
     maxPlayers: number;
     maxRoundPerPlayers: number;
@@ -27,6 +28,7 @@ export type DrawPlayer = DrawPlayerJoinRequest & {
 export interface DrawRoom {
   roomId: string;
   roomName: string;
+  theme: string;
   host: { hostId: string; hostName: string };
   config: {
     maxPlayers: number;

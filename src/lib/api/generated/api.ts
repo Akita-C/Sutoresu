@@ -401,6 +401,12 @@ export interface DrawRoom {
   roomName?: string | null;
   /**
    *
+   * @type {string}
+   * @memberof DrawRoom
+   */
+  theme?: string | null;
+  /**
+   *
    * @type {DrawHost}
    * @memberof DrawRoom
    */
@@ -2163,6 +2169,7 @@ export const DrawGameApiAxiosParamCreator = function (configuration?: Configurat
     /**
      *
      * @param {string} [roomName]
+     * @param {string} [theme]
      * @param {number} [configMaxPlayers]
      * @param {number} [configMaxRoundPerPlayers]
      * @param {number} [configDrawingDurationSeconds]
@@ -2176,6 +2183,7 @@ export const DrawGameApiAxiosParamCreator = function (configuration?: Configurat
      */
     apiV1DrawGameCreatePost: async (
       roomName?: string,
+      theme?: string,
       configMaxPlayers?: number,
       configMaxRoundPerPlayers?: number,
       configDrawingDurationSeconds?: number,
@@ -2204,6 +2212,10 @@ export const DrawGameApiAxiosParamCreator = function (configuration?: Configurat
 
       if (roomName !== undefined) {
         localVarFormParams.append("RoomName", roomName as any);
+      }
+
+      if (theme !== undefined) {
+        localVarFormParams.append("Theme", theme as any);
       }
 
       if (configMaxPlayers !== undefined) {
@@ -2374,6 +2386,7 @@ export const DrawGameApiFp = function (configuration?: Configuration) {
     /**
      *
      * @param {string} [roomName]
+     * @param {string} [theme]
      * @param {number} [configMaxPlayers]
      * @param {number} [configMaxRoundPerPlayers]
      * @param {number} [configDrawingDurationSeconds]
@@ -2387,6 +2400,7 @@ export const DrawGameApiFp = function (configuration?: Configuration) {
      */
     async apiV1DrawGameCreatePost(
       roomName?: string,
+      theme?: string,
       configMaxPlayers?: number,
       configMaxRoundPerPlayers?: number,
       configDrawingDurationSeconds?: number,
@@ -2399,6 +2413,7 @@ export const DrawGameApiFp = function (configuration?: Configuration) {
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GuidApiResponse>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.apiV1DrawGameCreatePost(
         roomName,
+        theme,
         configMaxPlayers,
         configMaxRoundPerPlayers,
         configDrawingDurationSeconds,
@@ -2496,6 +2511,7 @@ export const DrawGameApiFactory = function (
     /**
      *
      * @param {string} [roomName]
+     * @param {string} [theme]
      * @param {number} [configMaxPlayers]
      * @param {number} [configMaxRoundPerPlayers]
      * @param {number} [configDrawingDurationSeconds]
@@ -2509,6 +2525,7 @@ export const DrawGameApiFactory = function (
      */
     apiV1DrawGameCreatePost(
       roomName?: string,
+      theme?: string,
       configMaxPlayers?: number,
       configMaxRoundPerPlayers?: number,
       configDrawingDurationSeconds?: number,
@@ -2522,6 +2539,7 @@ export const DrawGameApiFactory = function (
       return localVarFp
         .apiV1DrawGameCreatePost(
           roomName,
+          theme,
           configMaxPlayers,
           configMaxRoundPerPlayers,
           configDrawingDurationSeconds,
@@ -2577,6 +2595,7 @@ export class DrawGameApi extends BaseAPI {
   /**
    *
    * @param {string} [roomName]
+   * @param {string} [theme]
    * @param {number} [configMaxPlayers]
    * @param {number} [configMaxRoundPerPlayers]
    * @param {number} [configDrawingDurationSeconds]
@@ -2591,6 +2610,7 @@ export class DrawGameApi extends BaseAPI {
    */
   public apiV1DrawGameCreatePost(
     roomName?: string,
+    theme?: string,
     configMaxPlayers?: number,
     configMaxRoundPerPlayers?: number,
     configDrawingDurationSeconds?: number,
@@ -2604,6 +2624,7 @@ export class DrawGameApi extends BaseAPI {
     return DrawGameApiFp(this.configuration)
       .apiV1DrawGameCreatePost(
         roomName,
+        theme,
         configMaxPlayers,
         configMaxRoundPerPlayers,
         configDrawingDurationSeconds,

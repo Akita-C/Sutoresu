@@ -24,6 +24,7 @@ const configuration = new Configuration();
 const apiInstance = new DrawGameApi(configuration);
 
 let roomName: string; // (optional) (default to undefined)
+let theme: string; // (optional) (default to undefined)
 let configMaxPlayers: number; // (optional) (default to undefined)
 let configMaxRoundPerPlayers: number; // (optional) (default to undefined)
 let configDrawingDurationSeconds: number; // (optional) (default to undefined)
@@ -35,6 +36,7 @@ let configEnableWordReveal: boolean; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.apiV1DrawGameCreatePost(
     roomName,
+    theme,
     configMaxPlayers,
     configMaxRoundPerPlayers,
     configDrawingDurationSeconds,
@@ -51,6 +53,7 @@ const { status, data } = await apiInstance.apiV1DrawGameCreatePost(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **roomName** | [**string**] |  | (optional) defaults to undefined|
+| **theme** | [**string**] |  | (optional) defaults to undefined|
 | **configMaxPlayers** | [**number**] |  | (optional) defaults to undefined|
 | **configMaxRoundPerPlayers** | [**number**] |  | (optional) defaults to undefined|
 | **configDrawingDurationSeconds** | [**number**] |  | (optional) defaults to undefined|
