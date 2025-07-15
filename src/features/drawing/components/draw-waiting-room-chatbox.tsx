@@ -41,7 +41,10 @@ export default function DrawWaitingRoomChatbox({
           <div className="space-y-4 pb-4">
             {messages.map((message, index) => (
               <div
-                className={cn("flex items-center gap-3", message.senderId === myId ? "flex-row-reverse" : "flex-row")}
+                className={cn(
+                  "flex items-center gap-3",
+                  message.senderId === myId ? "flex-row-reverse" : "flex-row",
+                )}
                 key={index}
               >
                 <PlayerAvatar src={"temp"} fallback="temp" className="size-14" />
