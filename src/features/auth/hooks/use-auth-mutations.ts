@@ -8,10 +8,15 @@ import { useRouter } from "next/navigation";
 export const useLoginMutation = () => {
   const queryClient = useQueryClient();
   const { setAuth, clearAuth } = useAuthActions();
-  const router = useRouter();
 
   return useMutation({
-    mutationFn: (credentials: LoginRequest) => authService.login(credentials),
+    mutationFn: async (credentials: LoginRequest) => {
+      const response = await authService.login(credentials);
+
+      if (!response.success) throw new Error(response.message || "Login failed");
+
+      return response;
+    },
     onSuccess: (response) => {
       if (response.success && response.data) {
         const { accessToken, refreshToken, user } = response.data;
@@ -20,7 +25,6 @@ export const useLoginMutation = () => {
           setAuth({ user, accessToken, refreshToken });
           toast.success("Welcome back!");
           queryClient.setQueryData(["user", "profile"], user);
-          router.push("/dashboard");
         }
       } else {
         clearAuth();
@@ -29,7 +33,6 @@ export const useLoginMutation = () => {
     },
     onError: (error) => {
       clearAuth();
-      toast.error("Login failed");
       console.error("Login error:", error);
     },
   });
@@ -69,13 +72,8 @@ export const useLogoutMutation = () => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: ({
-      accessToken,
-      refreshToken,
-    }: {
-      accessToken: string;
-      refreshToken: string;
-    }) => authService.logout(accessToken, refreshToken),
+    mutationFn: ({ accessToken, refreshToken }: { accessToken: string; refreshToken: string }) =>
+      authService.logout(accessToken, refreshToken),
     onSuccess: () => {
       clearAuth();
 
@@ -84,7 +82,7 @@ export const useLogoutMutation = () => {
 
       toast.success("Logout successful");
 
-      router.push("/login");
+      router.push("/");
     },
     onError: (error) => {
       // Clear auth even if API call fails
@@ -94,7 +92,7 @@ export const useLogoutMutation = () => {
       toast.error("Logout completed");
       console.error("Logout error:", error);
 
-      router.push("/login");
+      router.push("/");
     },
   });
 };
@@ -103,8 +101,7 @@ export const useRefreshTokenMutation = () => {
   const { updateTokens, clearAuth } = useAuthActions();
 
   return useMutation({
-    mutationFn: (refreshToken: string) =>
-      authService.refreshToken(refreshToken),
+    mutationFn: (refreshToken: string) => authService.refreshToken(refreshToken),
     onSuccess: (response) => {
       if (response.success && response.data) {
         const { accessToken, refreshToken } = response.data;

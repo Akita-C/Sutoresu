@@ -69,9 +69,7 @@ export function PasswordChangeForm() {
 
       // Reset form on success
       form.reset();
-      setSuccessMessage(
-        "Password changed successfully! You will be logged out for security.",
-      );
+      setSuccessMessage("Password changed successfully! You will be logged out for security.");
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (error) {
       console.error("Password change failed:", error);
@@ -88,8 +86,8 @@ export function PasswordChangeForm() {
           <h3 className="font-medium">Change Password</h3>
         </div>
         <p className="text-sm text-muted-foreground">
-          Update your password to keep your account secure. You will be logged
-          out after changing your password.
+          Update your password to keep your account secure. You will be logged out after changing
+          your password.
         </p>
       </div>
 
@@ -98,8 +96,7 @@ export function PasswordChangeForm() {
           {changePasswordMutation.error && (
             <Alert variant="destructive">
               <AlertDescription>
-                {changePasswordMutation.error.message ||
-                  "Failed to change password"}
+                {changePasswordMutation.error.message || "Failed to change password"}
               </AlertDescription>
             </Alert>
           )}
@@ -129,9 +126,7 @@ export function PasswordChangeForm() {
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() =>
-                        setShowCurrentPassword(!showCurrentPassword)
-                      }
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                       disabled={isSubmitting}
                     >
                       {showCurrentPassword ? (
@@ -201,9 +196,7 @@ export function PasswordChangeForm() {
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       disabled={isSubmitting}
                     >
                       {showConfirmPassword ? (
@@ -222,6 +215,7 @@ export function PasswordChangeForm() {
           <div className="flex justify-end pt-4">
             <Button
               type="submit"
+              variant="outline"
               disabled={isSubmitting || !form.formState.isValid}
               className="min-w-[140px]"
             >

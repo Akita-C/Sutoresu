@@ -70,8 +70,7 @@ export function ProfileEditForm({ user }: ProfileEditFormProps) {
           {updateProfileMutation.error && (
             <Alert variant="destructive">
               <AlertDescription>
-                {updateProfileMutation.error.message ||
-                  "Failed to update profile"}
+                {updateProfileMutation.error.message || "Failed to update profile"}
               </AlertDescription>
             </Alert>
           )}
@@ -89,11 +88,7 @@ export function ProfileEditForm({ user }: ProfileEditFormProps) {
               <FormItem>
                 <FormLabel>Full Name</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Enter your full name"
-                    {...field}
-                    disabled={isSubmitting}
-                  />
+                  <Input placeholder="Enter your full name" {...field} disabled={isSubmitting} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -104,14 +99,14 @@ export function ProfileEditForm({ user }: ProfileEditFormProps) {
             <FormLabel>Email Address</FormLabel>
             <Input value={user.email || ""} disabled className="bg-muted" />
             <p className="text-sm text-muted-foreground">
-              Email cannot be changed. Contact support if you need to update
-              your email address.
+              Email cannot be changed. Contact support if you need to update your email address.
             </p>
           </div>
 
           <div className="flex justify-end">
             <Button
               type="submit"
+              variant="outline"
               disabled={!isDirty || isSubmitting}
               className="min-w-[120px]"
             >
