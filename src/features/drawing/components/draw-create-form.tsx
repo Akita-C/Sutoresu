@@ -31,22 +31,7 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-
-const THEMES = [
-  "Custom",
-  "General",
-  "Animals",
-  "Food",
-  "Countries",
-  "Movies",
-  "Sports",
-  "Valorant",
-  "League of Legends Champions",
-  "Anime Characters",
-  "Household Items",
-  "Vehicles",
-  "Nature",
-];
+import { THEMES } from "../types/constants";
 
 const createRoomSchema = z
   .object({
@@ -113,8 +98,6 @@ export default function DrawCreateForm() {
 
   const onSubmit = (data: CreateRoomSchema) => {
     const finalTheme = data.theme === "Custom" ? data.customTheme?.trim() : data.theme;
-
-    console.log(finalTheme);
 
     const request: CreateDrawRoomRequest = {
       roomName: data.roomName,

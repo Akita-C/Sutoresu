@@ -109,7 +109,11 @@ export interface DrawGameHubContract {
     StartRound(roomId: string): Promise<void>;
     SendDrawAction(roomId: string, action: DrawAction): Promise<void>;
     SendGuessMessage(roomId: string, message: string): Promise<void>;
-    RequestRematch(roomId: string, newConfig?: CreateDrawRoomRequest["config"]): Promise<void>;
+    RequestRematch(
+      roomId: string,
+      theme?: string,
+      newConfig?: CreateDrawRoomRequest["config"],
+    ): Promise<void>;
   };
   client: {
     NotifyAccessDenied(): void;

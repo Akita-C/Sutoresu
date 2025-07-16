@@ -65,7 +65,11 @@ const getRankBadgeProps = (rank: number) => {
 
 interface FinishedChartProps {
   roomId: string;
-  requestRematch: (roomId: string, newConfig?: CreateDrawRoomRequest["config"]) => Promise<void>;
+  requestRematch: (
+    roomId: string,
+    theme?: string,
+    newConfig?: CreateDrawRoomRequest["config"],
+  ) => Promise<void>;
 }
 
 export default function FinishedChart({ roomId, requestRematch }: FinishedChartProps) {
@@ -114,7 +118,7 @@ export default function FinishedChart({ roomId, requestRematch }: FinishedChartP
 
     try {
       setIsRequestingRematch(true);
-      await requestRematch(roomId, undefined);
+      await requestRematch(roomId, undefined, undefined);
       toast.success("Rematch requested successfully!");
     } catch (error) {
       toast.error("Failed to request rematch");
@@ -124,7 +128,10 @@ export default function FinishedChart({ roomId, requestRematch }: FinishedChartP
     }
   };
 
-  const handleRematchWithConfig = async (newConfig: CreateDrawRoomRequest["config"]) => {
+  const handleRematchWithConfig = async (
+    theme?: string,
+    newConfig?: CreateDrawRoomRequest["config"],
+  ) => {
     if (!roomId) {
       toast.error("Room ID not available");
       return;
@@ -132,7 +139,7 @@ export default function FinishedChart({ roomId, requestRematch }: FinishedChartP
 
     try {
       setIsRequestingRematch(true);
-      await requestRematch(roomId, newConfig);
+      await requestRematch(roomId, theme, newConfig);
       toast.success("Rematch with new config requested successfully!");
       setIsRematchDialogOpen(false);
     } catch (error) {

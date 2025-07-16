@@ -21,27 +21,55 @@ import {
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import { Clock, GamepadIcon, Loader2, Timer, Users } from "lucide-react";
+import { Check, ChevronsUpDown, Clock, GamepadIcon, Loader2, Timer, Users } from "lucide-react";
 import { CreateDrawRoomRequest } from "../../types";
+import { useState } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { THEMES } from "../../types/constants";
+import { Input } from "@/components/ui/input";
 
-const rematchConfigSchema = z.object({
-  maxPlayers: z.number().min(2, "Minimum 2 players").max(10, "Maximum 10 players"),
-  maxRoundPerPlayers: z
-    .number()
-    .min(1, "Minimum 1 round per player")
-    .max(4, "Maximum 4 rounds per player"),
-  drawingDurationSeconds: z.number().min(30, "Minimum 30 seconds").max(180, "Maximum 180 seconds"),
-  guessingDurationSeconds: z.number().min(20, "Minimum 20 seconds").max(120, "Maximum 120 seconds"),
-  revealDurationSeconds: z.number().min(10, "Minimum 10 seconds").max(60, "Maximum 60 seconds"),
-  maxWordRevealPercentage: z.number().min(0, "Minimum 0%").max(1, "Maximum 100%"),
-});
+const rematchConfigSchema = z
+  .object({
+    maxPlayers: z.number().min(2, "Minimum 2 players").max(10, "Maximum 10 players"),
+    maxRoundPerPlayers: z
+      .number()
+      .min(1, "Minimum 1 round per player")
+      .max(4, "Maximum 4 rounds per player"),
+    drawingDurationSeconds: z
+      .number()
+      .min(30, "Minimum 30 seconds")
+      .max(180, "Maximum 180 seconds"),
+    guessingDurationSeconds: z
+      .number()
+      .min(20, "Minimum 20 seconds")
+      .max(120, "Maximum 120 seconds"),
+    revealDurationSeconds: z.number().min(10, "Minimum 10 seconds").max(60, "Maximum 60 seconds"),
+    maxWordRevealPercentage: z.number().min(0, "Minimum 0%").max(1, "Maximum 100%"),
+    theme: z.string().min(1, "Please select a theme"),
+    customTheme: z.string().optional(),
+  })
+  .refine((data) => {
+    if (data.theme === "Custom") {
+      return data.customTheme?.length && data.customTheme.length > 0;
+    }
+    return true;
+  });
 
 type RematchConfigSchema = z.infer<typeof rematchConfigSchema>;
 
 interface RematchConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (config: CreateDrawRoomRequest["config"]) => void;
+  onSubmit: (theme?: string, config?: CreateDrawRoomRequest["config"]) => void;
   isLoading?: boolean;
 }
 
@@ -51,6 +79,8 @@ export default function RematchConfigDialog({
   onSubmit,
   isLoading = false,
 }: RematchConfigDialogProps) {
+  const [themeOpen, setThemeOpen] = useState(false);
+
   const form = useForm<RematchConfigSchema>({
     resolver: zodResolver(rematchConfigSchema),
     defaultValues: {
@@ -60,10 +90,16 @@ export default function RematchConfigDialog({
       guessingDurationSeconds: 40,
       revealDurationSeconds: 15,
       maxWordRevealPercentage: 0.6,
+      theme: "",
+      customTheme: "",
     },
   });
 
+  const watchTheme = form.watch("theme");
+
   const handleSubmit = (data: RematchConfigSchema) => {
+    const theme = data.theme === "Custom" ? data.customTheme : data.theme;
+
     const config: CreateDrawRoomRequest["config"] = {
       maxPlayers: data.maxPlayers,
       maxRoundPerPlayers: data.maxRoundPerPlayers,
@@ -75,7 +111,7 @@ export default function RematchConfigDialog({
       enableWordReveal: true,
     };
 
-    onSubmit(config);
+    onSubmit(theme, config);
   };
 
   return (
@@ -88,6 +124,94 @@ export default function RematchConfigDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {/* Theme */}
+            <FormField
+              control={form.control}
+              name="theme"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Theme</FormLabel>
+                  <Popover open={themeOpen} onOpenChange={setThemeOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={themeOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground",
+                          )}
+                          disabled={isLoading}
+                        >
+                          {field.value || "Select theme..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search themes..." />
+                        <CommandList>
+                          <CommandEmpty>No theme found.</CommandEmpty>
+                          <CommandGroup>
+                            {THEMES.map((theme) => (
+                              <CommandItem
+                                key={theme}
+                                value={theme}
+                                onSelect={() => {
+                                  field.onChange(theme);
+                                  setThemeOpen(false);
+                                  if (theme !== "Custom") {
+                                    form.setValue("customTheme", "");
+                                  }
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === theme ? "opacity-100" : "opacity-0",
+                                  )}
+                                />
+                                {theme}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Custom Theme */}
+            {watchTheme === "Custom" && (
+              <FormField
+                control={form.control}
+                name="customTheme"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Custom Theme</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your custom theme (e.g., Space, Pokémon)"
+                        {...field}
+                        value={field.value || ""}
+                        disabled={isLoading}
+                        maxLength={30}
+                      />
+                    </FormControl>
+                    <div className="text-xs text-muted-foreground">
+                      {(field.value || "").length}/30 characters
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             {/* Section 1: Round Settings */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-3">

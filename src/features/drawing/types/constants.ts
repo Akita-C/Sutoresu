@@ -1,0 +1,15 @@
+export const THEMES = [
+  "Custom",
+  "General",
+  "Animals",
+  "Food",
+  "Countries",
+  "Movies",
+  "Sports",
+  "Valorant",
+  "League of Legends Champions",
+  "Anime Characters",
+  "Household Items",
+  "Vehicles",
+  "Nature",
+];
