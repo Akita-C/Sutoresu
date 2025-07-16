@@ -55,7 +55,7 @@ const createRoomSchema = z
       .min(1, "Room name is required")
       .min(3, "Room name must be at least 3 characters")
       .max(50, "Room name must be less than 50 characters"),
-    theme: z.string().optional(), // Make theme optional
+    theme: z.string().min(1, "Please select a theme"),
     customTheme: z.string().optional(),
     maxPlayers: z.number().min(2, "Minimum 2 players").max(10, "Maximum 10 players"),
     maxRoundPerPlayers: z
@@ -113,6 +113,8 @@ export default function DrawCreateForm() {
 
   const onSubmit = (data: CreateRoomSchema) => {
     const finalTheme = data.theme === "Custom" ? data.customTheme?.trim() : data.theme;
+
+    console.log(finalTheme);
 
     const request: CreateDrawRoomRequest = {
       roomName: data.roomName,

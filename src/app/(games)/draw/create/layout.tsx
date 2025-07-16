@@ -16,7 +16,7 @@ export default function Layout({ children }: PropsWithChildren) {
           hoverFillColor="#fff"
           className="relative"
         />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2">{children}</div>
+        <div className="absolute top-1/6 left-1/2 -translate-x-1/2">{children}</div>
       </div>
     </AuthGuard>
   );

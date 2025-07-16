@@ -66,7 +66,7 @@ export function UserProfileSheet({ isOpen, onClose }: UserProfileSheetProps) {
           <Card className="bg-card/40">
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
-                <Avatar className="h-20 w-20">
+                <Avatar className="size-20">
                   <AvatarImage src={avatarUrl} alt={user.name || "User"} className="object-cover" />
                   <AvatarFallback className="bg-primary text-white text-lg font-medium">
                     {initials}
