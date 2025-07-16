@@ -16,10 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import {
-  useUpdateAvatarMutation,
-  useDeleteAvatarMutation,
-} from "@/features/users";
+import { useUpdateAvatarMutation, useDeleteAvatarMutation } from "@/features/users";
 import { UserProfileDto } from "@/lib/api";
 import { getInitials } from "@/lib/utils";
 
@@ -38,8 +35,7 @@ export function AvatarUploadForm({ user }: AvatarUploadFormProps) {
   const deleteAvatarMutation = useDeleteAvatarMutation();
 
   const initials = getInitials(user.name || "");
-  const currentAvatarUrl =
-    user.avatarTransformations?.medium || user.avatarUrl || "";
+  const currentAvatarUrl = user.avatarTransformations?.medium || user.avatarUrl || "";
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -72,13 +68,16 @@ export function AvatarUploadForm({ user }: AvatarUploadFormProps) {
     if (!selectedFile) return;
 
     try {
-      await updateAvatarMutation.mutateAsync(selectedFile);
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      await updateAvatarMutation.mutateAsync(selectedFile, {
+        onSuccess: () => {
+          setSelectedFile(null);
+          setPreviewUrl(null);
+          // Reset file input
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+        },
+      });
     } catch (error) {
       console.error("Avatar upload failed:", error);
     }
@@ -134,9 +133,7 @@ export function AvatarUploadForm({ user }: AvatarUploadFormProps) {
           <p className="text-sm text-muted-foreground">
             Recommended: Square image, at least 300x300 pixels
           </p>
-          <p className="text-xs text-muted-foreground">
-            Maximum file size: 5MB
-          </p>
+          <p className="text-xs text-muted-foreground">Maximum file size: 5MB</p>
         </div>
       </div>
 
@@ -173,6 +170,7 @@ export function AvatarUploadForm({ user }: AvatarUploadFormProps) {
       {selectedFile && (
         <div className="flex gap-2 justify-center">
           <Button
+            variant="outline"
             onClick={handleUpload}
             disabled={isUploading}
             className="min-w-[100px]"
@@ -189,11 +187,7 @@ export function AvatarUploadForm({ user }: AvatarUploadFormProps) {
               </>
             )}
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isUploading}
-          >
+          <Button variant="outline" onClick={handleCancel} disabled={isUploading}>
             Cancel
           </Button>
         </div>
@@ -212,8 +206,8 @@ export function AvatarUploadForm({ user }: AvatarUploadFormProps) {
               <DialogHeader>
                 <DialogTitle>Remove Avatar</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to remove your profile picture? This
-                  action cannot be undone.
+                  Are you sure you want to remove your profile picture? This action cannot be
+                  undone.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
@@ -224,11 +218,7 @@ export function AvatarUploadForm({ user }: AvatarUploadFormProps) {
                 >
                   Cancel
                 </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                >
+                <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
                   {isDeleting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

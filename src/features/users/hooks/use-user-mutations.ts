@@ -8,8 +8,7 @@ export const useUpdateProfileMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: UpdateUserProfileRequest) =>
-      userService.updateProfile(request),
+    mutationFn: (request: UpdateUserProfileRequest) => userService.updateProfile(request),
     onSuccess: (response) => {
       if (response.success) {
         toast.success(response.message || "Profile updated successfully");
@@ -29,14 +28,10 @@ export const useChangePasswordMutation = () => {
   const { clearAuth } = useAuthActions();
 
   return useMutation({
-    mutationFn: (request: ChangePasswordRequest) =>
-      userService.changePassword(request),
+    mutationFn: (request: ChangePasswordRequest) => userService.changePassword(request),
     onSuccess: (response) => {
       if (response.success) {
-        toast.success(
-          response.message ||
-            "Password changed successfully. Please login again.",
-        );
+        toast.success(response.message || "Password changed successfully. Please login again.");
         // Clear auth after password change for security
         clearAuth();
       } else {
@@ -58,7 +53,7 @@ export const useUpdateAvatarMutation = () => {
     onSuccess: (response) => {
       if (response.success) {
         toast.success(response.message || "Avatar updated successfully");
-        queryClient.invalidateQueries({ queryKey: ["user", "profile"] });
+        queryClient.invalidateQueries({ queryKey: ["user", "profile"], refetchType: "all" });
       } else {
         toast.error(response.message || "Failed to update avatar");
       }

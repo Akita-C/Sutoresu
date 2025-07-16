@@ -11,6 +11,8 @@ export const useProfileQuery = () => {
     queryFn: async () => {
       const response = await userService.getProfile();
 
+      console.log(response);
+
       if (response.success && response.data) {
         setUser(response.data);
         return response.data;
