@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
     ],
   },
   reactStrictMode: false,
+  // Enable standalone output để tối ưu Docker image
+  output: "standalone",
 };
 
 export default nextConfig;
