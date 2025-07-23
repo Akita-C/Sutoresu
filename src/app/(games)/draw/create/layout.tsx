@@ -1,7 +1,7 @@
 "use client";
 
-import Squares from "@/components/react-bits/Squares/Squares";
-import { AuthGuard } from "@/features/auth/components/auth-guard";
+import Squares from "@/components/react-bits/Squares";
+import { AuthGuard } from "@/features/auth/components";
 import { PropsWithChildren } from "react";
 
 export default function Layout({ children }: PropsWithChildren) {

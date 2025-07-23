@@ -1,4 +1,4 @@
-import DrawCreatePage from "@/features/drawing/pages/draw-create-page";
+import { DrawCreatePage } from "@/features/drawing/pages";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

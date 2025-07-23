@@ -1,4 +1,4 @@
-import DrawRoomPage from "@/features/drawing/pages/draw-room-page";
+import { DrawRoomPage } from "@/features/drawing/pages";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -1,6 +1,6 @@
 "use client";
 
-import Squares from "@/components/react-bits/Squares/Squares";
+import Squares from "@/components/react-bits/Squares";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
