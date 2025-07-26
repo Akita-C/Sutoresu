@@ -65,7 +65,7 @@ export const useDrawGameHub = ({
     onStateChange?.(HubConnectionState.Connecting);
 
     const newConnection = new HubConnectionBuilder()
-      .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/hubs/draw-game`, {
+      .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/api/hubs/draw-game`, {
         accessTokenFactory: () => accessToken,
       })
       .withHubProtocol(new MessagePackHubProtocol())
