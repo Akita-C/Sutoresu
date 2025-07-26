@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { CreateDrawRoomRequest } from "../../types";
 import { toast } from "sonner";
 import RematchConfigDialog from "../dialogs/rematch-config-dialog";
+import { cn } from "@/lib/utils";
 
 const chartConfig = {
   score: {
@@ -70,9 +71,10 @@ interface FinishedChartProps {
     theme?: string,
     newConfig?: CreateDrawRoomRequest["config"],
   ) => Promise<void>;
+  isHost: boolean;
 }
 
-export default function FinishedChart({ roomId, requestRematch }: FinishedChartProps) {
+export default function FinishedChart({ roomId, requestRematch, isHost }: FinishedChartProps) {
   const { playerScores } = useDrawGameStore();
   const router = useRouter();
   const [isRematchDialogOpen, setIsRematchDialogOpen] = useState(false);
@@ -269,9 +271,12 @@ export default function FinishedChart({ roomId, requestRematch }: FinishedChartP
           <Button
             variant="outline"
             size="lg"
-            className="gap-2 px-6 py-4 text-base font-semibold border-2 hover:scale-105 transition-all duration-200 shadow-md cursor-pointer"
+            className={cn(
+              "gap-2 px-6 py-4 text-base font-semibold border-2 hover:scale-105 transition-all duration-200 shadow-md cursor-pointer",
+              isRequestingRematch || !roomId || !isHost ? "opacity-50 cursor-not-allowed" : "",
+            )}
             onClick={handlePlayAgain}
-            disabled={isRequestingRematch || !roomId}
+            disabled={isRequestingRematch || !roomId || !isHost}
           >
             {isRequestingRematch ? (
               <Loader2 className="size-4 animate-spin" />
@@ -283,9 +288,12 @@ export default function FinishedChart({ roomId, requestRematch }: FinishedChartP
           <Button
             variant="outline"
             size="lg"
-            className="gap-2 px-6 py-4 text-base font-semibold border-2 hover:scale-105 transition-all duration-200 shadow-md cursor-pointer"
+            className={cn(
+              "gap-2 px-6 py-4 text-base font-semibold border-2 hover:scale-105 transition-all duration-200 shadow-md cursor-pointer",
+              isRequestingRematch || !roomId || !isHost ? "opacity-50 cursor-not-allowed" : "",
+            )}
             onClick={() => setIsRematchDialogOpen(true)}
-            disabled={isRequestingRematch || !roomId}
+            disabled={isRequestingRematch || !roomId || !isHost}
           >
             <RotateCcw className="size-4" />
             Play Again With Different Config

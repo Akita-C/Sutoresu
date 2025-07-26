@@ -11,6 +11,7 @@ import { useAuthStore } from "@/features/auth";
 import { useDrawingStore } from "./drawing-store";
 
 export interface DrawGameState {
+  isCreatingRoom: boolean;
   phase: DrawGamePhase;
   waitingRoomMessages: DrawWaitingRoomMessage[];
   playerScores: PlayerScore[];
@@ -25,6 +26,7 @@ export interface DrawGameState {
 }
 
 interface DrawGameActions {
+  setIsCreatingRoom: (isCreatingRoom: boolean) => void;
   setWaitingRoomMessages: (messages: DrawWaitingRoomMessage) => void;
   startRound: (roundEvent: RoundStartedEvent) => void;
   endGame: () => void;
@@ -43,6 +45,7 @@ interface DrawGameActions {
 export const MAX_HEARTS = 3;
 
 const initialState: DrawGameState = {
+  isCreatingRoom: false,
   phase: "waiting",
   waitingRoomMessages: [],
   playerScores: [],
@@ -58,6 +61,8 @@ const initialState: DrawGameState = {
 
 export const useDrawGameStore = create<DrawGameState & DrawGameActions>((set, get) => ({
   ...initialState,
+
+  setIsCreatingRoom: (isCreatingRoom) => set({ isCreatingRoom }),
 
   setWaitingRoomMessages: (messages) =>
     set((state) => ({

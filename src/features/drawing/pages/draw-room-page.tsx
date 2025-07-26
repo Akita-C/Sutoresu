@@ -1,7 +1,5 @@
 "use client";
 
-import SpringButton from "@/components/common/spring-button/spring-button";
-import ShinyText from "@/components/react-bits/ShinyText/ShinyText";
 import { useAuth } from "@/features/auth";
 import PlayerAvatar from "@/features/drawing/components/player-avatar";
 import { useDrawRoomData } from "../hooks/use-draw-queries";
@@ -20,6 +18,10 @@ import DrawingPlayerList from "../components/drawing-player-list";
 import GameInfoBar from "../components/timer/game-info-bar";
 import FinishedChart from "../components/charts/finished-chart";
 import { useRouter } from "next/navigation";
+import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
+import { TypingAnimation } from "@/components/magicui/typing-animation";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DrawRoomPageProps {
   roomId: string;
@@ -52,6 +54,8 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
   const { addPlayer, removePlayer, invalidateRoomCache, invalidatePlayersCache } =
     useDrawCacheUpdater(roomId, user?.id);
   const {
+    isCreatingRoom,
+    setIsCreatingRoom,
     phase,
     playerHearts,
     waitingRoomMessages,
@@ -96,6 +100,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
       },
       onRoundStarted(roundEvent) {
         startRound(roundEvent);
+        setIsCreatingRoom(false);
       },
       onEndedGame() {
         endGame();
@@ -174,14 +179,7 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
               SendRoomMessage(roomId, message);
             }}
           />
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2">
-            <div className="flex justify-center items-center py-8">
-              <ShinyText
-                text={room?.roomName || "Unknown Room Name"}
-                speed={8}
-                className="font-bold text-4xl"
-              />
-            </div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="flex flex-wrap justify-center gap-4 max-w-[400px] mx-auto">
               {players && players.length > 0 ? (
                 players.map((player) => (
@@ -198,13 +196,39 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
               )}
             </div>
             <div className="flex justify-center items-center py-8">
-              <SpringButton
+              <InteractiveHoverButton
+                disabled={isCreatingRoom || players?.length === 1 || room?.host.hostId !== user?.id}
+                className={cn(
+                  isCreatingRoom || players?.length === 1 || room?.host.hostId !== user?.id
+                    ? "opacity-50 cursor-not-allowed"
+                    : "",
+                )}
                 onClick={async () => {
+                  setIsCreatingRoom(true);
                   await StartRound(roomId);
                 }}
               >
-                Start Game
-              </SpringButton>
+                {isCreatingRoom ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <p>Starting Game...</p>
+                  </div>
+                ) : (
+                  "Start Game"
+                )}
+              </InteractiveHoverButton>
+            </div>
+          </div>
+          <div className="absolute top-2 right-2">
+            <div className="flex gap-2 items-center">
+              <p className="text-sm text-muted-foreground">Room Name:</p>
+              <TypingAnimation className="text-sm">
+                {room?.roomName || "Unknown Room Name"}
+              </TypingAnimation>
+            </div>
+            <div className="flex gap-2 items-center">
+              <p className="text-sm text-muted-foreground">Room ID:</p>
+              <TypingAnimation className="text-sm">{roomId}</TypingAnimation>
             </div>
           </div>
         </>
@@ -247,7 +271,11 @@ export default function DrawRoomPage({ roomId }: DrawRoomPageProps) {
 
       {phase === "finished" && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <FinishedChart roomId={roomId} requestRematch={RequestRematch} />
+          <FinishedChart
+            roomId={roomId}
+            requestRematch={RequestRematch}
+            isHost={room?.host.hostId === user?.id}
+          />
         </div>
       )}
     </>

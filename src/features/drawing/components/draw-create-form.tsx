@@ -32,6 +32,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { THEMES } from "../types/constants";
+import { InteractiveHoverButton } from "@/components/magicui/interactive-hover-button";
 
 const createRoomSchema = z
   .object({
@@ -428,21 +429,20 @@ export default function DrawCreateForm() {
             </div>
 
             <div className="flex justify-center pt-4">
-              <Button
-                variant="outline"
+              <InteractiveHoverButton
                 type="submit"
                 disabled={isPending}
-                className="w-full h-10 gap-2 px-6 py-4 text-base hover:scale-105 transition-all duration-200 shadow-md cursor-pointer"
+                className="flex items-center justify-center w-full h-12"
               >
                 {isPending ? (
-                  <>
+                  <div className="flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating Room...
-                  </>
+                    <p>Creating Room...</p>
+                  </div>
                 ) : (
                   "Create Room"
                 )}
-              </Button>
+              </InteractiveHoverButton>
             </div>
           </form>
         </Form>

@@ -1,11 +1,14 @@
-import ShinyText from "@/components/react-bits/ShinyText/ShinyText";
 import DrawCreateForm from "../components/draw-create-form";
+import { SparklesText } from "@/components/magicui/sparkles-text";
 
 export default function DrawCreatePage() {
   return (
     <div className="grid grid-cols-2 gap-20">
-      <div className="flex justify-center items-center py-8">
-        <ShinyText text="Create Draw Room" speed={8} className="font-bold text-4xl" />
+      <div className="flex flex-col justify-center items-center py-8">
+        <SparklesText>Create Room</SparklesText>
+        <p className="text-sm text-muted-foreground">
+          Create a room to draw and guess with your friends
+        </p>
       </div>
       <DrawCreateForm />
     </div>

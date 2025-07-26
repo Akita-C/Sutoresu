@@ -6,7 +6,7 @@ import { PropsWithChildren } from "react";
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
-    <AuthGuard fallback={<div>Please login to create a draw room</div>}>
+    <AuthGuard fallback={<div></div>}>
       <div className="h-screen w-screen">
         <Squares
           speed={0.5}
