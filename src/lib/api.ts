@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { Configuration } from "./api/generated";
+import { runtimeEnv } from "./env";
 
 export interface ApiClientConfig {
   baseUrl?: string;
@@ -13,10 +14,8 @@ export class ApiClient {
 
   constructor(config: ApiClientConfig = {}) {
     this.axiosInstance = axios.create({
-      baseURL: config.baseUrl || process.env.NEXT_PUBLIC_API_URL,
-      timeout:
-        config.timeout ||
-        parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || "30000"),
+      baseURL: config.baseUrl || runtimeEnv.API_URL,
+      timeout: config.timeout || runtimeEnv.API_TIMEOUT,
       headers: {
         "Content-Type": "application/json",
       },
@@ -25,7 +24,7 @@ export class ApiClient {
     this.setupInterceptors();
 
     this.configuration = new Configuration({
-      basePath: config.baseUrl || process.env.NEXT_PUBLIC_API_URL,
+      basePath: config.baseUrl || runtimeEnv.API_URL,
     });
 
     if (config.enableLogging || process.env.NODE_ENV === "development") {
@@ -67,9 +66,7 @@ export class ApiClient {
         return response;
       },
       (error) => {
-        console.error(
-          `❌ [API] ${error.response?.status} ${error.config?.url}`,
-        );
+        console.error(`❌ [API] ${error.response?.status} ${error.config?.url}`);
         return Promise.reject(error);
       },
     );

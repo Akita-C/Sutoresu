@@ -3,6 +3,7 @@ import { HubConnection, HubConnectionBuilder, HubConnectionState } from "@micros
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DrawGameEventHandlers, DrawGameHubContract, EventHandler, SignalRMethod } from "../types";
 import { MessagePackHubProtocol } from "@microsoft/signalr-protocol-msgpack";
+import { runtimeEnv } from "@/lib/env";
 
 interface UseDrawGameHubConfig {
   autoConnect?: boolean;
@@ -65,7 +66,7 @@ export const useDrawGameHub = ({
     onStateChange?.(HubConnectionState.Connecting);
 
     const newConnection = new HubConnectionBuilder()
-      .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/api/hubs/draw-game`, {
+      .withUrl(`${runtimeEnv.API_URL}/api/hubs/draw-game`, {
         accessTokenFactory: () => accessToken,
       })
       .withHubProtocol(new MessagePackHubProtocol())
